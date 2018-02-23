@@ -1,0 +1,5 @@
+### ANY CHANGES TO THIS FILE DOES NOT REQUIRE A RESTART ###
+
+#This will create this metric in all the tiers, under this path
+metricPrefix: Custom Metrics|JMXMonitor
+
