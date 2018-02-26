@@ -46,7 +46,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
         serverName = JMXUtil.convertToString(server.get(DISPLAY_NAME), "");
 
         try {
-            logger.debug("ActiveMQ monitoring task initiated for server {}", serverName);
+            logger.debug("JMX monitoring task initiated for server {}", serverName);
             populateAndPrintStats();
 
         } catch (Exception e) {
