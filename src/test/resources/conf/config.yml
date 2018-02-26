@@ -33,11 +33,11 @@ mbeanKeys : [type,brokerName,destinationType,destinationName]
 # someone needs to configure on their own.
 mbeans:
   # This Mbean will extract out Broker metrics
-#  - objectName: "org.apache.activemq:type=Broker,brokerName=*"
-#    metrics:
-#      include:
-#        - StorePercentUsage: "StorePercentUsage"
-#        - TempPercentUsage: "TempPercentUsage"
+  - objectName: "org.apache.activemq:type=Broker,brokerName=*"
+    metrics:
+      include:
+        - StorePercentUsage: "StorePercentUsage"
+        - TempPercentUsage: "TempPercentUsage"
 #        - MemoryPercentUsage: "MemoryPercentUsage"
 #        - TotalConnectionsCount: "TotalConnectionsCount"
 #        - TotalConsumerCount: "TotalConsumerCount"
@@ -47,11 +47,11 @@ mbeans:
 #        - TotalProducerCount: "TotalProducerCount"
 #
 #  # This Mbean will extract out Queue metrics
-#  - objectName: "org.apache.activemq:type=Broker,brokerName=*,destinationType=Queue,destinationName=*"
-#    metrics:
-#      include:
-#        - AverageEnqueueTime: "AverageEnqueueTime"
-#        - ConsumerCount: "ConsumerCount"
+  - objectName: "org.apache.activemq:type=Broker,brokerName=*,destinationType=Queue,destinationName=*"
+    metrics:
+      include:
+        - AverageEnqueueTime: "AverageEnqueueTime"
+        - ConsumerCount: "ConsumerCount"
 #        - ProducerCount: "ProducerCount"
 #        - MaxEnqueueTime: "MaxEnqueueTime"
 #        - MinEnqueueTime: "MinEnqueueTime"
@@ -83,10 +83,10 @@ mbeans:
 #        - AverageMessageSize: "AverageMessageSize"
 
 
-#  - objectName: "java.lang:type=Memory"
-#    metrics:
-#      include:
-#        - HeapMemoryUsage.committed : "Heap Memory Usage|Committed"
+  - objectName: "java.lang:type=Memory"
+    metrics:
+      include:
+        - HeapMemoryUsage.committed : "Heap Memory Usage|Committed"
 #        - HeapMemoryUsage.used : "Heap Memory Usage|Used"
 #        - NonHeapMemoryUsage.committed : "Non Heap Memory Usage|Committed"
 #        - NonHeapMemoryUsage.used : "Non Heap Memory Usage|Used"
