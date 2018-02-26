@@ -26,7 +26,7 @@ numberOfThreads: 10
 #timeout for the thread
 threadTimeout: 30
 
-mbeanKeys : [type, brokerName,destinationType,destinationName ]
+mbeanKeys : [type,brokerName,destinationType,destinationName]
 
 # The configuration of different metrics from various mbeans of activemq server
 # The mbeans are already configured.This does not need to be changed unless

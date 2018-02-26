@@ -40,6 +40,8 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
     private Map server;
     private JMXConnectionAdapter jmxConnectionAdapter;
     private List<Map> configMBeans;
+    private List<String> configMBeanKeys;
+
     private String serverName;
 
     public void run() {
@@ -74,7 +76,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
 //                    Map<String, MetricProperties> metricProperties = getMapOfProperties(mBean);
                     Map<String, ? > metricProperties = getMapOfProperties(mBean);
 
-                    NodeMetricsProcessor nodeMetricsProcessor = new NodeMetricsProcessor(jmxConnectionAdapter, jmxConnector);
+                    NodeMetricsProcessor nodeMetricsProcessor = new NodeMetricsProcessor(jmxConnectionAdapter, jmxConnector,configMBeanKeys);
                     List<Metric> nodeMetrics = nodeMetricsProcessor.getNodeMetrics(mBean, metricProperties, metricPrefix);
 
                     if (nodeMetrics.size() > 0) {
@@ -125,6 +127,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
         }
         return metricPropsMap;
     }
+
     private void setProps(Map metadata, Map props) {
         if (metadata.get("multiplier") != null) {
             props.put("multiplier",metadata.get("multiplier").toString() );
@@ -198,6 +201,12 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
             task.configMBeans = mBeans;
             return this;
         }
+
+        Builder mbeanKeys(List<String> mBeanKeys) {
+            task.configMBeanKeys = mBeanKeys;
+            return this;
+        }
+
 
         JMXMonitorTask build() {
             return task;

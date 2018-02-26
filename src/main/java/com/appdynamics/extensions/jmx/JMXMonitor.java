@@ -53,7 +53,6 @@ public class JMXMonitor extends ABaseMonitor{
         if (config != null) {
             List<Map> servers = (List) config.get("servers");
             AssertUtils.assertNotNull(servers, "The 'servers' section in config.yml is not initialised");
-
             if (servers != null && !servers.isEmpty()) {
                 for (Map server : servers) {
                     try {
@@ -92,7 +91,8 @@ public class JMXMonitor extends ABaseMonitor{
                 metricPrefix(configuration.getMetricPrefix()).
                 metricWriter(taskExecutor.getMetricWriteHelper()).
                 jmxConnectionAdapter(adapter).server(server).
-                mbeans((List<Map>) configuration.getConfigYml().get("mbeans")).build();
+                mbeans((List<Map>) configuration.getConfigYml().get("mbeans")).
+                mbeanKeys((List<String>) configuration.getConfigYml().get("mbeanKeys")).build();
     }
 
     private String getPassword(Map server) {

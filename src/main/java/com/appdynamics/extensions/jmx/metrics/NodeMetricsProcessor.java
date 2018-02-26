@@ -33,10 +33,12 @@ public class NodeMetricsProcessor {
     private final MetricKeyFormatter metricKeyFormatter = new MetricKeyFormatter();
     private JMXConnectionAdapter jmxConnectionAdapter;
     private JMXConnector jmxConnector;
+    private List<String> mBeanKeys;
 
-    public NodeMetricsProcessor(JMXConnectionAdapter jmxConnectionAdapter, JMXConnector jmxConnector) {
+    public NodeMetricsProcessor(JMXConnectionAdapter jmxConnectionAdapter, JMXConnector jmxConnector, List<String> configMBeanKeys) {
         this.jmxConnectionAdapter = jmxConnectionAdapter;
         this.jmxConnector = jmxConnector;
+        this.mBeanKeys = configMBeanKeys;
     }
 
     public List<Metric> getNodeMetrics(Map mBean, Map<String, ? > metricsPropertiesMap, String metricPrefix) throws
@@ -96,13 +98,40 @@ public class NodeMetricsProcessor {
             logger.error("Could not find metric properties for {} ", attributeName);
         }
         String instanceKey = metricKeyFormatter.getInstanceKey(instance);
+
+        String testKey = getInstanceKey(instance);
+
+
         String metricPath = Strings.isNullOrEmpty(metricPrefix) ? instanceKey + attributeName : metricPrefix + "|" + instanceKey + attributeName;
         Metric current_metric = new Metric(attributeName, attributeValue.toString(), metricPath, props);
         nodeMetrics.add(current_metric);
-
     }
+
 
     private boolean isCurrentObjectComposite(Attribute attribute) {
         return attribute.getValue().getClass().equals(CompositeDataSupport.class);
     }
+
+    private ObjectName getObjectName(ObjectInstance instance) {
+        return instance.getObjectName();
+    }
+
+    private String getKeyProperty(ObjectInstance instance, String property) {
+        if (instance == null) {
+            return "";
+        }
+        return getObjectName(instance).getKeyProperty(property);
+    }
+
+    private String getInstanceKey(ObjectInstance instance){
+        StringBuilder metricsKey = new StringBuilder();
+
+        for(String key: mBeanKeys){
+            String value = getKeyProperty(instance,key);
+            metricsKey.append(Strings.isNullOrEmpty(value) ? "" : value + METRICS_SEPARATOR);
+        }
+        return metricsKey.toString();
+    }
+
+
 }
