@@ -17,12 +17,12 @@ import org.junit.Test;
  * Created by bhuvnesh.kumar on 2/23/18.
  */
 public class JMXMonitorTest {
-    @Test
-    public void test() throws TaskExecutionException {
-        JMXMonitor monitor = new JMXMonitor();
-        Map<String, String> taskArgs = Maps.newHashMap();
-        taskArgs.put("config-file", "src/test/resources/conf/config.yml");
-        monitor.execute(taskArgs, null);
-    }
+//    @Test
+//    public void test() throws TaskExecutionException {
+//        JMXMonitor monitor = new JMXMonitor();
+//        Map<String, String> taskArgs = Maps.newHashMap();
+//        taskArgs.put("config-file", "src/test/resources/conf/config.yml");
+//        monitor.execute(taskArgs, null);
+//    }
 
 }
