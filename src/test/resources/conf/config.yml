@@ -26,7 +26,6 @@ numberOfThreads: 10
 #timeout for the thread
 threadTimeout: 30
 
-mbeanKeys : [type,brokerName,destinationType,destinationName]
 
 # The configuration of different metrics from various mbeans of activemq server
 # The mbeans are already configured.This does not need to be changed unless
@@ -34,6 +33,7 @@ mbeanKeys : [type,brokerName,destinationType,destinationName]
 mbeans:
   # This Mbean will extract out Broker metrics
   - objectName: "org.apache.activemq:type=Broker,brokerName=*"
+    mbeanKeys: ["type", "brokerName"]
     metrics:
       include:
         - StorePercentUsage: "StorePercentUsage"
@@ -48,6 +48,7 @@ mbeans:
 #
 #  # This Mbean will extract out Queue metrics
   - objectName: "org.apache.activemq:type=Broker,brokerName=*,destinationType=Queue,destinationName=*"
+    mbeanKeys: ["type", "brokerName","destinationType","destinationName"]
     metrics:
       include:
         - AverageEnqueueTime: "AverageEnqueueTime"
@@ -66,6 +67,7 @@ mbeans:
 #
   # This MBean will extract out Topic metrics.
   - objectName: "org.apache.activemq:type=Broker,brokerName=*,destinationType=Topic,destinationName=*"
+    mbeanKeys: ["type", "brokerName","destinationType","destinationName"]
     metrics:
       include:
         - AverageEnqueueTime: "Average Enqueue Time"
@@ -84,6 +86,7 @@ mbeans:
 
 
   - objectName: "java.lang:type=Memory"
+    mbeanKeys: ["type"]
     metrics:
       include:
         - HeapMemoryUsage.committed : "Heap Memory Usage|Committed"

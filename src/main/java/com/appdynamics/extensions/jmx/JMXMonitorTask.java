@@ -40,7 +40,6 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
     private Map server;
     private JMXConnectionAdapter jmxConnectionAdapter;
     private List<Map> configMBeans;
-    private List<String> configMBeanKeys;
 
     private String serverName;
 
@@ -52,11 +51,11 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
             populateAndPrintStats();
 
         } catch (Exception e) {
-            logger.error("Error in ActiveMQ Monitoring Task for Server {}", serverName, e);
+            logger.error("Error in JMX Monitoring Task for Server {}", serverName, e);
             status = false;
 
         } finally {
-            logger.debug("ActiveMQ Monitoring Task Complete.");
+            logger.debug("JMX Monitoring Task Complete.");
         }
     }
 
@@ -70,14 +69,13 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
 
             for (Map mBean : configMBeans) {
                 String configObjName = JMXUtil.convertToString(mBean.get("objectName"), "");
-                logger.debug("Processing mBeam {} from the config file", configObjName);
+                logger.debug("Processing mBean {} from the config file", configObjName);
 
                 try {
-//                    Map<String, MetricProperties> metricProperties = getMapOfProperties(mBean);
                     Map<String, ? > metricProperties = getMapOfProperties(mBean);
+                    JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
 
-                    NodeMetricsProcessor nodeMetricsProcessor = new NodeMetricsProcessor(jmxConnectionAdapter, jmxConnector,configMBeanKeys);
-                    List<Metric> nodeMetrics = nodeMetricsProcessor.getNodeMetrics(mBean, metricProperties, metricPrefix);
+                    List<Metric> nodeMetrics = jmxMetricsProcessor.getJMXMetrics(mBean, metricProperties, metricPrefix);
 
                     if (nodeMetrics.size() > 0) {
                         metricWriter.transformAndPrintMetrics(nodeMetrics);
@@ -87,7 +85,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                     status = false;
 
                 } catch (Exception e) {
-                    logger.error("Error fetching JMX metrics for {} and mBeam = {}", serverName, configObjName, e);
+                    logger.error("Error fetching JMX metrics for {} and mBean = {}", serverName, configObjName, e);
                     status = false;
                 }
             }
@@ -168,9 +166,9 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
     public void onTaskComplete() {
         logger.debug("Task Complete");
         if (status == true) {
-            metricWriter.printMetric(metricPrefix + "|" + (String) server.get("displayName"), "1", "AVERAGE", "AVERAGE", "INDIVIDUAL");
+            metricWriter.printMetric(metricPrefix + "|" + (String) server.get("displayName") + "|Status", "1", "AVERAGE", "AVERAGE", "INDIVIDUAL");
         } else {
-            metricWriter.printMetric(metricPrefix + "|" + (String) server.get("displayName"), "0", "AVERAGE", "AVERAGE", "INDIVIDUAL");
+            metricWriter.printMetric(metricPrefix + "|" + (String) server.get("displayName") + "|Status", "0", "AVERAGE", "AVERAGE", "INDIVIDUAL");
         }
     }
 
@@ -201,12 +199,6 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
             task.configMBeans = mBeans;
             return this;
         }
-
-        Builder mbeanKeys(List<String> mBeanKeys) {
-            task.configMBeanKeys = mBeanKeys;
-            return this;
-        }
-
 
         JMXMonitorTask build() {
             return task;

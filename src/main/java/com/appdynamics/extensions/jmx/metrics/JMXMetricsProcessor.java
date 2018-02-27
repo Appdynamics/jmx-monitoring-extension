@@ -22,30 +22,30 @@ import javax.management.*;
 import javax.management.openmbean.CompositeDataSupport;
 import javax.management.remote.JMXConnector;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static com.appdynamics.extensions.jmx.Constants.*;
 
-public class NodeMetricsProcessor {
-    private static final Logger logger = LoggerFactory.getLogger(NodeMetricsProcessor.class);
-    private final MetricKeyFormatter metricKeyFormatter = new MetricKeyFormatter();
+public class JMXMetricsProcessor {
+    private static final Logger logger = LoggerFactory.getLogger(JMXMetricsProcessor.class);
     private JMXConnectionAdapter jmxConnectionAdapter;
     private JMXConnector jmxConnector;
-    private List<String> mBeanKeys;
 
-    public NodeMetricsProcessor(JMXConnectionAdapter jmxConnectionAdapter, JMXConnector jmxConnector, List<String> configMBeanKeys) {
+    public JMXMetricsProcessor(JMXConnectionAdapter jmxConnectionAdapter, JMXConnector jmxConnector) {
+
         this.jmxConnectionAdapter = jmxConnectionAdapter;
         this.jmxConnector = jmxConnector;
-        this.mBeanKeys = configMBeanKeys;
     }
 
-    public List<Metric> getNodeMetrics(Map mBean, Map<String, ? > metricsPropertiesMap, String metricPrefix) throws
+    public List<Metric> getJMXMetrics(Map mBean, Map<String, ? > metricsPropertiesMap, String metricPrefix) throws
             MalformedObjectNameException, IOException, IntrospectionException, InstanceNotFoundException,
             ReflectionException {
-        List<Metric> nodeMetrics = Lists.newArrayList();
+        List<Metric> jmxMetrics = Lists.newArrayList();
         String configObjectName = JMXUtil.convertToString(mBean.get(OBJECT_NAME), "");
+
         Set<ObjectInstance> objectInstances = jmxConnectionAdapter.queryMBeans(jmxConnector, ObjectName.getInstance
                 (configObjectName));
         for (ObjectInstance instance : objectInstances) {
@@ -53,9 +53,19 @@ public class NodeMetricsProcessor {
             List<String> metricNamesToBeExtracted = applyFilters(mBean, metricNamesDictionary);
             List<Attribute> attributes = jmxConnectionAdapter.getAttributes(jmxConnector, instance.getObjectName(),
                     metricNamesToBeExtracted.toArray(new String[metricNamesToBeExtracted.size()]));
-            collect(metricPrefix, nodeMetrics, attributes, instance, metricsPropertiesMap);
+            List<String> mBeanKeys = getMBeanKeys(mBean);
+            collect(metricPrefix, jmxMetrics, attributes, instance, metricsPropertiesMap,mBeanKeys);
         }
-        return nodeMetrics;
+        return jmxMetrics;
+    }
+
+    private List<String> getMBeanKeys(Map aConfigMBean){
+//        List<String> mBeanKeys = new ArrayList<String>();
+//        mBeanKeys = (List) aConfigMBean.get(MBEANKEYS);
+        List<String> mBeanKeys = (List) aConfigMBean.get(MBEANKEYS);
+
+        return  mBeanKeys;
+
     }
 
     private List<String> applyFilters(Map aConfigMBean, List<String> metricNamesDictionary) throws
@@ -67,7 +77,7 @@ public class NodeMetricsProcessor {
         return Lists.newArrayList(filteredSet);
     }
 
-    private void collect(String metricPrefix, List<Metric> nodeMetrics, List<Attribute> attributes, ObjectInstance instance, Map<String, ? > metricPropsPerMetricName) {
+    private void collect(String metricPrefix, List<Metric> jmxMetrics, List<Attribute> attributes, ObjectInstance instance, Map<String, ? > metricPropsPerMetricName, List<String> mBeanKeys) {
         for (Attribute attribute : attributes) {
             try {
                 String metricName = attribute.getName();
@@ -78,12 +88,12 @@ public class NodeMetricsProcessor {
                         String key = metricName + "." + str;
                         if (metricPropsPerMetricName.containsKey(key)) {
                             Object attributeValue = ((CompositeDataSupport) attribute.getValue()).get(str);
-                            setMetricDetails(metricPrefix, key, attributeValue, instance, metricPropsPerMetricName, nodeMetrics);
+                            setMetricDetails(metricPrefix, key, attributeValue, instance, metricPropsPerMetricName, jmxMetrics, mBeanKeys);
                         }
                     }
                 } else {
                     setMetricDetails(metricPrefix, metricName, attribute.getValue().toString(), instance, (Map)metricPropsPerMetricName,
-                            nodeMetrics);
+                            jmxMetrics, mBeanKeys);
                 }
             } catch (Exception e) {
                 logger.error("Error collecting value for {} {}", instance.getObjectName(), attribute.getName(), e);
@@ -91,20 +101,20 @@ public class NodeMetricsProcessor {
         }
     }
 
-    private void setMetricDetails(String metricPrefix, String attributeName, Object attributeValue, ObjectInstance instance, Map<String, ? > metricPropsPerMetricName, List<Metric> nodeMetrics) {
+    private void setMetricDetails(String metricPrefix, String attributeName, Object attributeValue, ObjectInstance instance, Map<String, ? > metricPropsPerMetricName, List<Metric> jmxMetrics, List<String> mBeanKeys) {
 
         Map<String, ?> props = (Map)metricPropsPerMetricName.get(attributeName);
         if (props == null) {
             logger.error("Could not find metric properties for {} ", attributeName);
         }
-        String instanceKey = metricKeyFormatter.getInstanceKey(instance);
 
-        String testKey = getInstanceKey(instance);
+
+        String instanceKey = getInstanceKey(instance,mBeanKeys);
 
 
         String metricPath = Strings.isNullOrEmpty(metricPrefix) ? instanceKey + attributeName : metricPrefix + "|" + instanceKey + attributeName;
         Metric current_metric = new Metric(attributeName, attributeValue.toString(), metricPath, props);
-        nodeMetrics.add(current_metric);
+        jmxMetrics.add(current_metric);
     }
 
 
@@ -123,7 +133,7 @@ public class NodeMetricsProcessor {
         return getObjectName(instance).getKeyProperty(property);
     }
 
-    private String getInstanceKey(ObjectInstance instance){
+    private String getInstanceKey(ObjectInstance instance, List<String> mBeanKeys){
         StringBuilder metricsKey = new StringBuilder();
 
         for(String key: mBeanKeys){
@@ -132,6 +142,5 @@ public class NodeMetricsProcessor {
         }
         return metricsKey.toString();
     }
-
 
 }

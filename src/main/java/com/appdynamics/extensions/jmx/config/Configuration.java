@@ -21,6 +21,7 @@ public class Configuration {
     private int numberOfThreads = DEFAULT_NUMBER_OF_THREADS;
 	private String encryptionKey;
 	private List<MBean> mbeans;
+	private List<String> mbeanKeys;
 
 	public List<Server> getServers() {
 		if(servers == null){
@@ -70,4 +71,14 @@ public class Configuration {
 	public void setMbeans(List<MBean> mbeans) {
 		this.mbeans = mbeans;
 	}
+
+
+	public List<String> getMbeanKeys() {
+		return mbeanKeys;
+	}
+
+	public void setMbeanKeys(List<String> mbeanKeys) {
+		this.mbeanKeys = mbeanKeys;
+	}
+
 }
