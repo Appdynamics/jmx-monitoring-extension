@@ -24,7 +24,13 @@ public class Constants {
     public static final String NAME = "name";
     public static final String SERVICEURL = "serviceUrl";
     public static final String ENCRYPTEDPASSWORD = "encryptedPassword";
+    public static final String PASSWORD = "password";
+    public static final String PASSWORD_ENCRYPTED = "password-encrypted";
+    public static final String ENCRYPTION_KEY = "encryption-key";
     public static final String MONITORNAME = "JMX Monitor";
+    public static final String HOST = "host";
+    public static final String PORT = "port";
+    public static final String USERNAME = "username";
 
     public static final String ALIAS = "alias";
     public static final String MULTIPLIER = "multiplier";

@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appdynamics.extensions.TaskInputArgs.*;
 import static com.appdynamics.extensions.jmx.JMXUtil.convertToString;
 
 import static com.appdynamics.extensions.jmx.metrics.Constants.*;
@@ -85,7 +84,7 @@ public class JMXMonitor extends ABaseMonitor{
         String host = convertToString(server.get(HOST), "");
         String portStr = convertToString(server.get(PORT), "");
         int port = (portStr == null || portStr == "") ? -1 : Integer.parseInt(portStr);
-        String username = convertToString(server.get(USER), "");
+        String username = convertToString(server.get(USERNAME), "");
         String password = getPassword(server);
 
         JMXConnectionAdapter adapter = JMXConnectionAdapter.create(serviceUrl, host, port, username, password);
