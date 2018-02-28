@@ -60,8 +60,6 @@ public class JMXMetricsProcessor {
     }
 
     private List<String> getMBeanKeys(Map aConfigMBean){
-//        List<String> mBeanKeys = new ArrayList<String>();
-//        mBeanKeys = (List) aConfigMBean.get(MBEANKEYS);
         List<String> mBeanKeys = (List) aConfigMBean.get(MBEANKEYS);
 
         return  mBeanKeys;
@@ -85,7 +83,7 @@ public class JMXMetricsProcessor {
                     Set<String> attributesFound = ((CompositeDataSupport) attribute.getValue()).getCompositeType()
                             .keySet();
                     for (String str : attributesFound) {
-                        String key = metricName + "." + str;
+                        String key = metricName + PERIOD + str;
                         if (metricPropsPerMetricName.containsKey(key)) {
                             Object attributeValue = ((CompositeDataSupport) attribute.getValue()).get(str);
                             setMetricDetails(metricPrefix, key, attributeValue, instance, metricPropsPerMetricName, jmxMetrics, mBeanKeys);
@@ -112,7 +110,7 @@ public class JMXMetricsProcessor {
         String instanceKey = getInstanceKey(instance,mBeanKeys);
 
 
-        String metricPath = Strings.isNullOrEmpty(metricPrefix) ? instanceKey + attributeName : metricPrefix + "|" + instanceKey + attributeName;
+        String metricPath = Strings.isNullOrEmpty(metricPrefix) ? instanceKey + attributeName : metricPrefix + METRICS_SEPARATOR + instanceKey + attributeName;
         Metric current_metric = new Metric(attributeName, attributeValue.toString(), metricPath, props);
         jmxMetrics.add(current_metric);
     }
