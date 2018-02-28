@@ -24,9 +24,7 @@ import java.util.Map;
 import java.util.HashMap;
 import com.google.common.collect.Maps;
 
-import static com.appdynamics.extensions.jmx.Constants.DISPLAY_NAME;
-import static com.appdynamics.extensions.jmx.Constants.INCLUDE;
-import static com.appdynamics.extensions.jmx.Constants.METRICS;
+import static com.appdynamics.extensions.jmx.metrics.Constants.*;
 
 /**
  * Created by bhuvnesh.kumar on 2/23/18.
@@ -68,7 +66,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
             logger.debug("JMX Connection is now open");
 
             for (Map mBean : configMBeans) {
-                String configObjName = JMXUtil.convertToString(mBean.get("objectName"), "");
+                String configObjName = JMXUtil.convertToString(mBean.get(OBJECT_NAME), "");
                 logger.debug("Processing mBean {} from the config file", configObjName);
 
                 try {
@@ -116,7 +114,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                 String alias = entry.getValue().toString();
 
                 Map<String, ? super Object> metricProperties = new HashMap<String, Object>();
-                metricProperties.put("alias", Strings.isNullOrEmpty(alias)? metricName: alias);
+                metricProperties.put(ALIAS, Strings.isNullOrEmpty(alias)? metricName: alias);
 
                 setProps(mBean, metricProperties); //global level
                 setProps(localMetaData, metricProperties); //local level
@@ -127,48 +125,48 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
     }
 
     private void setProps(Map metadata, Map props) {
-        if (metadata.get("multiplier") != null) {
-            props.put("multiplier",metadata.get("multiplier").toString() );
+        if (metadata.get(MULTIPLIER) != null) {
+            props.put(MULTIPLIER,metadata.get(MULTIPLIER).toString() );
         } else {
-            props.put("multiplier","1" );
+            props.put(MULTIPLIER,"1" );
         }
-        if (metadata.get("convert") != null) {
-            props.put("convert",metadata.get("convert").toString() );
+        if (metadata.get(CONVERT) != null) {
+            props.put(CONVERT,metadata.get(CONVERT).toString() );
 
         } else {
-            props.put("convert",(Map)null );
+            props.put(CONVERT,(Map)null );
         }
-        if (metadata.get("delta") != null) {
-            props.put("delta",metadata.get("delta").toString() );
+        if (metadata.get(DELTA) != null) {
+            props.put(DELTA,metadata.get(DELTA).toString() );
 
         } else {
-            props.put("delta","false" );
+            props.put(DELTA,FALSE );
         }
-        if (metadata.get("clusterRollUpType") != null) {
-            props.put("clusterRollUpType",metadata.get("clusterRollUpType").toString() );
+        if (metadata.get(CLUSTERROLLUPTYPE) != null) {
+            props.put(CLUSTERROLLUPTYPE,metadata.get(CLUSTERROLLUPTYPE).toString() );
 
         } else {
-            props.put("clusterRollUpType","INDIVIDUAL" );
+            props.put(CLUSTERROLLUPTYPE,INDIVIDUAL );
         }
-        if (metadata.get("timeRollUpType") != null) {
-            props.put("timeRollUpType",metadata.get("timeRollUpType").toString() );
+        if (metadata.get(TIMEROLLUPTYPE) != null) {
+            props.put(TIMEROLLUPTYPE,metadata.get(TIMEROLLUPTYPE).toString() );
 
         } else {
-            props.put("timeRollUpType","AVERAGE" );
+            props.put(TIMEROLLUPTYPE,AVERAGE );
         }
-        if (metadata.get("aggregationType") != null) {
-            props.put("aggregationType",metadata.get("aggregationType").toString() );
+        if (metadata.get(AGGREGATIONTYPE) != null) {
+            props.put(AGGREGATIONTYPE,metadata.get(AGGREGATIONTYPE).toString() );
 
         } else {
-            props.put("aggregationType","AVERAGE" );
+            props.put(AGGREGATIONTYPE,AVERAGE );
         }
     }
     public void onTaskComplete() {
         logger.debug("Task Complete");
         if (status == true) {
-            metricWriter.printMetric(metricPrefix + "|" + (String) server.get("displayName") + "|Availability", "1", "AVERAGE", "AVERAGE", "INDIVIDUAL");
+            metricWriter.printMetric(metricPrefix + METRICS_SEPARATOR + (String) server.get(DISPLAY_NAME) + METRICS_SEPARATOR + AVAILABILITY, "1", "AVERAGE", "AVERAGE", "INDIVIDUAL");
         } else {
-            metricWriter.printMetric(metricPrefix + "|" + (String) server.get("displayName") + "|Availability", "0", "AVERAGE", "AVERAGE", "INDIVIDUAL");
+            metricWriter.printMetric(metricPrefix + METRICS_SEPARATOR + (String) server.get(DISPLAY_NAME) + METRICS_SEPARATOR + AVAILABILITY, "0", "AVERAGE", "AVERAGE", "INDIVIDUAL");
         }
     }
 

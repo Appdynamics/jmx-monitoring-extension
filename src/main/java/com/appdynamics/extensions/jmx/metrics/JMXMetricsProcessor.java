@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appdynamics.extensions.jmx.Constants.*;
+import static com.appdynamics.extensions.jmx.metrics.Constants.*;
 
 public class JMXMetricsProcessor {
     private static final Logger logger = LoggerFactory.getLogger(JMXMetricsProcessor.class);

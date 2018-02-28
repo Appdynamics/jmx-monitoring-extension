@@ -23,8 +23,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appdynamics.extensions.TaskInputArgs.PASSWORD_ENCRYPTED;
+import static com.appdynamics.extensions.TaskInputArgs.*;
 import static com.appdynamics.extensions.jmx.JMXUtil.convertToString;
+
+import static com.appdynamics.extensions.jmx.metrics.Constants.*;
 
 /**
  * Created by bhuvnesh.kumar on 2/23/18.
@@ -37,13 +39,13 @@ public class JMXMonitor extends ABaseMonitor{
     //Required for MonitorConfiguration initialisation
     @Override
     protected String getDefaultMetricPrefix() {
-        return "Custom Metrics|JMXMonitor";
+        return "Custom Metrics|"+MONITORNAME;
     }
 
     //Required for MonitorConfiguration initialisation
     @Override
     public String getMonitorName() {
-        return "JMX Monitor";
+        return MONITORNAME;
     }
 
 
@@ -51,15 +53,15 @@ public class JMXMonitor extends ABaseMonitor{
     protected void doRun(TasksExecutionServiceProvider taskExecutor) {
         Map<String, ?> config = configuration.getConfigYml();
         if (config != null) {
-            List<Map> servers = (List) config.get("servers");
+            List<Map> servers = (List) config.get(SERVERS);
             AssertUtils.assertNotNull(servers, "The 'servers' section in config.yml is not initialised");
             if (servers != null && !servers.isEmpty()) {
                 for (Map server : servers) {
                     try {
                         JMXMonitorTask task = createTask(server, taskExecutor);
-                        taskExecutor.submit((String) server.get("name"), task);
+                        taskExecutor.submit((String) server.get(NAME), task);
                     } catch (IOException e) {
-                        logger.error("Cannot construct JMX uri for {}", convertToString(server.get("displayName"), ""));
+                        logger.error("Cannot construct JMX uri for {}", convertToString(server.get(DISPLAY_NAME), ""));
                     }
                 }
             } else {
@@ -73,17 +75,17 @@ public class JMXMonitor extends ABaseMonitor{
 
     @Override
     protected int getTaskCount() {
-        List<Map<String, String>> servers = (List<Map<String, String>>) configuration.getConfigYml().get("servers");
+        List<Map<String, String>> servers = (List<Map<String, String>>) configuration.getConfigYml().get(SERVERS);
         AssertUtils.assertNotNull(servers, "The 'servers' section in config.yml is not initialised");
         return servers.size();
     }
     private JMXMonitorTask createTask(Map server, TasksExecutionServiceProvider taskExecutor) throws IOException {
 
-        String serviceUrl = convertToString(server.get("serviceUrl"), "");
-        String host = convertToString(server.get("host"), "");
-        String portStr = convertToString(server.get("port"), "");
+        String serviceUrl = convertToString(server.get(SERVICEURL), "");
+        String host = convertToString(server.get(HOST), "");
+        String portStr = convertToString(server.get(PORT), "");
         int port = (portStr == null || portStr == "") ? -1 : Integer.parseInt(portStr);
-        String username = convertToString(server.get("username"), "");
+        String username = convertToString(server.get(USER), "");
         String password = getPassword(server);
 
         JMXConnectionAdapter adapter = JMXConnectionAdapter.create(serviceUrl, host, port, username, password);
@@ -91,18 +93,17 @@ public class JMXMonitor extends ABaseMonitor{
                 metricPrefix(configuration.getMetricPrefix()).
                 metricWriter(taskExecutor.getMetricWriteHelper()).
                 jmxConnectionAdapter(adapter).server(server).
-                mbeans((List<Map>) configuration.getConfigYml().get("mbeans")).build();
+                mbeans((List<Map>) configuration.getConfigYml().get(MBEANS)).build();
 
-// mbeanKeys((List<String>) configuration.getConfigYml().get("mbeanKeys")).
     }
 
     private String getPassword(Map server) {
-        String password = convertToString(server.get("password"), "");
+        String password = convertToString(server.get(PASSWORD), "");
         if (!Strings.isNullOrEmpty(password)) {
             return password;
         }
-        String encryptionKey = convertToString(configuration.getConfigYml().get("encryptionKey"), "");
-        String encryptedPassword = convertToString(server.get("encryptedPassword"), "");
+        String encryptionKey = convertToString(configuration.getConfigYml().get(ENCRYPTION_KEY), "");
+        String encryptedPassword = convertToString(server.get(ENCRYPTEDPASSWORD), "");
         if (!Strings.isNullOrEmpty(encryptionKey) && !Strings.isNullOrEmpty(encryptedPassword)) {
             java.util.Map<String, String> cryptoMap = Maps.newHashMap();
             cryptoMap.put(PASSWORD_ENCRYPTED, encryptedPassword);
