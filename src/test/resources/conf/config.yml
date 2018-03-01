@@ -36,8 +36,12 @@ mbeans:
     mbeanKeys: ["type", "brokerName"]
     metrics:
       include:
-        - StorePercentUsage: "StorePercentUsage"
-        - TempPercentUsage: "TempPercentUsage"
+        - StorePercentUsage: "Store Percent Usage"
+          clusterRollUpType: "AVERAGE"
+          timeRollUpType: "SUM"
+          aggregationType: "SUM"
+
+#        - TempPercentUsage: "TempPercentUsage"
 #        - MemoryPercentUsage: "MemoryPercentUsage"
 #        - TotalConnectionsCount: "TotalConnectionsCount"
 #        - TotalConsumerCount: "TotalConsumerCount"

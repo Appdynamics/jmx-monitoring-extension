@@ -38,7 +38,7 @@ public class JMXMonitor extends ABaseMonitor{
     //Required for MonitorConfiguration initialisation
     @Override
     protected String getDefaultMetricPrefix() {
-        return "Custom Metrics|"+MONITORNAME;
+        return CUSTOMMETRICS + METRICS_SEPARATOR + MONITORNAME;
     }
 
     //Required for MonitorConfiguration initialisation
