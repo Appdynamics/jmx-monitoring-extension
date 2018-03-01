@@ -1,4 +1,4 @@
-# jmx-monitoring-extension
+# JMX Monitoring Extension
 
 ## Use Case
 
@@ -120,5 +120,79 @@ mbeans:
 ```
 2. There are a few fields that you need to make sure are filled in correctly. 
 Once done with them, they should allow you to establish a successful connection
- with your server.
+ with your server. They are : 
+```
+servers:
+  -   displayName: ""
+      host: ""
+      port:
 
+#      serviceUrl: ""
+
+      username: ""
+      password: ""
+
+#      encryptedPassword: ""
+#      encryptionKey: ""
+
+
+```
+* displayName: This will be the name of your server that you would like to see on the metric browser.
+* host: This is the HostURL that is used with a port to create a connection with the JMX Server.
+* serviceUrl: This is the full URL with host and port that is used to establish a connection. 
+
+**You should either use HOST AND PORT or just the SERVICEURL in order to establish a connection.**
+
+* username: List the username, if any, that is needed to establish a connection.
+* password: List the password associated with the username that is needed to establish a connection.
+* encryptedPassword: In case you would like to use an encrypted password, use this field.
+* encryptionKey: If you use an encryptedPassword, please provide the key here as well in order for the system to decrypt your password.
+
+**You should either use the Normal PASSWORD or the encryptedPassword and encryptionKey in order to establish a connection. Please read below to find more information on Password Encryption.**
+
+
+
+3. Configure the "tier" under which the metrics need to be reported. This can be done by changing the value of `<TIER NAME OR TIER ID>` in
+     metricPrefix: "Server|Component:`<TIER NAME OR TIER ID>`|Custom Metrics|Redis". For example,
+    
+```
+     metricPrefix: "Server|Component:Extensions tier|Custom Metrics|Redis"
+     
+```
+## Contributing
+Always feel free to fork and contribute any changes directly here on [GitHub].
+
+## Community
+Find out more in the [AppDynamics Exchange] community.
+
+## Troubleshooting ##
+
+Please follow the steps listed in this [troubleshooting-document] in order to troubleshoot your issue. 
+These are a set of common issues that customers might have faced during the installation of the extension. 
+If these don't solve your issue, please follow the last step on the [troubleshooting-document] to contact the support team.
+
+## Credentials Encryption ##
+
+Please visit [Encryption Guidelines] to get detailed instructions on password encryption. The steps in this document will guide you through the whole process.
+If you want to use password encryption, please send arguments as connectionProperties. You will have to fill in the encrypted Password and Encryption Key fields in the config but you will also have to give an empty "" value to the password field and the encrypted password will be automatically picked up.
+
+## Extensions Workbench ##
+Workbench is an inbuilt feature provided with each extension in order to assist you to fine tune the extension setup before you actually
+ deploy it on the controller. Please review the following document on [How to use the Extensions WorkBench ]
+
+## Version 
+|Product | Version | 
+| ----- | ----- | 
+| Extension Version|  1.0.0 | 
+| Controller Compatability | 3.7+ |
+| Last Updated | March 3, 2018 | 
+
+**List of Changes can be found in the [Changelog.md] **
+
+
+[How to use the Extensions WorkBench ]: https://community.appdynamics.com/t5/Knowledge-Base/How-to-use-the-Extensions-WorkBench/ta-p/30130
+[Changelog.md]: https://github.com/Appdynamics/jmx-monitoring-extension/blob/1.0.0/Changelog.md
+[Encryption Guidelines]: https://community.appdynamics.com/t5/Knowledge-Base/How-to-use-Password-Encryption-with-Extensions/ta-p/29397
+[troubleshooting-document]: https://community.appdynamics.com/t5/Knowledge-Base/How-to-troubleshoot-missing-custom-metrics-or-extensions-metrics/ta-p/28695
+[AppDynamics Exchange]: https://www.appdynamics.com/community/exchange/extension/jmx-monitoring-extension/
+[GitHub]: https://github.com/Appdynamics/oracle-monitoring-extension/
