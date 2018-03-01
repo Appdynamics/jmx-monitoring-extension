@@ -238,7 +238,7 @@ Workbench is an inbuilt feature provided with each extension in order to assist 
 | Controller Compatability | 3.7+ |
 | Last Updated | March 3, 2018 | 
 
-**List of Changes can be found in the [Changelog.md] **
+**List of Changes can be found in the [Changelog.md]**
 
 
 [How to use the Extensions WorkBench ]: https://community.appdynamics.com/t5/Knowledge-Base/How-to-use-the-Extensions-WorkBench/ta-p/30130
