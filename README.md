@@ -116,7 +116,6 @@ mbeans:
     metrics:
       include:
         - HeapMemoryUsage.committed : "Heap Memory Usage|Committed"
-
 ```
 2. There are a few fields that you need to make sure are filled in correctly. 
 Once done with them, they should allow you to establish a successful connection
@@ -134,8 +133,6 @@ servers:
 
 #      encryptedPassword: ""
 #      encryptionKey: ""
-
-
 ```
 * displayName: This will be the name of your server that you would like to see on the metric browser.
 * host: This is the HostURL that is used with a port to create a connection with the JMX Server.
@@ -150,15 +147,69 @@ servers:
 
 **You should either use the Normal PASSWORD or the encryptedPassword and encryptionKey in order to establish a connection. Please read below to find more information on Password Encryption.**
 
-
-
 3. Configure the "tier" under which the metrics need to be reported. This can be done by changing the value of `<TIER NAME OR TIER ID>` in
-     metricPrefix: "Server|Component:`<TIER NAME OR TIER ID>`|Custom Metrics|Redis". For example,
+     metricPrefix: "Server|Component:`<TIER NAME OR TIER ID>`|Custom Metrics|JMX Monitor". For example,
     
 ```
-     metricPrefix: "Server|Component:Extensions tier|Custom Metrics|Redis"
-     
+     metricPrefix: "Server|Component:Extensions tier|Custom Metrics|JMX Monitor"
 ```
+## Metrics
+
+You can use this extension to get all metrics that are available through the JMX Messaging service. In order to do so though, you will have to make sure that all metrics are defined correctly.
+Please follow the next few steps in order to get this right.
+1. You will have to list each mBean separately in the config.yml file. 
+For each mBean you will have to add an **objectName**, **mbeanKeys** and **metrics** tag.
+The following example shows exactly how you should do that. 
+* You will have to each and every **mBeanKey** that is listed in the **objectName**.
+* Under **metrics** is where you have the ability to include all the metrics that you would like to monitor.
+```
+mbeans:
+  - objectName: "org.apache.activemq:type=Broker,brokerName=*"
+    mbeanKeys: ["type", "brokerName"]
+    metrics:
+      include:
+        - StorePercentUsage: "Store Percent Usage"
+
+```
+2. There are several properties that are associated with each metric. They are: 
+    * alias
+    * aggregationType
+    * timeRollUpType
+    * clusterRollUpType
+    * multiplier
+    * convert
+    * delta
+   
+   This format enables you to change some of the metric properties from what the default configurations are.
+
+    In Order to use them for each metric, please use the following example.
+```
+  - objectName: "org.apache.activemq:type=Broker,brokerName=*,destinationType=Queue,destinationName=*"
+    mbeanKeys: ["type", "brokerName","destinationType","destinationName"]
+    metrics:
+      include:
+        - AverageEnqueueTime: "Average Enqueue Time"
+          clusterRollUpType: "AVERAGE"
+          timeRollUpType: "SUM"
+          aggregationType: "SUM"
+```
+
+3. This extension can also be used to get values from **composite objects**. 
+In order to do so, you have to list the metric name as is and then specify the path with a **"|"** followed my the composite attribute.
+In this example we see that HeapMemoryUsage is a composite object that has 4 values associated with it. 
+Now in order to monitor them, you list the property and then in the alias name, add the **"|"** followed by the attribute name in order to get all of the attributes associated with HeapMemoryUsage under one folder in the metric browser.
+
+```
+  - objectName: "java.lang:type=Memory"
+    mbeanKeys: ["type"]
+    metrics:
+      include:
+        - HeapMemoryUsage.committed : "Heap Memory Usage|Committed"
+        - HeapMemoryUsage.init : "Heap Memory Usage|Initialized"
+        - HeapMemoryUsage.max : "Heap Memory Usage|Max"
+        - HeapMemoryUsage.used : "Heap Memory Usage|Sum"
+```
+    
 ## Contributing
 Always feel free to fork and contribute any changes directly here on [GitHub].
 
