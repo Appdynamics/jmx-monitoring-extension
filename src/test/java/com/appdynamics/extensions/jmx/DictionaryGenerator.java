@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class DictionaryGenerator {
 
-    public static List<Map> createIncludeDictionary () {
+    public static List<Map> createIncludeDictionary() {
         List<Map> dictionary = Lists.newArrayList();
         Map metric1 = Maps.newLinkedHashMap();
         metric1.put("Capacity", "CapacityAlias");

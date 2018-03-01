@@ -7,6 +7,7 @@
  */
 
 package com.appdynamics.extensions.jmx;
+
 import com.appdynamics.extensions.ABaseMonitor;
 import com.appdynamics.extensions.TaskInputArgs;
 import com.appdynamics.extensions.TasksExecutionServiceProvider;
@@ -24,13 +25,12 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appdynamics.extensions.jmx.JMXUtil.convertToString;
-
 import static com.appdynamics.extensions.jmx.metrics.Constants.*;
 
 /**
  * Created by bhuvnesh.kumar on 2/23/18.
  */
-public class JMXMonitor extends ABaseMonitor{
+public class JMXMonitor extends ABaseMonitor {
 
 
     private static final Logger logger = LoggerFactory.getLogger(JMXMonitor.class);
@@ -78,6 +78,7 @@ public class JMXMonitor extends ABaseMonitor{
         AssertUtils.assertNotNull(servers, "The 'servers' section in config.yml is not initialised");
         return servers.size();
     }
+
     private JMXMonitorTask createTask(Map server, TasksExecutionServiceProvider taskExecutor) throws IOException {
 
         String serviceUrl = convertToString(server.get(SERVICEURL), "");

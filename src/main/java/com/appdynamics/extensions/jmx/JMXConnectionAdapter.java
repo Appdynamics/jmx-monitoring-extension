@@ -43,32 +43,30 @@ public class JMXConnectionAdapter {
 
 
     static JMXConnectionAdapter create(String serviceUrl, String host, int port, String username, String password) throws MalformedURLException {
-        if(Strings.isNullOrEmpty(serviceUrl)){
-            return new JMXConnectionAdapter(host,port,username,password);
-        }
-        else{
-            return new JMXConnectionAdapter(serviceUrl,username,password);
+        if (Strings.isNullOrEmpty(serviceUrl)) {
+            return new JMXConnectionAdapter(host, port, username, password);
+        } else {
+            return new JMXConnectionAdapter(serviceUrl, username, password);
         }
     }
 
     JMXConnector open() throws IOException {
         JMXConnector jmxConnector;
         final Map<String, Object> env = new HashMap<String, Object>();
-        if(!Strings.isNullOrEmpty(username)){
-            env.put(JMXConnector.CREDENTIALS,new String[]{username,password});
+        if (!Strings.isNullOrEmpty(username)) {
+            env.put(JMXConnector.CREDENTIALS, new String[]{username, password});
             jmxConnector = JMXConnectorFactory.connect(serviceUrl, env);
-        }
-        else{
+        } else {
             jmxConnector = JMXConnectorFactory.connect(serviceUrl);
         }
-        if(jmxConnector == null){
+        if (jmxConnector == null) {
             throw new IOException("Unable to connect to Mbean server");
         }
         return jmxConnector;
     }
 
-    void close(JMXConnector jmxConnector) throws IOException{
-        if(jmxConnector != null){
+    void close(JMXConnector jmxConnector) throws IOException {
+        if (jmxConnector != null) {
             jmxConnector.close();
         }
     }
@@ -82,7 +80,7 @@ public class JMXConnectionAdapter {
         MBeanServerConnection connection = jmxConnection.getMBeanServerConnection();
         List<String> attrNames = Lists.newArrayList();
         MBeanAttributeInfo[] attributes = connection.getMBeanInfo(instance.getObjectName()).getAttributes();
-        for(MBeanAttributeInfo attr : attributes){
+        for (MBeanAttributeInfo attr : attributes) {
             if (attr.isReadable()) {
                 attrNames.add(attr.getName());
             }
@@ -90,17 +88,17 @@ public class JMXConnectionAdapter {
         return attrNames;
     }
 
-    public List<Attribute> getAttributes(JMXConnector jmxConnection,ObjectName objectName, String[] strings) throws IOException, ReflectionException, InstanceNotFoundException {
+    public List<Attribute> getAttributes(JMXConnector jmxConnection, ObjectName objectName, String[] strings) throws IOException, ReflectionException, InstanceNotFoundException {
         MBeanServerConnection connection = jmxConnection.getMBeanServerConnection();
         AttributeList list = connection.getAttributes(objectName, strings);
-        if(list != null){
+        if (list != null) {
             return list.asList();
         }
         return Lists.newArrayList();
     }
 
 
-    boolean matchAttributeName(Attribute attribute,String matchedWith){
+    boolean matchAttributeName(Attribute attribute, String matchedWith) {
         return attribute.getName().equalsIgnoreCase(matchedWith);
     }
 }

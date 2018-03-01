@@ -8,8 +8,8 @@
 
 package com.appdynamics.extensions.jmx.metrics;
 
-import com.appdynamics.extensions.jmx.JMXMonitorTask;
 import com.appdynamics.extensions.jmx.JMXConnectionAdapter;
+import com.appdynamics.extensions.jmx.JMXMonitorTask;
 import com.appdynamics.extensions.metrics.Metric;
 import com.appdynamics.extensions.yml.YmlReader;
 import com.google.common.collect.Lists;
@@ -27,7 +27,6 @@ import javax.management.remote.JMXConnector;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,7 +39,7 @@ public class NodeMetricsProcessorTest {
     JMXConnectionAdapter jmxConnectionAdapter = mock(JMXConnectionAdapter.class);
 
     @Test
-    public void getNodeMetrics_NonCompositeObject () throws MalformedObjectNameException, IntrospectionException, ReflectionException,
+    public void getNodeMetrics_NonCompositeObject() throws MalformedObjectNameException, IntrospectionException, ReflectionException,
             InstanceNotFoundException, IOException {
         Map config = YmlReader.readFromFileAsMap(new File(this.getClass().getResource("/conf/config_without_composite_object.yml").getFile()));
         List<Map> mBeans = (List) config.get("mbeans");
@@ -62,14 +61,14 @@ public class NodeMetricsProcessorTest {
 
 
         JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
-        JMXMonitorTask activeMQMonitorTask= new JMXMonitorTask();
+        JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "");
 
         Assert.assertTrue(metrics.get(0).getMetricPath().equals("ClientRequest|Read|Latency|Max"));
         Assert.assertTrue(metrics.get(0).getMetricName().equals("Max"));
         Assert.assertTrue(metrics.get(0).getMetricValue().equals("200"));
-        Map<String, ? > metricProps= (Map<String, ?>) metricPropertiesMap.get("Max");
+        Map<String, ?> metricProps = (Map<String, ?>) metricPropertiesMap.get("Max");
         Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
@@ -78,7 +77,7 @@ public class NodeMetricsProcessorTest {
         Assert.assertTrue(metrics.get(1).getMetricPath().equals("ClientRequest|Read|Latency|Min"));
         Assert.assertTrue(metrics.get(1).getMetricName().equals("Min"));
         Assert.assertTrue(metrics.get(1).getMetricValue().equals("100"));
-        metricProps= (Map<String, ?>) metricPropertiesMap.get("Min");
+        metricProps = (Map<String, ?>) metricPropertiesMap.get("Min");
         Assert.assertTrue(metrics.get(1).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
         Assert.assertTrue(metrics.get(1).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
         Assert.assertTrue(metrics.get(1).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
@@ -86,7 +85,7 @@ public class NodeMetricsProcessorTest {
     }
 
     @Test
-    public void getNodeMetrics_CompositeObject () throws MalformedObjectNameException, IntrospectionException,
+    public void getNodeMetrics_CompositeObject() throws MalformedObjectNameException, IntrospectionException,
             ReflectionException, InstanceNotFoundException, IOException, OpenDataException {
         Map config = YmlReader.readFromFileAsMap(new File(this.getClass().getResource
                 ("/conf/config_with_composite_object.yml").getFile()));
@@ -108,14 +107,14 @@ public class NodeMetricsProcessorTest {
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
 
         JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
-        JMXMonitorTask activeMQMonitorTask= new JMXMonitorTask();
+        JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "");
 //
         Assert.assertTrue(metrics.get(0).getMetricPath().equals("Memory|HeapMemoryUsage.max"));
         Assert.assertTrue(metrics.get(0).getMetricName().equals("HeapMemoryUsage.max"));
         Assert.assertTrue(metrics.get(0).getMetricValue().equals("100"));
-        Map<String, ? > metricProps= (Map<String, ?>) metricPropertiesMap.get("HeapMemoryUsage.max");
+        Map<String, ?> metricProps = (Map<String, ?>) metricPropertiesMap.get("HeapMemoryUsage.max");
 
         Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
@@ -124,7 +123,7 @@ public class NodeMetricsProcessorTest {
         Assert.assertTrue(metrics.get(1).getMetricPath().equals("Memory|HeapMemoryUsage.used"));
         Assert.assertTrue(metrics.get(1).getMetricName().equals("HeapMemoryUsage.used"));
         Assert.assertTrue(metrics.get(1).getMetricValue().equals("50"));
-        metricProps= (Map<String, ?>) metricPropertiesMap.get("HeapMemoryUsage.used");
+        metricProps = (Map<String, ?>) metricPropertiesMap.get("HeapMemoryUsage.used");
         Assert.assertTrue(metrics.get(1).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
         Assert.assertTrue(metrics.get(1).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
         Assert.assertTrue(metrics.get(1).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
@@ -133,7 +132,7 @@ public class NodeMetricsProcessorTest {
 
     @Test
     public void getNodeMetrics_compositeAndNonCompositeObjects() throws MalformedObjectNameException, IntrospectionException,
-            ReflectionException, InstanceNotFoundException, IOException, OpenDataException  {
+            ReflectionException, InstanceNotFoundException, IOException, OpenDataException {
         Map config = YmlReader.readFromFileAsMap(new File(this.getClass().getResource("/conf/config_with_composite_and_noncomposite_objects.yml").getFile()));
         List<Map> mBeans = (List) config.get("mbeans");
         Set<ObjectInstance> objectInstances = Sets.newHashSet();
@@ -154,11 +153,11 @@ public class NodeMetricsProcessorTest {
 
 
         JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
-        JMXMonitorTask activeMQMonitorTask= new JMXMonitorTask();
+        JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "");
 
-        Map<String, ? > metricProps= (Map<String, ?>) metricPropertiesMap.get("ObjectPendingFinalizationCount");
+        Map<String, ?> metricProps = (Map<String, ?>) metricPropertiesMap.get("ObjectPendingFinalizationCount");
         Assert.assertTrue(metrics.get(0).getMetricPath().equals("Memory|ObjectPendingFinalizationCount"));
         Assert.assertTrue(metrics.get(0).getMetricName().equals("ObjectPendingFinalizationCount"));
         Assert.assertTrue(metrics.get(0).getMetricValue().equals("0"));
@@ -167,7 +166,7 @@ public class NodeMetricsProcessorTest {
         Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
 
 
-        metricProps= (Map<String, ?>) metricPropertiesMap.get("HeapMemoryUsage.used");
+        metricProps = (Map<String, ?>) metricPropertiesMap.get("HeapMemoryUsage.used");
         Assert.assertTrue(metrics.get(1).getMetricPath().equals("Memory|HeapMemoryUsage.used"));
         Assert.assertTrue(metrics.get(1).getMetricName().equals("HeapMemoryUsage.used"));
         Assert.assertTrue(metrics.get(1).getMetricValue().equals("50"));
@@ -176,49 +175,49 @@ public class NodeMetricsProcessorTest {
         Assert.assertTrue(metrics.get(1).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
     }
 
-    private CompositeDataSupport createCompositeDataSupportObject () throws OpenDataException {
+    private CompositeDataSupport createCompositeDataSupportObject() throws OpenDataException {
         String typeName = "type";
         String description = "description";
         String[] itemNames = {"max", "used"};
         String[] itemDescriptions = {"maxDesc", "usedDesc"};
         OpenType<?>[] itemTypes = new OpenType[]{new OpenType("java.lang.String", "type", "description") {
             @Override
-            public boolean isValue (Object obj) {
+            public boolean isValue(Object obj) {
                 return true;
             }
 
             @Override
-            public boolean equals (Object obj) {
+            public boolean equals(Object obj) {
                 return false;
             }
 
             @Override
-            public int hashCode () {
+            public int hashCode() {
                 return 0;
             }
 
             @Override
-            public String toString () {
+            public String toString() {
                 return "100";
             }
         }, new OpenType("java.lang.String", "type", "description") {
             @Override
-            public boolean isValue (Object obj) {
+            public boolean isValue(Object obj) {
                 return true;
             }
 
             @Override
-            public boolean equals (Object obj) {
+            public boolean equals(Object obj) {
                 return false;
             }
 
             @Override
-            public int hashCode () {
+            public int hashCode() {
                 return 0;
             }
 
             @Override
-            public String toString () {
+            public String toString() {
                 return "50";
             }
         }};

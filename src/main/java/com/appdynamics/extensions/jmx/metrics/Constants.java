@@ -18,8 +18,6 @@ public class Constants {
     public static final String MBEANKEYS = "mbeanKeys";
     public static final String MBEANS = "mbeans";
 
-
-    //    JMX MONITOR
     public static final String SERVERS = "servers";
     public static final String NAME = "name";
     public static final String SERVICEURL = "serviceUrl";
@@ -44,10 +42,8 @@ public class Constants {
     public static final String SUM = "SUM";
     public static final String FALSE = "false";
 
-
     public static final String AVAILABILITY = "Availability";
     public static final String PERIOD = ".";
     public static final String CUSTOMMETRICS = "Custom Metrics";
-
 
 }

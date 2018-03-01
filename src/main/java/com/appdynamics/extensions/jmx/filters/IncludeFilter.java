@@ -17,11 +17,11 @@ import java.util.Set;
 public class IncludeFilter {
     private List dictionary;
 
-    public IncludeFilter (List dictionary) {
+    public IncludeFilter(List dictionary) {
         this.dictionary = dictionary;
     }
 
-    public void applyFilter (Set<String> filteredSet, List<String> allMetrics) {
+    public void applyFilter(Set<String> filteredSet, List<String> allMetrics) {
         if (allMetrics == null || dictionary == null) {
             return;
         }

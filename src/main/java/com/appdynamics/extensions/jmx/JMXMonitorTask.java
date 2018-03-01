@@ -9,20 +9,20 @@
 package com.appdynamics.extensions.jmx;
 
 import com.appdynamics.extensions.AMonitorTaskRunnable;
-import com.appdynamics.extensions.jmx.metrics.*;
 import com.appdynamics.extensions.MetricWriteHelper;
+import com.appdynamics.extensions.jmx.metrics.JMXMetricsProcessor;
 import com.appdynamics.extensions.metrics.Metric;
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.remote.JMXConnector;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import com.google.common.collect.Maps;
 
 import static com.appdynamics.extensions.jmx.metrics.Constants.*;
 
@@ -70,7 +70,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                 logger.debug("Processing mBean {} from the config file", configObjName);
 
                 try {
-                    Map<String, ? > metricProperties = getMapOfProperties(mBean);
+                    Map<String, ?> metricProperties = getMapOfProperties(mBean);
                     JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
 
                     List<Metric> nodeMetrics = jmxMetricsProcessor.getJMXMetrics(mBean, metricProperties, metricPrefix);
@@ -96,6 +96,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
             }
         }
     }
+
     public Map<String, ?> getMapOfProperties(Map mBean) {
 
         Map<String, ? super Object> metricPropsMap = Maps.newHashMap();
@@ -114,7 +115,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                 String alias = entry.getValue().toString();
 
                 Map<String, ? super Object> metricProperties = new HashMap<String, Object>();
-                metricProperties.put(ALIAS, Strings.isNullOrEmpty(alias)? metricName: alias);
+                metricProperties.put(ALIAS, Strings.isNullOrEmpty(alias) ? metricName : alias);
 
                 setProps(mBean, metricProperties); //global level
                 setProps(localMetaData, metricProperties); //local level
@@ -126,41 +127,42 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
 
     private void setProps(Map metadata, Map props) {
         if (metadata.get(MULTIPLIER) != null) {
-            props.put(MULTIPLIER,metadata.get(MULTIPLIER).toString() );
+            props.put(MULTIPLIER, metadata.get(MULTIPLIER).toString());
         } else {
-            props.put(MULTIPLIER,"1" );
+            props.put(MULTIPLIER, "1");
         }
         if (metadata.get(CONVERT) != null) {
-            props.put(CONVERT,metadata.get(CONVERT).toString() );
+            props.put(CONVERT, metadata.get(CONVERT).toString());
 
         } else {
-            props.put(CONVERT,(Map)null );
+            props.put(CONVERT, (Map) null);
         }
         if (metadata.get(DELTA) != null) {
-            props.put(DELTA,metadata.get(DELTA).toString() );
+            props.put(DELTA, metadata.get(DELTA).toString());
 
         } else {
-            props.put(DELTA,FALSE );
+            props.put(DELTA, FALSE);
         }
         if (metadata.get(CLUSTERROLLUPTYPE) != null) {
-            props.put(CLUSTERROLLUPTYPE,metadata.get(CLUSTERROLLUPTYPE).toString() );
+            props.put(CLUSTERROLLUPTYPE, metadata.get(CLUSTERROLLUPTYPE).toString());
 
         } else {
-            props.put(CLUSTERROLLUPTYPE,INDIVIDUAL );
+            props.put(CLUSTERROLLUPTYPE, INDIVIDUAL);
         }
         if (metadata.get(TIMEROLLUPTYPE) != null) {
-            props.put(TIMEROLLUPTYPE,metadata.get(TIMEROLLUPTYPE).toString() );
+            props.put(TIMEROLLUPTYPE, metadata.get(TIMEROLLUPTYPE).toString());
 
         } else {
-            props.put(TIMEROLLUPTYPE,AVERAGE );
+            props.put(TIMEROLLUPTYPE, AVERAGE);
         }
         if (metadata.get(AGGREGATIONTYPE) != null) {
-            props.put(AGGREGATIONTYPE,metadata.get(AGGREGATIONTYPE).toString() );
+            props.put(AGGREGATIONTYPE, metadata.get(AGGREGATIONTYPE).toString());
 
         } else {
-            props.put(AGGREGATIONTYPE,AVERAGE );
+            props.put(AGGREGATIONTYPE, AVERAGE);
         }
     }
+
     public void onTaskComplete() {
         logger.debug("Task Complete");
         if (status == true) {
