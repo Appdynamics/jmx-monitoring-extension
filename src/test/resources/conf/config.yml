@@ -8,16 +8,27 @@ metricPrefix: "Server|Component:13|Custom Metrics|JMXMonitor"
 
 ### ANY CHANGES TO THIS FILE DOES NOT REQUIRE A RESTART ###
 
-# List of ActiveMQ Servers
+# List of JMX Servers
 servers:
-  -
-      #host: "localhost"
-      #port: 8161
+  -   displayName: "localhost"
+#     displayName is a required field. This will be your server name that will show up in metric path.
+
+#     You can either use just a host and port to connect or use your full serviceURL to make the connection
+#     Do not choose both, comment one out and only use the other.
+#      host: ""
+#      port:
+
       serviceUrl: "service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi"
+
       username: ""
       password: ""
-      #displayName is a required field. This will be your server name that will show up in metric path.
-      displayName: "localhost"
+
+#     You can either use the normal password or encrypt your password and provide the encrypted Password and encryptionKey.
+#     Do not provide both, only provide one and comment out the other.
+
+#      encryptedPassword: ""
+#      encryptionKey: ""
+
 
 # number of concurrent tasks.
 # This doesn't need to be changed unless many servers are configured
@@ -41,34 +52,14 @@ mbeans:
           timeRollUpType: "SUM"
           aggregationType: "SUM"
 
-#        - TempPercentUsage: "TempPercentUsage"
-#        - MemoryPercentUsage: "MemoryPercentUsage"
-#        - TotalConnectionsCount: "TotalConnectionsCount"
-#        - TotalConsumerCount: "TotalConsumerCount"
-#        - TotalDequeueCount: "TotalDequeueCount"
-#        - TotalEnqueueCount: "TotalEnqueueCount"
-#        - TotalMessageCount: "TotalMessageCount"
-#        - TotalProducerCount: "TotalProducerCount"
-#
-#  # This Mbean will extract out Queue metrics
+  # This Mbean will extract out Queue metrics
   - objectName: "org.apache.activemq:type=Broker,brokerName=*,destinationType=Queue,destinationName=*"
     mbeanKeys: ["type", "brokerName","destinationType","destinationName"]
     metrics:
       include:
         - AverageEnqueueTime: "AverageEnqueueTime"
         - ConsumerCount: "ConsumerCount"
-#        - ProducerCount: "ProducerCount"
-#        - MaxEnqueueTime: "MaxEnqueueTime"
-#        - MinEnqueueTime: "MinEnqueueTime"
-#        - MemoryPercentUsage: "MemoryPercentUsage"
-#        - QueueSize: "QueueSize"
-#        - DequeueCount: "DequeueCount"
-#        - DispatchCount: "DispatchCount"
-#        - EnqueueCount: "EnqueueCount"
-#        - ExpiredCount: "ExpiredCount"
-#        - InFlightCount: "InFlightCount"
-#        - AverageMessageSize: "AverageMessageSize"
-#
+
   # This MBean will extract out Topic metrics.
   - objectName: "org.apache.activemq:type=Broker,brokerName=*,destinationType=Topic,destinationName=*"
     mbeanKeys: ["type", "brokerName","destinationType","destinationName"]
@@ -76,25 +67,12 @@ mbeans:
       include:
         - AverageEnqueueTime: "Average Enqueue Time"
         - ConsumerCount: "ConsumerCount"
-#        - ProducerCount: "ProducerCount"
-#        - MaxEnqueueTime: "MaxEnqueueTime"
-#        - MinEnqueueTime: "MinEnqueueTime"
-#        - MemoryPercentUsage: "MemoryPercentUsage"
-#        - QueueSize: "QueueSize"
-#        - DequeueCount: "DequeueCount"
-#        - DispatchCount: "DispatchCount"
-#        - EnqueueCount: "EnqueueCount"
-#        - ExpiredCount: "ExpiredCount"
-#        - InFlightCount: "InFlightCount"
-#        - AverageMessageSize: "AverageMessageSize"
 
 
+  # Derived Metrics can be set in the following way
   - objectName: "java.lang:type=Memory"
     mbeanKeys: ["type"]
     metrics:
       include:
         - HeapMemoryUsage.committed : "Heap Memory Usage|Committed"
-#        - HeapMemoryUsage.used : "Heap Memory Usage|Used"
-#        - NonHeapMemoryUsage.committed : "Non Heap Memory Usage|Committed"
-#        - NonHeapMemoryUsage.used : "Non Heap Memory Usage|Used"
 

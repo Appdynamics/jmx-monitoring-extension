@@ -9,7 +9,6 @@
 package com.appdynamics.extensions.jmx;
 
 import com.appdynamics.extensions.ABaseMonitor;
-import com.appdynamics.extensions.TaskInputArgs;
 import com.appdynamics.extensions.TasksExecutionServiceProvider;
 import com.appdynamics.extensions.crypto.CryptoUtil;
 import com.appdynamics.extensions.util.AssertUtils;
@@ -101,12 +100,12 @@ public class JMXMonitor extends ABaseMonitor {
         if (!Strings.isNullOrEmpty(password)) {
             return password;
         }
-        String encryptionKey = convertToString(configuration.getConfigYml().get(ENCRYPTION_KEY), "");
+        String encryptionKey = convertToString(server.get(ENCRYPTION_KEY), "");
         String encryptedPassword = convertToString(server.get(ENCRYPTEDPASSWORD), "");
         if (!Strings.isNullOrEmpty(encryptionKey) && !Strings.isNullOrEmpty(encryptedPassword)) {
             java.util.Map<String, String> cryptoMap = Maps.newHashMap();
             cryptoMap.put(PASSWORD_ENCRYPTED, encryptedPassword);
-            cryptoMap.put(TaskInputArgs.ENCRYPTION_KEY, encryptionKey);
+            cryptoMap.put(ENCRYPTION_KEY, encryptionKey);
             return CryptoUtil.getPassword(cryptoMap);
         }
         return null;
