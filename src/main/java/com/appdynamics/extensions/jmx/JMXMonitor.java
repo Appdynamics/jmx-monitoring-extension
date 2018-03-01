@@ -94,7 +94,6 @@ public class JMXMonitor extends ABaseMonitor {
                 metricWriter(taskExecutor.getMetricWriteHelper()).
                 jmxConnectionAdapter(adapter).server(server).
                 mbeans((List<Map>) configuration.getConfigYml().get(MBEANS)).build();
-
     }
 
     private String getPassword(Map server) {
