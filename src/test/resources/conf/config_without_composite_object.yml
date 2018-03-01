@@ -1,0 +1,8 @@
+mbeans:
+#mBeans for Cache Metrics
+  - objectName: "org.apache.cassandra.metrics:type=ClientRequest,scope=Read,name=Latency"
+    mbeanKeys: ["type","scope","name"]
+    metrics:
+      include:
+        - Min : "Max Latency"
+        - Max : "Min Latency"
