@@ -246,4 +246,4 @@ Workbench is an inbuilt feature provided with each extension in order to assist 
 [Encryption Guidelines]: https://community.appdynamics.com/t5/Knowledge-Base/How-to-use-Password-Encryption-with-Extensions/ta-p/29397
 [troubleshooting-document]: https://community.appdynamics.com/t5/Knowledge-Base/How-to-troubleshoot-missing-custom-metrics-or-extensions-metrics/ta-p/28695
 [AppDynamics Exchange]: https://www.appdynamics.com/community/exchange/extension/jmx-monitoring-extension/
-[GitHub]: https://github.com/Appdynamics/oracle-monitoring-extension/
+[GitHub]: https://github.com/Appdynamics/jmx-monitoring-extension/
