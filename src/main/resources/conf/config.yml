@@ -64,13 +64,13 @@ mbeans:
     mbeanKeys: ["type", "brokerName","destinationType","destinationName"]
     metrics:
       include:
-        - AverageEnqueueTime: "AverageEnqueueTime"
-          clusterRollUpType: "AVERAGE"
-          timeRollUpType: "SUM"
-          aggregationType: "SUM"
+        - AverageEnqueueTime: "Average Enqueue Time"
+          clusterRollUpType: "INDIVIDUAL"
+          timeRollUpType: "AVERAGE"
+          aggregationType: "AVERAGE"
 
-        - ConsumerCount: "ConsumerCount"
-          clusterRollUpType: "AVERAGE"
+        - ConsumerCount: "Consumer Count"
+          clusterRollUpType: "COLLECTIVE"
           timeRollUpType: "SUM"
           aggregationType: "SUM"
 

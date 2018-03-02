@@ -117,15 +117,20 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                 Map<String, ? super Object> metricProperties = new HashMap<String, Object>();
                 metricProperties.put(ALIAS, Strings.isNullOrEmpty(alias) ? metricName : alias);
 
-                setProps(mBean, metricProperties); //global level
-                setProps(localMetaData, metricProperties); //local level
+                setProps(mBean, metricProperties, metricName); //global level
+                setProps(localMetaData, metricProperties, metricName); //local level
                 metricPropsMap.put(metricName, metricProperties);
             }
         }
         return metricPropsMap;
     }
 
-    private void setProps(Map metadata, Map props) {
+    private void setProps(Map metadata, Map props, String metricName) {
+        if (metadata.get(ALIAS) != null) {
+            props.put(ALIAS, metadata.get(ALIAS).toString());
+        } else {
+            props.put(ALIAS, metricName);
+        }
         if (metadata.get(MULTIPLIER) != null) {
             props.put(MULTIPLIER, metadata.get(MULTIPLIER).toString());
         } else {
@@ -133,7 +138,6 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
         }
         if (metadata.get(CONVERT) != null) {
             props.put(CONVERT, metadata.get(CONVERT).toString());
-
         } else {
             props.put(CONVERT, (Map) null);
         }
@@ -166,9 +170,9 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
     public void onTaskComplete() {
         logger.debug("Task Complete");
         if (status == true) {
-            metricWriter.printMetric(metricPrefix + METRICS_SEPARATOR + (String) server.get(DISPLAY_NAME) + METRICS_SEPARATOR + AVAILABILITY, "1", "AVERAGE", "AVERAGE", "INDIVIDUAL");
+            metricWriter.printMetric(metricPrefix + METRICS_SEPARATOR + server.get(DISPLAY_NAME).toString() + METRICS_SEPARATOR + AVAILABILITY, "1", "AVERAGE", "AVERAGE", "INDIVIDUAL");
         } else {
-            metricWriter.printMetric(metricPrefix + METRICS_SEPARATOR + (String) server.get(DISPLAY_NAME) + METRICS_SEPARATOR + AVAILABILITY, "0", "AVERAGE", "AVERAGE", "INDIVIDUAL");
+            metricWriter.printMetric(metricPrefix + METRICS_SEPARATOR + server.get(DISPLAY_NAME).toString() + METRICS_SEPARATOR + AVAILABILITY, "0", "AVERAGE", "AVERAGE", "INDIVIDUAL");
         }
     }
 
