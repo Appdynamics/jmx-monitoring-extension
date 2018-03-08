@@ -39,7 +39,7 @@ public class JMXMetricsProcessor {
         this.jmxConnector = jmxConnector;
     }
 
-    public List<Metric> getJMXMetrics(Map mBean, Map<String, ?> metricsPropertiesMap, String metricPrefix) throws
+    public List<Metric> getJMXMetrics(Map mBean, Map<String, ?> metricsPropertiesMap, String metricPrefix, String displayName) throws
             MalformedObjectNameException, IOException, IntrospectionException, InstanceNotFoundException,
             ReflectionException {
         List<Metric> jmxMetrics = Lists.newArrayList();
@@ -53,7 +53,7 @@ public class JMXMetricsProcessor {
             List<Attribute> attributes = jmxConnectionAdapter.getAttributes(jmxConnector, instance.getObjectName(),
                     metricNamesToBeExtracted.toArray(new String[metricNamesToBeExtracted.size()]));
             List<String> mBeanKeys = getMBeanKeys(mBean);
-            collect(metricPrefix, jmxMetrics, attributes, instance, metricsPropertiesMap, mBeanKeys);
+            collect(metricPrefix, jmxMetrics, attributes, instance, metricsPropertiesMap, mBeanKeys, displayName);
         }
         return jmxMetrics;
     }
@@ -74,7 +74,7 @@ public class JMXMetricsProcessor {
         return Lists.newArrayList(filteredSet);
     }
 
-    private void collect(String metricPrefix, List<Metric> jmxMetrics, List<Attribute> attributes, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName, List<String> mBeanKeys) {
+    private void collect(String metricPrefix, List<Metric> jmxMetrics, List<Attribute> attributes, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName, List<String> mBeanKeys,String displayName) {
         for (Attribute attribute : attributes) {
             try {
                 String metricName = attribute.getName();
@@ -85,12 +85,12 @@ public class JMXMetricsProcessor {
                         String key = metricName + PERIOD + str;
                         if (metricPropsPerMetricName.containsKey(key)) {
                             Object attributeValue = ((CompositeDataSupport) attribute.getValue()).get(str);
-                            setMetricDetails(metricPrefix, key, attributeValue, instance, metricPropsPerMetricName, jmxMetrics, mBeanKeys);
+                            setMetricDetails(metricPrefix, key, attributeValue, instance, metricPropsPerMetricName, jmxMetrics, mBeanKeys, displayName);
                         }
                     }
                 } else {
                     setMetricDetails(metricPrefix, metricName, attribute.getValue().toString(), instance, (Map) metricPropsPerMetricName,
-                            jmxMetrics, mBeanKeys);
+                            jmxMetrics, mBeanKeys, displayName);
                 }
             } catch (Exception e) {
                 logger.error("Error collecting value for {} {}", instance.getObjectName(), attribute.getName(), e);
@@ -98,7 +98,7 @@ public class JMXMetricsProcessor {
         }
     }
 
-    private void setMetricDetails(String metricPrefix, String attributeName, Object attributeValue, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName, List<Metric> jmxMetrics, List<String> mBeanKeys) {
+    private void setMetricDetails(String metricPrefix, String attributeName, Object attributeValue, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName, List<Metric> jmxMetrics, List<String> mBeanKeys, String displayName) {
 
         Map<String, ?> props = (Map) metricPropsPerMetricName.get(attributeName);
         if (props == null) {
@@ -108,8 +108,24 @@ public class JMXMetricsProcessor {
 
         String instanceKey = getInstanceKey(instance, mBeanKeys);
 
+        String metricPath;
+        if(Strings.isNullOrEmpty(metricPrefix)){
+            if(Strings.isNullOrEmpty(displayName)){
+                metricPath = instanceKey + attributeName;
+            } else {
+                metricPath = displayName + METRICS_SEPARATOR + instanceKey + attributeName;
+            }
+        } else {
+            if (Strings.isNullOrEmpty(displayName)) {
+                metricPath = metricPrefix + METRICS_SEPARATOR + instanceKey + attributeName;
+            } else {
+                metricPath = metricPrefix + METRICS_SEPARATOR + displayName + METRICS_SEPARATOR + instanceKey + attributeName;
+            }
+        }
 
-        String metricPath = Strings.isNullOrEmpty(metricPrefix) ? instanceKey + attributeName : metricPrefix + METRICS_SEPARATOR + instanceKey + attributeName;
+
+//        String metricPath = Strings.isNullOrEmpty(metricPrefix) ? displayName + instanceKey + attributeName : metricPrefix + METRICS_SEPARATOR + displayName + METRICS_SEPARATOR + instanceKey + attributeName;
+
         Metric current_metric = new Metric(attributeName, attributeValue.toString(), metricPath, props);
         jmxMetrics.add(current_metric);
     }

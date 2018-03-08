@@ -73,7 +73,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                     Map<String, ?> metricProperties = getMapOfProperties(mBean);
                     JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
 
-                    List<Metric> nodeMetrics = jmxMetricsProcessor.getJMXMetrics(mBean, metricProperties, metricPrefix);
+                    List<Metric> nodeMetrics = jmxMetricsProcessor.getJMXMetrics(mBean, metricProperties, metricPrefix, server.get(DISPLAY_NAME).toString());
 
                     if (nodeMetrics.size() > 0) {
                         metricWriter.transformAndPrintMetrics(nodeMetrics);
