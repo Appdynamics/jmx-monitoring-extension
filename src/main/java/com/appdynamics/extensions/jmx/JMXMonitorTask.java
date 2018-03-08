@@ -117,18 +117,21 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                 Map<String, ? super Object> metricProperties = new HashMap<String, Object>();
                 metricProperties.put(ALIAS, Strings.isNullOrEmpty(alias) ? metricName : alias);
 
-                setProps(mBean, metricProperties, metricName); //global level
-                setProps(localMetaData, metricProperties, metricName); //local level
+                setProps(mBean, metricProperties, metricName, alias); //global level
+                setProps(localMetaData, metricProperties, metricName, alias); //local level
                 metricPropsMap.put(metricName, metricProperties);
             }
         }
         return metricPropsMap;
     }
 
-    private void setProps(Map metadata, Map props, String metricName) {
+    private void setProps(Map metadata, Map props, String metricName, String alias) {
         if (metadata.get(ALIAS) != null) {
             props.put(ALIAS, metadata.get(ALIAS).toString());
-        } else {
+        }else if(!Strings.isNullOrEmpty(alias)){
+            props.put(ALIAS, alias);
+        }
+        else {
             props.put(ALIAS, metricName);
         }
         if (metadata.get(MULTIPLIER) != null) {
