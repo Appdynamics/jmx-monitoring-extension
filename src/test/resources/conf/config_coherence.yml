@@ -1,7 +1,7 @@
 ### ANY CHANGES TO THIS FILE DOES NOT REQUIRE A RESTART ###
 
 #This will create this metric in all the tiers, under this path
-metricPrefix: Custom Metrics|JMXMonitor
+#metricPrefix: Custom Metrics|JMXMonitor
 
 #This will create it in specific Tier. Replace <TIER_NAME>
 metricPrefix: "Server|Component:awsReportingTier|Custom Metrics|JMXMonitor"
