@@ -1,0 +1,116 @@
+### ANY CHANGES TO THIS FILE DOES NOT REQUIRE A RESTART ###
+
+#This will create this metric in all the tiers, under this path
+metricPrefix: Custom Metrics|JMXMonitor
+
+#This will create it in specific Tier. Replace <TIER_NAME>
+metricPrefix: "Server|Component:awsReportingTier|Custom Metrics|JMXMonitor"
+
+### ANY CHANGES TO THIS FILE DOES NOT REQUIRE A RESTART ###
+
+# List of JMX Servers
+servers:
+  -   displayName: "Coherence"
+#     displayName is a required field. This will be your server name that will show up in metric path.
+
+#     You can either use just a host and port to connect or use your full serviceURL to make the connection
+#     Do not choose both, comment one out and only use the other.
+#      host: ""
+#      port:
+
+      serviceUrl: "service:jmx:rmi:///jndi/rmi://localhost:8293/jmxrmi"
+
+      username: ""
+      password: ""
+
+#     You can either use the normal password or encrypt your password and provide the encrypted Password and encryptionKey.
+#     Do not provide both, only provide one and comment out the other.
+
+#      encryptedPassword: ""
+#      encryptionKey: ""
+
+
+# number of concurrent tasks.
+# This doesn't need to be changed unless many servers are configured
+numberOfThreads: 10
+
+#timeout for the thread
+threadTimeout: 30
+
+
+# The configuration of different metrics from various mbeans of activemq server
+# The mbeans are already configured.This does not need to be changed unless
+# someone needs to configure on their own.
+mbeans:
+  # This Mbean will extract out Broker metrics
+  - objectName: "Coherence:type=Cluster"
+    mbeanKeys: ["type"]
+    metrics:
+      include:
+        - Members : "Members"
+        # If this attribute is removed, nodeIds will be seen in the metric paths and not their corressponding names.
+        - ClusterSize : "ClusterSize"
+
+  - objectName: "Coherence:type=Cache,service=DistributedCache,name=*,nodeId=*,tier=*"
+    mbeanKeys: ["type", "service","name", "nodeId","tier"]
+    metrics:
+      include:
+        - CacheHits : "CacheHits" #The rough number of cache hits since the last time statistics were reset. A cache hit is a read operation invocation (that is, get()) for which an entry exists in this map.
+        - CacheMisses : "CacheMisses" #The rough number of cache misses since the last time statistics were reset.
+        - CachePrunes : "CachePrunes" #The number of prune operations since the last time statistics were reset. A prune operation occurs every time the cache reaches its high watermark as specified by the HighUnits attribute.
+        - TotalGets : "TotalGets" #The total number of get() operations since the last time statistics were reset.
+        - TotalPuts : "TotalPuts" #The total number of put() operations since the last time statistics were reset.
+        - UnitFactor : "UnitFactor" #The factor by which the Units, LowUnits and HighUnits properties are adjusted. Using a BINARY unit calculator, for example, the factor of 1048576 could be used to count megabytes instead of bytes.
+        - Units : "Units" #The size of the cache measured in units. This value needs to be adjusted by the UnitFactor.
+        - Size : "Size" #The number of entries in the cache.
+
+  - objectName: "Coherence:type=Node,nodeId=*"
+    mbeanKeys: ["type", "nodeId"]
+    metrics:
+      include:
+        - MemoryAvailableMB : "MemoryAvailableMB" #The total amount of memory in the JVM available for new objects in MB.
+        - MemoryMaxMB : "MemoryMaxMB" #The maximum amount of memory that the JVM will attempt to use in MB.
+
+  - objectName: "Coherence:type=Service,name=DistributedCache,nodeId=*"
+    mbeanKeys: ["type","name", "nodeId"]
+    metrics:
+      include:
+        - TaskBacklog : "TaskBacklog" #The size of the backlog queue that holds tasks scheduled to be executed by one of the service pool threads.
+        - StatusHA : "StatusHA" #﻿The High Availability status for this service. # Values would be 1 for ENDANGERED, 2 for NODE-SAFE and 3 for MACHINE-SAFE
+          convert : {
+            "ENDANGERED" : "1",
+            "NODE-SAFE" : "2",
+            "MACHINE-SAFE" : "3"
+          }
+
+
+  - objectName: "Coherence:type=StorageManager,service=DistributedCache,cache=*,nodeId=*"
+    mbeanKeys: ["type", "service","cache", "nodeId"]
+    metrics:
+      include:
+        - EvictionCount : "EvictionCount" #The total number of evictions from the backing map managed by this Storage Manager.
+        - EventsDispatched : "EventsDispatched" #The total number of events dispatched by the Storage Manager per minute.
+        - NonOptimizedQueryCount : "NonOptimizedQueryCount" #The total number of queries that could not be resolved or were partially resolved against indexes since statistics were last reset.
+        - NonOptimizedQueryAverageMillis : "NonOptimizedQueryAverageMillis" #The average duration in milliseconds per non-optimized query execution since the statistics were last reset.
+        - OptimizedQueryAverageMillis : "OptimizedQueryAverageMillis"  #The average duration in milliseconds per optimized query execution since the statistics were last reset.
+        - OptimizedQueryCount : "OptimizedQueryCount" #The total number of queries that were fully resolved using indexes since statistics were last reset.
+
+
+  - objectName: "Coherence:type=Platform,Domain=java.lang,subType=OperatingSystem,nodeId=*"
+    mbeanKeys: ["type", "Domain", "subType", "nodeId"]
+    metrics:
+      include:
+        - FreePhysicalMemorySize : "FreePhysicalMemorySize" #The amount of free physical memory available.
+        - FreeSwapSpaceSize : "FreeSwapSpaceSize" #The amount of free swap space available.
+        - OpenFileDescriptorCount : "OpenFileDescriptorCount" #The number of open file descriptors available.
+        - ProcessCpuLoad : "ProcessCpuLoad"
+        - SystemCpuLoad : "SystemCpuLoad"
+        - TotalPhysicalMemorySize : "TotalPhysicalMemorySize"
+        - TotalSwapSpaceSize : "TotalSwapSpaceSize"
+
+  - objectName: "Coherence:type=Service,name=DistributedCache,nodeId=*"
+    mbeanKeys: ["type","name", "nodeId"]
+    metrics:
+      include:
+        - ThreadCount : "ThreadCount" #Specifies the number of daemon threads used by the distributed cache service
+        - ThreadIdleCount : "ThreadIdleCount" #The number of currently idle threads in the service thread pool.

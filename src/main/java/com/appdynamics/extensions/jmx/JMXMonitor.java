@@ -115,7 +115,7 @@ public class JMXMonitor extends ABaseMonitor {
     public static void main(String[] args) throws TaskExecutionException {
         JMXMonitor JMXMonitor = new JMXMonitor();
         Map<String, String> argsMap = new HashMap<String, String>();
-        argsMap.put("config-file", "/Users/bhuvnesh.kumar/repos/appdynamics/extensions/jmx-monitoring-extension/src/test/resources/conf/config_hbase.yml");
+        argsMap.put("config-file", "/Users/bhuvnesh.kumar/repos/appdynamics/extensions/jmx-monitoring-extension/src/test/resources/conf/config_coherence.yml");
         JMXMonitor.execute(argsMap, null);
     }
 }
