@@ -1,0 +1,95 @@
+### ANY CHANGES TO THIS FILE DOES NOT REQUIRE A RESTART ###
+
+#This will create this metric in all the tiers, under this path
+metricPrefix: Custom Metrics|JMXMonitor
+
+#This will create it in specific Tier. Replace <TIER_NAME>
+metricPrefix: "Server|Component:13|Custom Metrics|JMXMonitor"
+
+### ANY CHANGES TO THIS FILE DOES NOT REQUIRE A RESTART ###
+
+# List of JMX Servers
+servers:
+  -   displayName: "localhost"
+#     displayName is a required field. This will be your server name that will show up in metric path.
+
+#     You can either use just a host and port to connect or use your full serviceURL to make the connection
+#     Do not choose both, comment one out and only use the other.
+#      host: ""
+#      port:
+
+      serviceUrl: "service:jmx:rmi:///jndi/rmi://localhost:20015/jmxrmi"
+
+      username: ""
+      password: ""
+
+#     You can either use the normal password or encrypt your password and provide the encrypted Password and encryptionKey.
+#     Do not provide both, only provide one and comment out the other.
+
+#      encryptedPassword: ""
+#      encryptionKey: ""
+
+
+# number of concurrent tasks.
+# This doesn't need to be changed unless many servers are configured
+numberOfThreads: 10
+
+#timeout for the thread
+threadTimeout: 30
+
+
+# The configuration of different metrics from various mbeans of activemq server
+# The mbeans are already configured.This does not need to be changed unless
+# someone needs to configure on their own.
+mbeans:
+  # This Mbean will extract out Broker metrics
+  - objectName: "Hadoop:service=HBase,name=JvmMetrics"
+    mbeanKeys: ["service", "name"]
+    metrics:
+      include:
+        - MemHeapCommittedM: "Mem Heap Committed M"
+        - MemHeapMaxM: "Mem Heap Max M"
+
+  - objectName: "Hadoop:service=HBase,name=Master,sub=AssignmentManger"
+    mbeanKeys: ["service", "name","sub"]
+    metrics:
+      include:
+        - BulkAssign_max: "Bulk Assign max"
+        - Assign_max: "Assign max"
+
+  - objectName: "Hadoop:service=HBase,name=Master,sub=Server"
+    mbeanKeys: ["service", "name", "sub"]
+    metrics:
+      include:
+        - averageLoad: "average Load"
+        - clusterRequests: "cluster Requests"
+        - numDeadRegionServers: "num Dead Region Servers"
+        - numRegionServers: "num Region Servers"
+
+  - objectName: "Hadoop:service=HBase,name=RegionServer,sub=Server"
+    mbeanKeys: ["service", "name", "sub"]
+    metrics:
+      include:
+        - storeCount: "store Count"
+          multiplier : 100
+        - storeFileCount: "store File Count"
+        - storeFileIndexSize: "store File Index Size"
+
+
+  - objectName: "Hadoop:service=HBase,name=RegionServer,sub=IPC"
+    mbeanKeys: ["service", "name", "sub"]
+    metrics:
+      include:
+        - TotalCallTime_num_ops: "Total Call Time num ops"
+        - exceptions: "exceptions"
+        - ProcessCallTime_num_ops: "ProcessCallTime num ops"
+
+
+  - objectName: "Hadoop:service=HBase,name=RegionServer,sub=WAL"
+    mbeanKeys: ["service", "name", "sub"]
+    metrics:
+      include:
+        - AppendSize_num_ops: "Append Size num ops"
+        - AppendSize_min: "Append Size min"
+        - AppendSize_max: "Append Size max"
+
