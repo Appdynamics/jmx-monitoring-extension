@@ -123,9 +123,6 @@ public class JMXMetricsProcessor {
             }
         }
 
-
-//        String metricPath = Strings.isNullOrEmpty(metricPrefix) ? displayName + instanceKey + attributeName : metricPrefix + METRICS_SEPARATOR + displayName + METRICS_SEPARATOR + instanceKey + attributeName;
-
         Metric current_metric = new Metric(attributeName, attributeValue.toString(), metricPath, props);
         jmxMetrics.add(current_metric);
     }
