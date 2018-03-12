@@ -43,7 +43,7 @@ public class JMXMetricsProcessor {
             MalformedObjectNameException, IOException, IntrospectionException, InstanceNotFoundException,
             ReflectionException {
         List<Metric> jmxMetrics = Lists.newArrayList();
-        String configObjectName = JMXUtil.convertToString(mBean.get(OBJECT_NAME), "");
+        String configObjectName = JMXUtil.convertToString(mBean.get(OBJECT_NAME), NULLSTRING);
 
         Set<ObjectInstance> objectInstances = jmxConnectionAdapter.queryMBeans(jmxConnector, ObjectName.getInstance
                 (configObjectName));
@@ -148,7 +148,7 @@ public class JMXMetricsProcessor {
 
         for (String key : mBeanKeys) {
             String value = getKeyProperty(instance, key);
-            metricsKey.append(Strings.isNullOrEmpty(value) ? "" : value + METRICS_SEPARATOR);
+            metricsKey.append(Strings.isNullOrEmpty(value) ? NULLSTRING : value + METRICS_SEPARATOR);
         }
         return metricsKey.toString();
     }

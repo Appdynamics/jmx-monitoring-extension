@@ -45,5 +45,6 @@ public class Constants {
     public static final String AVAILABILITY = "Availability";
     public static final String PERIOD = ".";
     public static final String CUSTOMMETRICS = "Custom Metrics";
+    public static final String NULLSTRING = "";
 
 }
