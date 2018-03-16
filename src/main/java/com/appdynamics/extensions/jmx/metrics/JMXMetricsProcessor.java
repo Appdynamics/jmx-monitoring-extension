@@ -107,6 +107,7 @@ public class JMXMetricsProcessor {
 
 
         String instanceKey = getInstanceKey(instance, mBeanKeys);
+        logger.debug("Instance Key: {}", instanceKey);
 
         String metricPath;
         if(Strings.isNullOrEmpty(metricPrefix)){

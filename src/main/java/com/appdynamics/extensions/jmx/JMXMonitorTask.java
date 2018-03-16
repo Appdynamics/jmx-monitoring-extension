@@ -40,6 +40,8 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
     private List<Map> configMBeans;
 
     private String serverName;
+    private long previousTimestamp = 0;
+    private long currentTimestamp = 0;
 
     public void run() {
         serverName = JMXUtil.convertToString(server.get(DISPLAY_NAME), "");
@@ -62,7 +64,10 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
         JMXConnector jmxConnector = null;
 
         try {
+            previousTimestamp = System.currentTimeMillis();
             jmxConnector = jmxConnectionAdapter.open();
+            currentTimestamp = System.currentTimeMillis();
+            logger.debug("Time to open connection in milliseconds: "+ (currentTimestamp-previousTimestamp));
             logger.debug("JMX Connection is now open");
 
             for (Map mBean : configMBeans) {
@@ -71,9 +76,17 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
 
                 try {
                     Map<String, ?> metricProperties = getMapOfProperties(mBean);
-                    JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
 
+                    previousTimestamp = System.currentTimeMillis();
+                    JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
+                    currentTimestamp = System.currentTimeMillis();
+                    logger.debug("Time to create object of JMXMetricsProcessor in milliseconds: "+ (currentTimestamp-previousTimestamp));
+
+                    previousTimestamp = System.currentTimeMillis();
                     List<Metric> nodeMetrics = jmxMetricsProcessor.getJMXMetrics(mBean, metricProperties, metricPrefix, server.get(DISPLAY_NAME).toString());
+                    currentTimestamp = System.currentTimeMillis();
+                    logger.debug("Time to get data back from JMXMetricsProcessor in milliseconds: "+ (currentTimestamp-previousTimestamp));
+
 
                     if (nodeMetrics.size() > 0) {
                         metricWriter.transformAndPrintMetrics(nodeMetrics);
