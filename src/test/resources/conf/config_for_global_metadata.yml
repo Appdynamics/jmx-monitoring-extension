@@ -1,11 +1,10 @@
 mbeans:
   - objectName: "org.apache.cassandra.metrics:type=ClientRequest,scope=Read,name=Latency"
     mbeanKeys: ["type","scope","name"]
-
-    clusterRollUpType: "AVERAGE"
+    clusterRollUpType: "COLLECTIVE"
     timeRollUpType: "SUM"
     aggregationType: "SUM"
-
     metrics:
       include:
         - Max : "Max Latency"
+        - Min : "Min Latency"

@@ -132,41 +132,57 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
             props.put(ALIAS, alias);
         }
         else {
-            props.put(ALIAS, metricName);
+            if(props.get(ALIAS) == null) {
+                props.put(ALIAS, metricName);
+            }
         }
         if (metadata.get(MULTIPLIER) != null) {
             props.put(MULTIPLIER, metadata.get(MULTIPLIER).toString());
         } else {
-            props.put(MULTIPLIER, "1");
+            if(props.get(MULTIPLIER) == null)
+            {
+                props.put(MULTIPLIER, "1");
+            }
         }
         if (metadata.get(CONVERT) != null) {
             props.put(CONVERT, metadata.get(CONVERT).toString());
         } else {
-            props.put(CONVERT, (Map) null);
+            if(props.get(CONVERT) == null) {
+                props.put(CONVERT, (Map) null);
+            }
         }
         if (metadata.get(DELTA) != null) {
             props.put(DELTA, metadata.get(DELTA).toString());
 
         } else {
-            props.put(DELTA, FALSE);
+            if(props.get(DELTA) == null) {
+                props.put(DELTA, FALSE);
+            }
+
         }
         if (metadata.get(CLUSTERROLLUPTYPE) != null) {
             props.put(CLUSTERROLLUPTYPE, metadata.get(CLUSTERROLLUPTYPE).toString());
 
         } else {
-            props.put(CLUSTERROLLUPTYPE, INDIVIDUAL);
+            if(props.get(CLUSTERROLLUPTYPE) == null) {
+                props.put(CLUSTERROLLUPTYPE, INDIVIDUAL);
+            }
         }
         if (metadata.get(TIMEROLLUPTYPE) != null) {
             props.put(TIMEROLLUPTYPE, metadata.get(TIMEROLLUPTYPE).toString());
 
         } else {
-            props.put(TIMEROLLUPTYPE, AVERAGE);
+            if(props.get(TIMEROLLUPTYPE) == null) {
+                props.put(TIMEROLLUPTYPE, AVERAGE);
+            }
         }
         if (metadata.get(AGGREGATIONTYPE) != null) {
             props.put(AGGREGATIONTYPE, metadata.get(AGGREGATIONTYPE).toString());
 
         } else {
-            props.put(AGGREGATIONTYPE, AVERAGE);
+            if(props.get(AGGREGATIONTYPE) == null) {
+                props.put(AGGREGATIONTYPE, AVERAGE);
+            }
         }
     }
 

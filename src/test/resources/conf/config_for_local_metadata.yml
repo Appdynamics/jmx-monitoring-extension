@@ -4,6 +4,10 @@ mbeans:
     metrics:
       include:
         - Max : "Max Latency"
-          clusterRollUpType: "AVERAGE"
+          clusterRollUpType: "COLLECTIVE"
+          timeRollUpType: "SUM"
+          aggregationType: "SUM"
+        - Min : "Min Latency"
+          clusterRollUpType: "COLLECTIVE"
           timeRollUpType: "SUM"
           aggregationType: "SUM"

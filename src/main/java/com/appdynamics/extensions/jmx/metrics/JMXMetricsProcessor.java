@@ -122,8 +122,8 @@ public class JMXMetricsProcessor {
                 metricPath = metricPrefix + METRICS_SEPARATOR + displayName + METRICS_SEPARATOR + instanceKey + attributeName;
             }
         }
-
-        Metric current_metric = new Metric(attributeName, attributeValue.toString(), metricPath, props);
+        String attrVal = attributeValue.toString();
+        Metric current_metric = new Metric(attributeName, attrVal, metricPath, props);
         jmxMetrics.add(current_metric);
     }
 

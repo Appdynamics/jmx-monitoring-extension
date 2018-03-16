@@ -178,7 +178,7 @@ public class JMXMetricsProcessorTest {
 
 
     @Test
-    private void testGlobalProperties()  throws MalformedObjectNameException, IntrospectionException,
+    public void testGlobalProperties()  throws MalformedObjectNameException, IntrospectionException,
             ReflectionException, InstanceNotFoundException, IOException, OpenDataException {
         Map config = YmlReader.readFromFileAsMap(new File(this.getClass().getResource("/conf/config_for_global_metadata.yml").getFile()));
         List<Map> mBeans = (List) config.get("mbeans");
@@ -220,9 +220,53 @@ public class JMXMetricsProcessorTest {
         Assert.assertTrue(metrics.get(1).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
         Assert.assertTrue(metrics.get(1).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
 
-
     }
 
+
+    @Test
+    public void testlocalProperties()  throws MalformedObjectNameException, IntrospectionException,
+            ReflectionException, InstanceNotFoundException, IOException, OpenDataException {
+        Map config = YmlReader.readFromFileAsMap(new File(this.getClass().getResource("/conf/config_for_local_metadata.yml").getFile()));
+        List<Map> mBeans = (List) config.get("mbeans");
+        Set<ObjectInstance> objectInstances = Sets.newHashSet();
+        objectInstances.add(new ObjectInstance("org.apache.cassandra.metrics:type=ClientRequest,scope=Read,name=Latency", "test"));
+
+        List<Attribute> attributes = Lists.newArrayList();
+        attributes.add(new Attribute("Max", new BigDecimal(200)));
+        attributes.add(new Attribute("Min", new BigDecimal(100)));
+
+        List<String> metricNames = Lists.newArrayList();
+        metricNames.add("metric1");
+        metricNames.add("metric2");
+
+        when(jmxConnectionAdapter.queryMBeans(eq(jmxConnector), Mockito.any(ObjectName.class))).thenReturn(objectInstances);
+        when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
+        when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
+
+
+        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
+        JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
+        Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
+        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
+
+        Assert.assertTrue(metrics.get(0).getMetricPath().equals("ClientRequest|Read|Latency|Max"));
+        Assert.assertTrue(metrics.get(0).getMetricName().equals("Max"));
+        Assert.assertTrue(metrics.get(0).getMetricValue().equals("200"));
+        Map<String, ?> metricProps = (Map<String, ?>) metricPropertiesMap.get("Max");
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
+
+
+        Assert.assertTrue(metrics.get(1).getMetricPath().equals("ClientRequest|Read|Latency|Min"));
+        Assert.assertTrue(metrics.get(1).getMetricName().equals("Min"));
+        Assert.assertTrue(metrics.get(1).getMetricValue().equals("100"));
+        metricProps = (Map<String, ?>) metricPropertiesMap.get("Min");
+        Assert.assertTrue(metrics.get(1).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
+        Assert.assertTrue(metrics.get(1).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
+        Assert.assertTrue(metrics.get(1).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
+
+    }
     private CompositeDataSupport createCompositeDataSupportObject() throws OpenDataException {
         String typeName = "type";
         String description = "description";
