@@ -10,6 +10,7 @@ package com.appdynamics.extensions.jmx;
 
 import com.appdynamics.extensions.AMonitorTaskRunnable;
 import com.appdynamics.extensions.MetricWriteHelper;
+import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.jmx.metrics.JMXMetricsProcessor;
 import com.appdynamics.extensions.metrics.Metric;
 import com.google.common.base.Strings;

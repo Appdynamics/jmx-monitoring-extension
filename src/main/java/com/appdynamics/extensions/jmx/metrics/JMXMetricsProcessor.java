@@ -8,7 +8,7 @@
 
 package com.appdynamics.extensions.jmx.metrics;
 
-import com.appdynamics.extensions.jmx.JMXConnectionAdapter;
+import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.jmx.JMXUtil;
 import com.appdynamics.extensions.jmx.filters.IncludeFilter;
 import com.appdynamics.extensions.metrics.Metric;

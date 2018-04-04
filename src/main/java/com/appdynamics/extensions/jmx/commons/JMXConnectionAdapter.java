@@ -6,7 +6,7 @@
  *
  */
 
-package com.appdynamics.extensions.jmx;
+package com.appdynamics.extensions.jmx.commons;
 
 
 import com.google.common.base.Strings;
@@ -50,7 +50,7 @@ public class JMXConnectionAdapter {
         }
     }
 
-    JMXConnector open() throws IOException {
+    public JMXConnector open() throws IOException {
         JMXConnector jmxConnector;
         final Map<String, Object> env = new HashMap<String, Object>();
         if (!Strings.isNullOrEmpty(username)) {
@@ -65,7 +65,7 @@ public class JMXConnectionAdapter {
         return jmxConnector;
     }
 
-    void close(JMXConnector jmxConnector) throws IOException {
+    public void close(JMXConnector jmxConnector) throws IOException {
         if (jmxConnector != null) {
             jmxConnector.close();
         }
