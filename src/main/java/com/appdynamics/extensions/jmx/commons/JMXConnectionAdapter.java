@@ -42,7 +42,7 @@ public class JMXConnectionAdapter {
     }
 
 
-    static JMXConnectionAdapter create(String serviceUrl, String host, int port, String username, String password) throws MalformedURLException {
+    public static JMXConnectionAdapter create(String serviceUrl, String host, int port, String username, String password) throws MalformedURLException {
         if (Strings.isNullOrEmpty(serviceUrl)) {
             return new JMXConnectionAdapter(host, port, username, password);
         } else {
