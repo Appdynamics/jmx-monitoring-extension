@@ -89,7 +89,7 @@ public class JMXMetricsProcessor {
                         }
                     }
                 } else {
-                    setMetricDetails(metricPrefix, metricName, attribute.getValue().toString(), instance, (Map) metricPropsPerMetricName,
+                    setMetricDetails(metricPrefix, metricName, attribute.getValue(), instance, (Map) metricPropsPerMetricName,
                             jmxMetrics, mBeanKeys, displayName);
                 }
             } catch (Exception e) {
