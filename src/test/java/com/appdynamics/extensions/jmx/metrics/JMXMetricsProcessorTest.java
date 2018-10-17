@@ -267,6 +267,49 @@ public class JMXMetricsProcessorTest {
         Assert.assertTrue(metrics.get(1).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
 
     }
+
+    @Test
+    public void checkMetricPropertiesFromConfig() throws MalformedObjectNameException, IntrospectionException, ReflectionException,
+            InstanceNotFoundException, IOException {
+        Map config = YmlReader.readFromFileAsMap(new File(this.getClass().getResource("/conf/config_with_props.yml").getFile()));
+        List<Map> mBeans = (List) config.get("mbeans");
+        Set<ObjectInstance> objectInstances = Sets.newHashSet();
+        objectInstances.add(new ObjectInstance("org.apache.cassandra.metrics:type=ClientRequest,scope=Read,name=Latency", "test"));
+
+//        Set<Attribute> attributes = Sets.newHashSet();
+        List<Attribute> attributes = Lists.newArrayList();
+        attributes.add(new Attribute("Max", new BigDecimal(200)));
+
+        List<String> metricNames = Lists.newArrayList();
+        metricNames.add("metric1");
+
+        when(jmxConnectionAdapter.queryMBeans(eq(jmxConnector), Mockito.any(ObjectName.class))).thenReturn(objectInstances);
+        when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
+        when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
+
+
+        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
+        JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
+        Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
+        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
+        Map<Object, Object> metricProps = metrics.get(0).getMetricProperties().getConversionValues();
+
+        Assert.assertTrue(metrics.get(0).getMetricPath().equals("ClientRequest|Read|Latency|Max"));
+        Assert.assertTrue(metrics.get(0).getMetricName().equals("Max"));
+        Assert.assertTrue(metrics.get(0).getMetricValue().equals("200"));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals("OBSERVATION"));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
+        Assert.assertTrue(metricProps.containsKey("ENDANGERED"));
+        Assert.assertTrue(metricProps.get("ENDANGERED").equals("1"));
+        Assert.assertTrue(metricProps.containsKey("NODE-SAFE"));
+        Assert.assertTrue(metricProps.get("NODE-SAFE").equals("2"));
+        Assert.assertTrue(metricProps.containsKey("MACHINE-SAFE"));
+        Assert.assertTrue(metricProps.get("MACHINE-SAFE").equals("3"));
+
+    }
+
+
     private CompositeDataSupport createCompositeDataSupportObject() throws OpenDataException {
         String typeName = "type";
         String description = "description";

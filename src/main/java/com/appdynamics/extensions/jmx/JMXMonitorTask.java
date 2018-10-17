@@ -159,7 +159,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
             }
         }
         if (metadata.get(CONVERT) != null) {
-            props.put(CONVERT, metadata.get(CONVERT).toString());
+            props.put(CONVERT, metadata.get(CONVERT));
         } else {
             if(props.get(CONVERT) == null) {
                 props.put(CONVERT, (Map) null);
