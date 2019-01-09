@@ -1,11 +1,3 @@
-/*
- *   Copyright 2018. AppDynamics LLC and its affiliates.
- *   All Rights Reserved.
- *   This is unpublished proprietary source code of AppDynamics LLC and its affiliates.
- *   The copyright notice above does not evidence any actual or intended publication of such source code.
- *
- */
-
 package com.appdynamics.extensions.jmx.metrics;
 
 import com.appdynamics.extensions.jmx.JMXUtil;
@@ -26,13 +18,16 @@ import java.util.*;
 
 import static com.appdynamics.extensions.jmx.metrics.Constants.*;
 
-public class JMXMetricsProcessor {
+/**
+ * Created by bhuvnesh.kumar on 12/19/18.
+ */
+public class JMXMetricsProcessorNew {
+
     private static final Logger logger = LoggerFactory.getLogger(JMXMetricsProcessor.class);
     private JMXConnectionAdapter jmxConnectionAdapter;
     private JMXConnector jmxConnector;
 
-    public JMXMetricsProcessor(JMXConnectionAdapter jmxConnectionAdapter, JMXConnector jmxConnector) {
-
+    public JMXMetricsProcessorNew(JMXConnectionAdapter jmxConnectionAdapter, JMXConnector jmxConnector) {
         this.jmxConnectionAdapter = jmxConnectionAdapter;
         this.jmxConnector = jmxConnector;
     }
@@ -56,11 +51,6 @@ public class JMXMetricsProcessor {
         return jmxMetrics;
     }
 
-    private List<String> getMBeanKeys(Map aConfigMBean) {
-        List<String> mBeanKeys = (List) aConfigMBean.get(MBEANKEYS);
-        return mBeanKeys;
-    }
-
     private List<String> applyFilters(Map aConfigMBean, List<String> metricNamesDictionary) throws
             IntrospectionException, ReflectionException, InstanceNotFoundException, IOException {
         Set<String> filteredSet = Sets.newHashSet();
@@ -68,6 +58,11 @@ public class JMXMetricsProcessor {
         List includeDictionary = (List) configMetrics.get(INCLUDE);
         new IncludeFilter(includeDictionary).applyFilter(filteredSet, metricNamesDictionary);
         return Lists.newArrayList(filteredSet);
+    }
+
+    private List<String> getMBeanKeys(Map aConfigMBean) {
+        List<String> mBeanKeys = (List) aConfigMBean.get(MBEANKEYS);
+        return mBeanKeys;
     }
 
     private void collect(String metricPrefix, List<Metric> jmxMetrics, List<Attribute> attributes, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName, List<String> mBeanKeys, String displayName) {
@@ -79,74 +74,15 @@ public class JMXMetricsProcessor {
                 } else if (isCurrentObjectMap(attribute)) {
                     setMetricDetailsForMapMetrics(metricPrefix, jmxMetrics,attributes, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute, metricName);
                 } else {
-                    setMetricDetails(metricPrefix, metricName, attribute.getValue(), instance, metricPropsPerMetricName,
+                    setMetricDetailsForNormalMetrics(metricPrefix, metricName, attribute.getValue(), instance, metricPropsPerMetricName,
                             jmxMetrics, mBeanKeys, displayName);
                 }
             } catch (Exception e) {
                 logger.error("Error collecting value for {} {}", instance.getObjectName(), attribute.getName(), e);
             }
         }
+
     }
-
-    private void setMetricDetailsForMapMetrics(String metricPrefix, List<Metric> jmxMetrics, List<Attribute> attributes, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName, List<String> mBeanKeys, String displayName, Attribute attribute, String metricName) {
-        Map attributesFound = (Map) attribute.getValue();
-        for (Object metricNameKey : attributesFound.keySet()) {
-            String key = metricName + PERIOD + metricNameKey.toString();
-            Object attributeValue = attributesFound.get(metricNameKey);
-//            if(isCurrentObjectMap(attributesFound.get(metricNameKey))){
-//                collect(metricPrefix,jmxMetrics, attributes,instance,metricPropsPerMetricName,mBeanKeys,displayName);
-//            }
-            setMetricDetails(metricPrefix, key, attributeValue, instance, metricPropsPerMetricName, jmxMetrics, mBeanKeys, displayName);
-        }
-    }
-
-    private void setMetricDetailsForCompositeMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName, List<String> mBeanKeys, String displayName, Attribute attribute, String metricName) {
-        Set<String> attributesFound = ((CompositeDataSupport) attribute.getValue()).getCompositeType()
-                .keySet();
-        for (String str : attributesFound) {
-            String key = metricName + PERIOD + str;
-            if (metricPropsPerMetricName.containsKey(key)) {
-                Object attributeValue = ((CompositeDataSupport) attribute.getValue()).get(str);
-                setMetricDetails(metricPrefix, key, attributeValue, instance, metricPropsPerMetricName, jmxMetrics, mBeanKeys, displayName);
-            }
-        }
-    }
-
-    private void setMetricDetails(String metricPrefix, String attributeName, Object attributeValue, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName, List<Metric> jmxMetrics, List<String> mBeanKeys, String displayName) {
-
-        Map<String, ?> props = (Map) metricPropsPerMetricName.get(attributeName);
-        if (props == null) {
-            logger.error("Could not find metric properties for {} ", attributeName);
-        }
-
-
-        String instanceKey = getInstanceKey(instance, mBeanKeys);
-        logger.debug("Instance Key: {}", instanceKey);
-
-        String metricPath = generateMetricPath(metricPrefix, attributeName, displayName, instanceKey);
-        String attrVal = attributeValue.toString();
-        Metric current_metric = new Metric(attributeName, attrVal, metricPath, props);
-        jmxMetrics.add(current_metric);
-    }
-
-    private String generateMetricPath(String metricPrefix, String attributeName, String displayName, String instanceKey) {
-        String metricPath;
-        if (Strings.isNullOrEmpty(metricPrefix)) {
-            if (Strings.isNullOrEmpty(displayName)) {
-                metricPath = instanceKey + attributeName;
-            } else {
-                metricPath = displayName + METRICS_SEPARATOR + instanceKey + attributeName;
-            }
-        } else {
-            if (Strings.isNullOrEmpty(displayName)) {
-                metricPath = metricPrefix + METRICS_SEPARATOR + instanceKey + attributeName;
-            } else {
-                metricPath = metricPrefix + METRICS_SEPARATOR + displayName + METRICS_SEPARATOR + instanceKey + attributeName;
-            }
-        }
-        return metricPath;
-    }
-
 
     private boolean isCurrentObjectComposite(Attribute attribute) {
         return attribute.getValue().getClass().equals(CompositeDataSupport.class);
@@ -180,5 +116,6 @@ public class JMXMetricsProcessor {
         }
         return metricsKey.toString();
     }
+
 
 }

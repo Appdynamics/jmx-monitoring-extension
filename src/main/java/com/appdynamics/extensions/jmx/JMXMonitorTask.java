@@ -12,6 +12,7 @@ import com.appdynamics.extensions.AMonitorTaskRunnable;
 import com.appdynamics.extensions.MetricWriteHelper;
 import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.jmx.metrics.JMXMetricsProcessor;
+import com.appdynamics.extensions.jmx.metrics.JMXMetricsProcessorNew;
 import com.appdynamics.extensions.metrics.Metric;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -79,12 +80,16 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                     Map<String, ?> metricProperties = getMapOfProperties(mBean);
 
                     previousTimestamp = System.currentTimeMillis();
-                    JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
+//                    JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
+                    JMXMetricsProcessorNew jmxMetricsProcessorNew = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
+
                     currentTimestamp = System.currentTimeMillis();
                     logger.debug("Time to create object of JMXMetricsProcessor in milliseconds: "+ (currentTimestamp-previousTimestamp));
 
                     previousTimestamp = System.currentTimeMillis();
-                    List<Metric> nodeMetrics = jmxMetricsProcessor.getJMXMetrics(mBean, metricProperties, metricPrefix, server.get(DISPLAY_NAME).toString());
+//                    List<Metric> nodeMetrics = jmxMetricsProcessor.getJMXMetrics(mBean, metricProperties, metricPrefix, server.get(DISPLAY_NAME).toString());
+                    List<Metric> nodeMetrics = jmxMetricsProcessorNew.getJMXMetrics(mBean, metricProperties, metricPrefix, server.get(DISPLAY_NAME).toString());
+
                     currentTimestamp = System.currentTimeMillis();
                     logger.debug("Time to get data back from JMXMetricsProcessor in milliseconds: "+ (currentTimestamp-previousTimestamp));
 

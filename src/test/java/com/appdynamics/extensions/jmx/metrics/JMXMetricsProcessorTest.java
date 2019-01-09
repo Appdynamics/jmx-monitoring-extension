@@ -27,6 +27,7 @@ import javax.management.remote.JMXConnector;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -365,6 +366,91 @@ public class JMXMetricsProcessorTest {
                 itemValuesForCompositeDataSupport);
     }
 
+    @Test
+    public void getMultipleLevelMapMetricsThroughJMX() throws MalformedObjectNameException, IntrospectionException, ReflectionException,
+            InstanceNotFoundException, IOException {
+        Map config = YmlReader.readFromFileAsMap(new File(this.getClass().getResource("/conf/config_with_map.yml").getFile()));
+        List<Map> mBeans = (List) config.get("mbeans");
+        Set<ObjectInstance> objectInstances = Sets.newHashSet();
+        objectInstances.add(new ObjectInstance("org.apache.activemq.metrics:type=ClientRequest,scope=Read,name=Latency", "test"));
+
+        Map attr1 = new HashMap();
+        attr1.put("key1",1);
+        attr1.put("key2",2);
+        attr1.put("key3",3);
+        attr1.put("key4",4);
+
+        Map attr2 = new HashMap();
+        attr2.put("key1",1);
+        attr2.put("key2",2);
+        attr2.put("key3",3);
+        attr2.put("key4",4);
+
+        Map attrMap = new HashMap();
+        attrMap.put("map1", attr1);
+        attrMap.put("map2", attr2);
+
+        Attribute mapAttribute = new Attribute("MapOfMapOfString", attrMap);
+
+        List<Attribute> attributes = Lists.newArrayList();
+        attributes.add(mapAttribute);
+
+        List<String> metricNames = Lists.newArrayList();
+        metricNames.add("metric1");
+        metricNames.add("metric2");
+
+        when(jmxConnectionAdapter.queryMBeans(eq(jmxConnector), Mockito.any(ObjectName.class))).thenReturn(objectInstances);
+        when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
+        when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
+
+
+        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
+        JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
+        Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
+        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
+
+        Assert.assertTrue(metrics.get(0).getMetricPath().equals("ClientRequest|Read|Latency|Max"));
+
+    }
+
+
+    @Test
+    public void getSingleLevelMapMetricsThroughJMX() throws MalformedObjectNameException, IntrospectionException, ReflectionException,
+            InstanceNotFoundException, IOException {
+        Map config = YmlReader.readFromFileAsMap(new File(this.getClass().getResource("/conf/config_with_map.yml").getFile()));
+        List<Map> mBeans = (List) config.get("mbeans");
+        Set<ObjectInstance> objectInstances = Sets.newHashSet();
+        objectInstances.add(new ObjectInstance("org.apache.activemq.metrics:type=ClientRequest,scope=Read,name=Latency", "test"));
+
+        Map attr1 = new HashMap();
+        attr1.put("key1",1);
+        attr1.put("key2",2);
+        attr1.put("key3",3);
+        attr1.put("key4",4);
+
+        Attribute mapAttribute = new Attribute("MapOfString", attr1);
+
+        List<Attribute> attributes = Lists.newArrayList();
+        attributes.add(mapAttribute);
+
+        List<String> metricNames = Lists.newArrayList();
+        metricNames.add("metric1");
+        metricNames.add("metric2");
+
+        when(jmxConnectionAdapter.queryMBeans(eq(jmxConnector), Mockito.any(ObjectName.class))).thenReturn(objectInstances);
+        when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
+        when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
+
+        JMXMetricsProcessorNew jmxMetricsProcessor = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
+
+//        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
+        JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
+        Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
+        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
+
+        Assert.assertTrue(metrics.get(0).getMetricPath().equals("ClientRequest|Read|Latency|Max"));
+
+    }
 
 }
 
