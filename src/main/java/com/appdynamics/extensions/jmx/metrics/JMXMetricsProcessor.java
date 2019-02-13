@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.*;
-import javax.management.openmbean.CompositeDataSupport;
+import javax.management.openmbean.CompositeData;
 import javax.management.remote.JMXConnector;
 import java.io.IOException;
 import java.util.List;
@@ -78,13 +78,13 @@ public class JMXMetricsProcessor {
         for (Attribute attribute : attributes) {
             try {
                 String metricName = attribute.getName();
-                if (isCurrentObjectComposite(attribute)) {
-                    Set<String> attributesFound = ((CompositeDataSupport) attribute.getValue()).getCompositeType()
-                            .keySet();
+                if (attribute.getValue() instanceof CompositeData) {
+                    CompositeData metricValue = (CompositeData) attribute.getValue();
+                    Set<String> attributesFound = metricValue.getCompositeType().keySet();
                     for (String str : attributesFound) {
                         String key = metricName + PERIOD + str;
                         if (metricPropsPerMetricName.containsKey(key)) {
-                            Object attributeValue = ((CompositeDataSupport) attribute.getValue()).get(str);
+                            Object attributeValue = metricValue.get(str);
                             setMetricDetails(metricPrefix, key, attributeValue, instance, metricPropsPerMetricName, jmxMetrics, mBeanKeys, displayName);
                         }
                     }
@@ -128,10 +128,6 @@ public class JMXMetricsProcessor {
         jmxMetrics.add(current_metric);
     }
 
-
-    private boolean isCurrentObjectComposite(Attribute attribute) {
-        return attribute.getValue().getClass().equals(CompositeDataSupport.class);
-    }
 
     private ObjectName getObjectName(ObjectInstance instance) {
         return instance.getObjectName();
