@@ -65,18 +65,11 @@ public class JMXMetricsProcessorNew {
         return mBeanKeys;
     }
 
-    private void collect(String metricPrefix, List<Metric> jmxMetrics, List<Attribute> attributes, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName, List<String> mBeanKeys, String displayName) {
+    private void collect(String metricPrefix, List<Metric> jmxMetrics, List<Attribute> attributes,
+                         ObjectInstance instance, Map<String, ?> metricPropsPerMetricName, List<String> mBeanKeys, String displayName) {
         for (Attribute attribute : attributes) {
             try {
-                String metricName = attribute.getName();
-                if (isCurrentObjectComposite(attribute)) {
-                    setMetricDetailsForCompositeMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute, metricName);
-                } else if (isCurrentObjectMap(attribute)) {
-                    setMetricDetailsForMapMetrics(metricPrefix, jmxMetrics,attributes, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute, metricName);
-                } else {
-                    setMetricDetailsForNormalMetrics(metricPrefix, metricName, attribute.getValue(), instance, metricPropsPerMetricName,
-                            jmxMetrics, mBeanKeys, displayName);
-                }
+                checkAttributeType(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
             } catch (Exception e) {
                 logger.error("Error collecting value for {} {}", instance.getObjectName(), attribute.getName(), e);
             }
@@ -84,7 +77,57 @@ public class JMXMetricsProcessorNew {
 
     }
 
-    private boolean isCurrentObjectComposite(Attribute attribute) {
+    private void checkAttributeType(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
+                                    List<String> mBeanKeys, String displayName, Attribute attribute) {
+        if (isCurrentObjectComposite(attribute)) {
+            setMetricDetailsForCompositeMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
+        } else if (isCurrentObjectMap(attribute)) {
+            setMetricDetailsForMapMetrics(metricPrefix, jmxMetrics,instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
+        } else {
+            setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics,instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
+        }
+
+    }
+
+    private void setMetricDetailsForCompositeMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
+                                               List<String> mBeanKeys, String displayName, Attribute attribute){
+        String metricName = attribute.getName();
+        Set<String> attributesFound = ((CompositeDataSupport) attribute.getValue()).getCompositeType()
+                .keySet();
+        for (String str : attributesFound) {
+            String key = metricName + PERIOD + str;
+            if (metricPropsPerMetricName.containsKey(key)) {
+                Object attributeValue = ((CompositeDataSupport) attribute.getValue()).get(str);
+                Attribute attribute1 = new Attribute(key, attributeValue);
+                setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
+            }
+        }
+    }
+
+
+    private void setMetricDetailsForMapMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
+                                                  List<String> mBeanKeys, String displayName, Attribute attribute){
+
+
+
+    }
+
+    private void setMetricDetailsForNormalMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
+                                                  List<String> mBeanKeys, String displayName, Attribute attribute){
+        String attributeName = attribute.getName();
+        Map<String, ?> props = (Map) metricPropsPerMetricName.get(attributeName);
+        if (props == null) {
+            logger.error("Could not find metric properties for {} ", attributeName);
+        }
+        String instanceKey = getInstanceKey(instance, mBeanKeys);
+        String metricPath = generateMetricPath(metricPrefix, attributeName, displayName, instanceKey);
+        String attrVal = attribute.getValue().toString();
+        Metric current_metric = new Metric(attributeName, attrVal, metricPath, props);
+        jmxMetrics.add(current_metric);
+
+    }
+
+        private boolean isCurrentObjectComposite(Attribute attribute) {
         return attribute.getValue().getClass().equals(CompositeDataSupport.class);
     }
 
@@ -115,6 +158,24 @@ public class JMXMetricsProcessorNew {
             metricsKey.append(Strings.isNullOrEmpty(value) ? NULLSTRING : value + METRICS_SEPARATOR);
         }
         return metricsKey.toString();
+    }
+
+    private String generateMetricPath(String metricPrefix, String attributeName, String displayName, String instanceKey) {
+        String metricPath;
+        if (Strings.isNullOrEmpty(metricPrefix)) {
+            if (Strings.isNullOrEmpty(displayName)) {
+                metricPath = instanceKey + attributeName;
+            } else {
+                metricPath = displayName + METRICS_SEPARATOR + instanceKey + attributeName;
+            }
+        } else {
+            if (Strings.isNullOrEmpty(displayName)) {
+                metricPath = metricPrefix + METRICS_SEPARATOR + instanceKey + attributeName;
+            } else {
+                metricPath = metricPrefix + METRICS_SEPARATOR + displayName + METRICS_SEPARATOR + instanceKey + attributeName;
+            }
+        }
+        return metricPath;
     }
 
 

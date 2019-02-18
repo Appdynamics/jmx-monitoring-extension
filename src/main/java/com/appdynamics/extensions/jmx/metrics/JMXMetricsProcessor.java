@@ -180,5 +180,64 @@ public class JMXMetricsProcessor {
         }
         return metricsKey.toString();
     }
+///////////
+/*
+    private void collect(String metricPrefix, List<Metric> jmxMetrics, List<Attribute> attributes, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName, List<String> mBeanKeys,String displayName) {
+        for (Attribute attribute : attributes) {
+            try {
+                String metricName = attribute.getName();
+                if (isCurrentObjectComposite(attribute)) {
+                    Set<String> attributesFound = ((CompositeDataSupport) attribute.getValue()).getCompositeType()
+                            .keySet();
+                    for (String str : attributesFound) {
+                        String key = metricName + PERIOD + str;
+                        if (metricPropsPerMetricName.containsKey(key)) {
+                            Object attributeValue = ((CompositeDataSupport) attribute.getValue()).get(str);
+                            setMetricDetails(metricPrefix, key, attributeValue, instance, metricPropsPerMetricName, jmxMetrics, mBeanKeys, displayName);
+                        }
+                    }
+                } else {
+                    setMetricDetails(metricPrefix, metricName, attribute.getValue(), instance, (Map) metricPropsPerMetricName,
+                            jmxMetrics, mBeanKeys, displayName);
+                }
+            } catch (Exception e) {
+                logger.error("Error collecting value for {} {}", instance.getObjectName(), attribute.getName(), e);
+            }
+        }
+    }
+
+    private void setMetricDetails(String metricPrefix, String attributeName, Object attributeValue, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName, List<Metric> jmxMetrics, List<String> mBeanKeys, String displayName) {
+
+        Map<String, ?> props = (Map) metricPropsPerMetricName.get(attributeName);
+        if (props == null) {
+            logger.error("Could not find metric properties for {} ", attributeName);
+        }
+
+
+        String instanceKey = getInstanceKey(instance, mBeanKeys);
+        logger.debug("Instance Key: {}", instanceKey);
+
+        String metricPath;
+        if(Strings.isNullOrEmpty(metricPrefix)){
+            if(Strings.isNullOrEmpty(displayName)){
+                metricPath = instanceKey + attributeName;
+            } else {
+                metricPath = displayName + METRICS_SEPARATOR + instanceKey + attributeName;
+            }
+        } else {
+            if (Strings.isNullOrEmpty(displayName)) {
+                metricPath = metricPrefix + METRICS_SEPARATOR + instanceKey + attributeName;
+            } else {
+                metricPath = metricPrefix + METRICS_SEPARATOR + displayName + METRICS_SEPARATOR + instanceKey + attributeName;
+            }
+        }
+        String attrVal = attributeValue.toString();
+        Metric current_metric = new Metric(attributeName, attrVal, metricPath, props);
+        jmxMetrics.add(current_metric);
+    }
+
+    */
 
 }
+
+
