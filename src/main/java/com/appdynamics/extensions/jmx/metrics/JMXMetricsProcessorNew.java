@@ -91,11 +91,11 @@ public class JMXMetricsProcessorNew {
 
     private void setMetricDetailsForCompositeMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
                                                List<String> mBeanKeys, String displayName, Attribute attribute){
-        String metricName = attribute.getName();
+        String attributeName = attribute.getName();
         Set<String> attributesFound = ((CompositeDataSupport) attribute.getValue()).getCompositeType()
                 .keySet();
         for (String str : attributesFound) {
-            String key = metricName + PERIOD + str;
+            String key = attributeName + PERIOD + str;
             if (metricPropsPerMetricName.containsKey(key)) {
                 Object attributeValue = ((CompositeDataSupport) attribute.getValue()).get(str);
                 Attribute attribute1 = new Attribute(key, attributeValue);
@@ -107,8 +107,14 @@ public class JMXMetricsProcessorNew {
 
     private void setMetricDetailsForMapMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
                                                   List<String> mBeanKeys, String displayName, Attribute attribute){
-
-
+        String attributeName = attribute.getName();
+        Map attributesFound = (Map) attribute.getValue();
+        for(Object metricNameKey: attributesFound.keySet()){
+            String key = attributeName + PIPE + metricNameKey.toString();
+            Object attributeValue = attributesFound.get(metricNameKey);
+            Attribute attribute1 = new Attribute(key, attributeValue);
+            setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
+        }
 
     }
 

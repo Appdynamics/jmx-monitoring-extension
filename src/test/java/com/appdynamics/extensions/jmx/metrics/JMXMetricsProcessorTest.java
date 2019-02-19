@@ -8,8 +8,8 @@
 
 package com.appdynamics.extensions.jmx.metrics;
 
-import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.jmx.JMXMonitorTask;
+import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.metrics.Metric;
 import com.appdynamics.extensions.yml.YmlReader;
 import com.google.common.collect.Lists;
@@ -47,7 +47,6 @@ public class JMXMetricsProcessorTest {
         Set<ObjectInstance> objectInstances = Sets.newHashSet();
         objectInstances.add(new ObjectInstance("org.apache.activemq.metrics:type=ClientRequest,scope=Read,name=Latency", "test"));
 
-//        Set<Attribute> attributes = Sets.newHashSet();
         List<Attribute> attributes = Lists.newArrayList();
         attributes.add(new Attribute("Max", new BigDecimal(200)));
         attributes.add(new Attribute("Min", new BigDecimal(100)));
@@ -61,7 +60,9 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
 
 
-        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
+//        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
+        JMXMetricsProcessorNew jmxMetricsProcessor = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
+
         JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
@@ -106,11 +107,12 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.queryMBeans(eq(jmxConnector), Mockito.any(ObjectName.class))).thenReturn(objectInstances);
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
+        JMXMetricsProcessorNew jmxMetricsProcessor = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
 
-        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
+//        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
         JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
-        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "","");
+        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
 //
         Assert.assertTrue(metrics.get(0).getMetricPath().equals("Memory|HeapMemoryUsage.max"));
         Assert.assertTrue(metrics.get(0).getMetricName().equals("HeapMemoryUsage.max"));
@@ -153,10 +155,12 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
 
 
-        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
+        JMXMetricsProcessorNew jmxMetricsProcessor = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
+
+//        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
         JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
-        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "","");
+        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
 
         Map<String, ?> metricProps = (Map<String, ?>) metricPropertiesMap.get("ObjectPendingFinalizationCount");
         Assert.assertTrue(metrics.get(0).getMetricPath().equals("Memory|ObjectPendingFinalizationCount"));
@@ -177,9 +181,8 @@ public class JMXMetricsProcessorTest {
     }
 
 
-
     @Test
-    public void testGlobalProperties()  throws MalformedObjectNameException, IntrospectionException,
+    public void testGlobalProperties() throws MalformedObjectNameException, IntrospectionException,
             ReflectionException, InstanceNotFoundException, IOException, OpenDataException {
         Map config = YmlReader.readFromFileAsMap(new File(this.getClass().getResource("/conf/config_for_global_metadata.yml").getFile()));
         List<Map> mBeans = (List) config.get("mbeans");
@@ -199,7 +202,9 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
 
 
-        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
+        JMXMetricsProcessorNew jmxMetricsProcessor = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
+
+//        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
         JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
@@ -225,7 +230,7 @@ public class JMXMetricsProcessorTest {
 
 
     @Test
-    public void testlocalProperties()  throws MalformedObjectNameException, IntrospectionException,
+    public void testlocalProperties() throws MalformedObjectNameException, IntrospectionException,
             ReflectionException, InstanceNotFoundException, IOException, OpenDataException {
         Map config = YmlReader.readFromFileAsMap(new File(this.getClass().getResource("/conf/config_for_local_metadata.yml").getFile()));
         List<Map> mBeans = (List) config.get("mbeans");
@@ -245,7 +250,9 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
 
 
-        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
+        JMXMetricsProcessorNew jmxMetricsProcessor = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
+
+//        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
         JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
@@ -277,7 +284,6 @@ public class JMXMetricsProcessorTest {
         Set<ObjectInstance> objectInstances = Sets.newHashSet();
         objectInstances.add(new ObjectInstance("org.apache.cassandra.metrics:type=ClientRequest,scope=Read,name=Latency", "test"));
 
-//        Set<Attribute> attributes = Sets.newHashSet();
         List<Attribute> attributes = Lists.newArrayList();
         attributes.add(new Attribute("Max", new BigDecimal(200)));
 
@@ -375,16 +381,16 @@ public class JMXMetricsProcessorTest {
         objectInstances.add(new ObjectInstance("org.apache.activemq.metrics:type=ClientRequest,scope=Read,name=Latency", "test"));
 
         Map attr1 = new HashMap();
-        attr1.put("key1",1);
-        attr1.put("key2",2);
-        attr1.put("key3",3);
-        attr1.put("key4",4);
+        attr1.put("key1", 1);
+        attr1.put("key2", 2);
+        attr1.put("key3", 3);
+        attr1.put("key4", 4);
 
         Map attr2 = new HashMap();
-        attr2.put("key1",1);
-        attr2.put("key2",2);
-        attr2.put("key3",3);
-        attr2.put("key4",4);
+        attr2.put("key1", 1);
+        attr2.put("key2", 2);
+        attr2.put("key3", 3);
+        attr2.put("key4", 4);
 
         Map attrMap = new HashMap();
         attrMap.put("map1", attr1);
@@ -423,10 +429,10 @@ public class JMXMetricsProcessorTest {
         objectInstances.add(new ObjectInstance("org.apache.activemq.metrics:type=ClientRequest,scope=Read,name=Latency", "test"));
 
         Map attr1 = new HashMap();
-        attr1.put("key1",1);
-        attr1.put("key2",2);
-        attr1.put("key3",3);
-        attr1.put("key4",4);
+        attr1.put("key1", 1);
+        attr1.put("key2", 2);
+        attr1.put("key3", 3);
+        attr1.put("key4", 4);
 
         Attribute mapAttribute = new Attribute("MapOfString", attr1);
 

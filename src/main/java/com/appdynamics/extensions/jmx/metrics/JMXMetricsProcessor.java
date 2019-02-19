@@ -88,7 +88,9 @@ public class JMXMetricsProcessor {
         }
     }
 
-    private void setMetricDetailsForMapMetrics(String metricPrefix, List<Metric> jmxMetrics, List<Attribute> attributes, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName, List<String> mBeanKeys, String displayName, Attribute attribute, String metricName) {
+    private void setMetricDetailsForMapMetrics(String metricPrefix, List<Metric> jmxMetrics, List<Attribute> attributes,
+                                               ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
+                                               List<String> mBeanKeys, String displayName, Attribute attribute, String metricName) {
         Map attributesFound = (Map) attribute.getValue();
         for (Object metricNameKey : attributesFound.keySet()) {
             String key = metricName + PERIOD + metricNameKey.toString();
