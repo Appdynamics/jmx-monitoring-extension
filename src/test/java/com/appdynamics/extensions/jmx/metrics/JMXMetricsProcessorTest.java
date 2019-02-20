@@ -373,71 +373,29 @@ public class JMXMetricsProcessorTest {
     }
 
     @Test
-    public void getMultipleLevelMapMetricsThroughJMX() throws MalformedObjectNameException, IntrospectionException, ReflectionException,
-            InstanceNotFoundException, IOException {
+    public void getSingleAndMultiLevelMapMetricsThroughJMX() throws MalformedObjectNameException, IntrospectionException, ReflectionException,
+            InstanceNotFoundException, IOException, OpenDataException {
         Map config = YmlReader.readFromFileAsMap(new File(this.getClass().getResource("/conf/config_with_map.yml").getFile()));
         List<Map> mBeans = (List) config.get("mbeans");
         Set<ObjectInstance> objectInstances = Sets.newHashSet();
         objectInstances.add(new ObjectInstance("org.apache.activemq.metrics:type=ClientRequest,scope=Read,name=Latency", "test"));
 
-        Map attr1 = new HashMap();
-        attr1.put("key1", 1);
-        attr1.put("key2", 2);
-        attr1.put("key3", 3);
-        attr1.put("key4", 4);
-
-        Map attr2 = new HashMap();
-        attr2.put("key1", 1);
-        attr2.put("key2", 2);
-        attr2.put("key3", 3);
-        attr2.put("key4", 4);
-
-        Map attrMap = new HashMap();
-        attrMap.put("map1", attr1);
-        attrMap.put("map2", attr2);
-
-        Attribute mapAttribute = new Attribute("MapOfMapOfString", attrMap);
-
-        List<Attribute> attributes = Lists.newArrayList();
-        attributes.add(mapAttribute);
-
-        List<String> metricNames = Lists.newArrayList();
-        metricNames.add("metric1");
-        metricNames.add("metric2");
-
-        when(jmxConnectionAdapter.queryMBeans(eq(jmxConnector), Mockito.any(ObjectName.class))).thenReturn(objectInstances);
-        when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
-        when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
-
-
-        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
-        JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
-        Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
-        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
-
-        Assert.assertTrue(metrics.get(0).getMetricPath().equals("ClientRequest|Read|Latency|Max"));
-
-    }
-
-
-    @Test
-    public void getSingleLevelMapMetricsThroughJMX() throws MalformedObjectNameException, IntrospectionException, ReflectionException,
-            InstanceNotFoundException, IOException {
-        Map config = YmlReader.readFromFileAsMap(new File(this.getClass().getResource("/conf/config_with_map.yml").getFile()));
-        List<Map> mBeans = (List) config.get("mbeans");
-        Set<ObjectInstance> objectInstances = Sets.newHashSet();
-        objectInstances.add(new ObjectInstance("org.apache.activemq.metrics:type=ClientRequest,scope=Read,name=Latency", "test"));
+        Map map2 = new HashMap();
+        map2.put("key1", 1);
+        map2.put("key2", 2);
 
         Map attr1 = new HashMap();
         attr1.put("key1", 1);
         attr1.put("key2", 2);
-        attr1.put("key3", 3);
+        attr1.put("map2", map2);
         attr1.put("key4", 4);
 
         Attribute mapAttribute = new Attribute("MapOfString", attr1);
 
         List<Attribute> attributes = Lists.newArrayList();
         attributes.add(mapAttribute);
+        attributes.add(new Attribute("Max", new BigDecimal(200)));
+        attributes.add(new Attribute("HeapMemoryUsage", createCompositeDataSupportObject()));
 
         List<String> metricNames = Lists.newArrayList();
         metricNames.add("metric1");
@@ -449,12 +407,47 @@ public class JMXMetricsProcessorTest {
 
         JMXMetricsProcessorNew jmxMetricsProcessor = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
 
-//        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
         JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
 
-        Assert.assertTrue(metrics.get(0).getMetricPath().equals("ClientRequest|Read|Latency|Max"));
+        Assert.assertTrue(metrics.get(0).getMetricPath().equals("ClientRequest|Read|Latency|MapOfString.key1"));
+        Assert.assertTrue(metrics.get(0).getMetricName().equals("MapOfString.key1"));
+        Assert.assertTrue(metrics.get(0).getMetricValue().equals("1"));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals("AVERAGE"));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
+
+        Assert.assertTrue(metrics.get(1).getMetricPath().equals("ClientRequest|Read|Latency|MapOfString.key2"));
+        Assert.assertTrue(metrics.get(1).getMetricName().equals("MapOfString.key2"));
+        Assert.assertTrue(metrics.get(1).getMetricValue().equals("2"));
+        Assert.assertTrue(metrics.get(1).getMetricProperties().getAggregationType().equals("OBSERVATION"));
+        Assert.assertTrue(metrics.get(1).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
+        Assert.assertTrue(metrics.get(1).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
+
+        Assert.assertTrue(metrics.get(2).getMetricPath().equals("ClientRequest|Read|Latency|MapOfString.map2.key2"));
+        Assert.assertTrue(metrics.get(2).getMetricName().equals("MapOfString.map2.key2"));
+        Assert.assertTrue(metrics.get(2).getMetricValue().equals("2"));
+        Assert.assertTrue(metrics.get(2).getMetricProperties().getAggregationType().equals("AVERAGE"));
+        Assert.assertTrue(metrics.get(2).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
+        Assert.assertTrue(metrics.get(2).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
+
+        Assert.assertTrue(metrics.get(3).getMetricPath().equals("ClientRequest|Read|Latency|Max"));
+        Assert.assertTrue(metrics.get(3).getMetricName().equals("Max"));
+        Assert.assertTrue(metrics.get(3).getMetricValue().equals("200"));
+        Assert.assertTrue(metrics.get(3).getMetricProperties().getAggregationType().equals("OBSERVATION"));
+        Assert.assertTrue(metrics.get(3).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
+        Assert.assertTrue(metrics.get(3).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
+
+        Assert.assertTrue(metrics.get(4).getMetricPath().equals("ClientRequest|Read|Latency|HeapMemoryUsage.max"));
+        Assert.assertTrue(metrics.get(4).getMetricName().equals("HeapMemoryUsage.max"));
+        Assert.assertTrue(metrics.get(4).getMetricValue().equals("100"));
+        Assert.assertTrue(metrics.get(4).getMetricProperties().getAggregationType().equals("AVERAGE"));
+        Assert.assertTrue(metrics.get(4).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
+        Assert.assertTrue(metrics.get(4).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
+        Assert.assertTrue(metrics.get(4).getMetricProperties().getDelta() == false);
+        Assert.assertTrue(metrics.get(4).getMetricProperties().getMultiplier().compareTo(new BigDecimal(10)) == 0);
+
 
     }
 

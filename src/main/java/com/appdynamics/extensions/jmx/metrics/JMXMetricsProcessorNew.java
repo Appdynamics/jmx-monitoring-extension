@@ -81,16 +81,16 @@ public class JMXMetricsProcessorNew {
                                     List<String> mBeanKeys, String displayName, Attribute attribute) {
         if (isCurrentObjectComposite(attribute)) {
             setMetricDetailsForCompositeMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
-        } else if (isCurrentObjectMap(attribute)) {
-            setMetricDetailsForMapMetrics(metricPrefix, jmxMetrics,instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
+        } else if (isCurrentAttributeMap(attribute)) {
+            setMetricDetailsForMapMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
         } else {
-            setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics,instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
+            setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
         }
 
     }
 
     private void setMetricDetailsForCompositeMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
-                                               List<String> mBeanKeys, String displayName, Attribute attribute){
+                                                     List<String> mBeanKeys, String displayName, Attribute attribute) {
         String attributeName = attribute.getName();
         Set<String> attributesFound = ((CompositeDataSupport) attribute.getValue()).getCompositeType()
                 .keySet();
@@ -106,20 +106,26 @@ public class JMXMetricsProcessorNew {
 
 
     private void setMetricDetailsForMapMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
-                                                  List<String> mBeanKeys, String displayName, Attribute attribute){
+                                               List<String> mBeanKeys, String displayName, Attribute attribute) {
         String attributeName = attribute.getName();
         Map attributesFound = (Map) attribute.getValue();
-        for(Object metricNameKey: attributesFound.keySet()){
-            String key = attributeName + PIPE + metricNameKey.toString();
+        for (Object metricNameKey : attributesFound.keySet()) {
+            String key = attributeName + PERIOD + metricNameKey.toString();
             Object attributeValue = attributesFound.get(metricNameKey);
-            Attribute attribute1 = new Attribute(key, attributeValue);
-            setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
+            if (isCurrentObjectMap(attributeValue)) {
+                Attribute attribute1 = new Attribute(key, attributeValue);
+                setMetricDetailsForMapMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
+            } else {
+                if (metricPropsPerMetricName.containsKey(key)) {
+                    Attribute attribute1 = new Attribute(key, attributeValue);
+                    setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
+                }
+            }
         }
-
     }
 
     private void setMetricDetailsForNormalMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
-                                                  List<String> mBeanKeys, String displayName, Attribute attribute){
+                                                  List<String> mBeanKeys, String displayName, Attribute attribute) {
         String attributeName = attribute.getName();
         Map<String, ?> props = (Map) metricPropsPerMetricName.get(attributeName);
         if (props == null) {
@@ -133,11 +139,15 @@ public class JMXMetricsProcessorNew {
 
     }
 
-        private boolean isCurrentObjectComposite(Attribute attribute) {
+    private boolean isCurrentObjectComposite(Attribute attribute) {
         return attribute.getValue().getClass().equals(CompositeDataSupport.class);
     }
 
-    private boolean isCurrentObjectMap(Attribute attribute) {
+    private boolean isCurrentObjectMap(Object attribute) {
+        return attribute.getClass().equals(Map.class) || attribute.getClass().equals(HashMap.class);
+    }
+
+    private boolean isCurrentAttributeMap(Attribute attribute) {
         return attribute.getValue().getClass().equals(Map.class) || attribute.getValue().getClass().equals(HashMap.class);
     }
 
