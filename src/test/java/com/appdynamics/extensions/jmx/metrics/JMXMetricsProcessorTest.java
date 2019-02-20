@@ -58,7 +58,7 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.queryMBeans(eq(jmxConnector), Mockito.any(ObjectName.class))).thenReturn(objectInstances);
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
-        JMXMetricsProcessorNew jmxMetricsProcessor = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
+        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
 
         JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
@@ -101,7 +101,7 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.queryMBeans(eq(jmxConnector), Mockito.any(ObjectName.class))).thenReturn(objectInstances);
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
-        JMXMetricsProcessorNew jmxMetricsProcessor = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
+        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
         JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
@@ -143,7 +143,7 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
 
-        JMXMetricsProcessorNew jmxMetricsProcessor = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
+        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
         JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
@@ -184,7 +184,7 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
 
-        JMXMetricsProcessorNew jmxMetricsProcessor = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
+        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
         JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
@@ -228,7 +228,7 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
 
-        JMXMetricsProcessorNew jmxMetricsProcessor = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
+        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
         JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
@@ -267,7 +267,7 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
 
-        JMXMetricsProcessorNew jmxMetricsProcessor = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
+        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
         JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
@@ -374,7 +374,7 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.queryMBeans(eq(jmxConnector), Mockito.any(ObjectName.class))).thenReturn(objectInstances);
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
-        JMXMetricsProcessorNew jmxMetricsProcessor = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
+        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
         JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");

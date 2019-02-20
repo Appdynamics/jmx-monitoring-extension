@@ -21,13 +21,13 @@ import static com.appdynamics.extensions.jmx.metrics.Constants.*;
 /**
  * Created by bhuvnesh.kumar on 12/19/18.
  */
-public class JMXMetricsProcessorNew {
+public class JMXMetricsProcessor {
 
-    private static final Logger logger = LoggerFactory.getLogger(JMXMetricsProcessorNew.class);
+    private static final Logger logger = LoggerFactory.getLogger(JMXMetricsProcessor.class);
     private JMXConnectionAdapter jmxConnectionAdapter;
     private JMXConnector jmxConnector;
 
-    public JMXMetricsProcessorNew(JMXConnectionAdapter jmxConnectionAdapter, JMXConnector jmxConnector) {
+    public JMXMetricsProcessor(JMXConnectionAdapter jmxConnectionAdapter, JMXConnector jmxConnector) {
         this.jmxConnectionAdapter = jmxConnectionAdapter;
         this.jmxConnector = jmxConnector;
     }

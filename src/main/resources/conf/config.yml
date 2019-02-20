@@ -82,3 +82,40 @@ mbeans:
       include:
         - HeapMemoryUsage.committed : "Heap Memory Usage|Committed"
 
+  - objectName: "org.apache.activemq.metrics:type=ClientRequest,scope=Read,name=Latency"
+    mbeanKeys: ["type", "scope","name"]
+    metrics:
+      include:
+        # Normal Metric
+        - Max: "Max"
+          aggregationType: "OBSERVATION"
+          timeRollUpType: "AVERAGE"
+          clusterRollUpType: "INDIVIDUAL"
+
+        # Composite Metric
+        - HeapMemoryUsage.max : "Heap Memory Usage|Max"
+          multiplier: "10"
+          delta: false
+
+        # Map Metric Level 1
+        - MapOfString.key1: "Map 1|Key 1"
+        - MapOfString.key2: "Map 1|Key 2"
+          aggregationType: "OBSERVATION"
+          timeRollUpType: "AVERAGE"
+          clusterRollUpType: "INDIVIDUAL"
+
+        # Map Metric Level 2
+        - MapOfString.map2.key2: "Map 1|Map 2|Key 2"
+
+        # Map Metric Level 3
+        - MapOfString.map2.map3.key32: "Map 1|Map 2|Map 3|Key 32"
+          multiplier: "20"
+          delta: false
+          aggregationType: "OBSERVATION"
+          timeRollUpType: "AVERAGE"
+          clusterRollUpType: "INDIVIDUAL"
+          convert : {
+            "ENDANGERED" : "1",
+            "NODE-SAFE" : "2",
+            "MACHINE-SAFE" : "3"
+          }
