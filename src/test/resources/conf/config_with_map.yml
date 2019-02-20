@@ -1,36 +1,3 @@
-#mbeans:
-#  - objectName: "org.apache.activemq:type=Broker,brokerName=*"
-#    mbeanKeys: ["type", "brokerName",]
-#    metrics:
-#      include:
-#        - MapOfString.key1: "Map 1, Key 1"
-#        - MapOfString.key2: "Map 1, Key 2"
-
-#
-#mbeans:
-#  - objectName: "org.apache.activemq:type=Broker,brokerName=*"
-#    mbeanKeys: ["type", "brokerName",]
-#    metrics:
-#      include:
-#        - MapOfMapOfString.map1.key1: "Map 1, Key 1"
-#        - MapOfMapOfString.map1.key2: "Map 1, Key 2"
-#        - MapOfMapOfString.map2.key1: "Map 2, Key 1"
-#        - MapOfMapOfString.map2.key2: "Map 2, Key 2"
-#
-#        - TransportConnectors.amqp: "Transport Connectors| amqp"
-#        - TransportConnectors.mqtt: "Transport Connectors| mqtt"
-#        - TransportConnectors.stomp: "Transport Connectors| stomp"
-
-
-#mbeans:
-#  - objectName: "org.apache.activemq:type=Broker,brokerName=*"
-#    mbeanKeys: ["type", "brokerName",]
-#    metrics:
-#      include:
-#        MapOfString1:
-#        - key1: "MapOfString1| Key 1"
-#        - key2: "MapOfString1| Key 2"
-
 mbeans:
   - objectName: "org.apache.activemq.metrics:type=ClientRequest,scope=Read,name=Latency"
     mbeanKeys: ["type", "scope","name"]
@@ -56,3 +23,6 @@ mbeans:
 
         # Map Metric Level 2
         - MapOfString.map2.key2: "Map 1|Map 2|Key 2"
+
+        # Map Metric Level 3
+        - MapOfString.map2.map3.key32: "Map 1|Map 2|Map 3|Key 32"

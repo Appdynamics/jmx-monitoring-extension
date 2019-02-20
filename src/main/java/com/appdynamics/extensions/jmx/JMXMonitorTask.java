@@ -11,7 +11,6 @@ package com.appdynamics.extensions.jmx;
 import com.appdynamics.extensions.AMonitorTaskRunnable;
 import com.appdynamics.extensions.MetricWriteHelper;
 import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
-import com.appdynamics.extensions.jmx.metrics.JMXMetricsProcessor;
 import com.appdynamics.extensions.jmx.metrics.JMXMetricsProcessorNew;
 import com.appdynamics.extensions.metrics.Metric;
 import com.google.common.base.Strings;
@@ -69,7 +68,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
             previousTimestamp = System.currentTimeMillis();
             jmxConnector = jmxConnectionAdapter.open();
             currentTimestamp = System.currentTimeMillis();
-            logger.debug("Time to open connection in milliseconds: "+ (currentTimestamp-previousTimestamp));
+            logger.debug("Time to open connection in milliseconds: " + (currentTimestamp - previousTimestamp));
             logger.debug("JMX Connection is now open");
 
             for (Map mBean : configMBeans) {
@@ -80,18 +79,16 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                     Map<String, ?> metricProperties = getMapOfProperties(mBean);
 
                     previousTimestamp = System.currentTimeMillis();
-//                    JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
                     JMXMetricsProcessorNew jmxMetricsProcessorNew = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
 
                     currentTimestamp = System.currentTimeMillis();
-                    logger.debug("Time to create object of JMXMetricsProcessor in milliseconds: "+ (currentTimestamp-previousTimestamp));
+                    logger.debug("Time to create object of JMXMetricsProcessor in milliseconds: " + (currentTimestamp - previousTimestamp));
 
                     previousTimestamp = System.currentTimeMillis();
-//                    List<Metric> nodeMetrics = jmxMetricsProcessor.getJMXMetrics(mBean, metricProperties, metricPrefix, server.get(DISPLAY_NAME).toString());
                     List<Metric> nodeMetrics = jmxMetricsProcessorNew.getJMXMetrics(mBean, metricProperties, metricPrefix, server.get(DISPLAY_NAME).toString());
 
                     currentTimestamp = System.currentTimeMillis();
-                    logger.debug("Time to get data back from JMXMetricsProcessor in milliseconds: "+ (currentTimestamp-previousTimestamp));
+                    logger.debug("Time to get data back from JMXMetricsProcessor in milliseconds: " + (currentTimestamp - previousTimestamp));
 
 
                     if (nodeMetrics.size() > 0) {
@@ -147,26 +144,24 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
     private void setProps(Map metadata, Map props, String metricName, String alias) {
         if (metadata.get(ALIAS) != null) {
             props.put(ALIAS, metadata.get(ALIAS).toString());
-        }else if(!Strings.isNullOrEmpty(alias)){
+        } else if (!Strings.isNullOrEmpty(alias)) {
             props.put(ALIAS, alias);
-        }
-        else {
-            if(props.get(ALIAS) == null) {
+        } else {
+            if (props.get(ALIAS) == null) {
                 props.put(ALIAS, metricName);
             }
         }
         if (metadata.get(MULTIPLIER) != null) {
             props.put(MULTIPLIER, metadata.get(MULTIPLIER).toString());
         } else {
-            if(props.get(MULTIPLIER) == null)
-            {
+            if (props.get(MULTIPLIER) == null) {
                 props.put(MULTIPLIER, "1");
             }
         }
         if (metadata.get(CONVERT) != null) {
             props.put(CONVERT, metadata.get(CONVERT));
         } else {
-            if(props.get(CONVERT) == null) {
+            if (props.get(CONVERT) == null) {
                 props.put(CONVERT, (Map) null);
             }
         }
@@ -174,7 +169,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
             props.put(DELTA, metadata.get(DELTA).toString());
 
         } else {
-            if(props.get(DELTA) == null) {
+            if (props.get(DELTA) == null) {
                 props.put(DELTA, FALSE);
             }
 
@@ -183,7 +178,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
             props.put(CLUSTERROLLUPTYPE, metadata.get(CLUSTERROLLUPTYPE).toString());
 
         } else {
-            if(props.get(CLUSTERROLLUPTYPE) == null) {
+            if (props.get(CLUSTERROLLUPTYPE) == null) {
                 props.put(CLUSTERROLLUPTYPE, INDIVIDUAL);
             }
         }
@@ -191,7 +186,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
             props.put(TIMEROLLUPTYPE, metadata.get(TIMEROLLUPTYPE).toString());
 
         } else {
-            if(props.get(TIMEROLLUPTYPE) == null) {
+            if (props.get(TIMEROLLUPTYPE) == null) {
                 props.put(TIMEROLLUPTYPE, AVERAGE);
             }
         }
@@ -199,7 +194,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
             props.put(AGGREGATIONTYPE, metadata.get(AGGREGATIONTYPE).toString());
 
         } else {
-            if(props.get(AGGREGATIONTYPE) == null) {
+            if (props.get(AGGREGATIONTYPE) == null) {
                 props.put(AGGREGATIONTYPE, AVERAGE);
             }
         }

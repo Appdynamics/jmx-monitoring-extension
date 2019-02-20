@@ -58,9 +58,6 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.queryMBeans(eq(jmxConnector), Mockito.any(ObjectName.class))).thenReturn(objectInstances);
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
-
-
-//        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
         JMXMetricsProcessorNew jmxMetricsProcessor = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
 
         JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
@@ -74,7 +71,6 @@ public class JMXMetricsProcessorTest {
         Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
-
 
         Assert.assertTrue(metrics.get(1).getMetricPath().equals("ClientRequest|Read|Latency|Min"));
         Assert.assertTrue(metrics.get(1).getMetricName().equals("Min"));
@@ -94,8 +90,6 @@ public class JMXMetricsProcessorTest {
         List<Map> mBeans = (List) config.get("mbeans");
         Set<ObjectInstance> objectInstances = Sets.newHashSet();
         objectInstances.add(new ObjectInstance("java.lang:type=Memory", "test"));
-
-//        Set<Attribute> attributes = Sets.newHashSet();
         List<Attribute> attributes = Lists.newArrayList();
         attributes.add(new Attribute("HeapMemoryUsage", createCompositeDataSupportObject()));
 
@@ -108,12 +102,10 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
         JMXMetricsProcessorNew jmxMetricsProcessor = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
-
-//        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
         JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
-//
+
         Assert.assertTrue(metrics.get(0).getMetricPath().equals("Memory|HeapMemoryUsage.max"));
         Assert.assertTrue(metrics.get(0).getMetricName().equals("HeapMemoryUsage.max"));
         Assert.assertTrue(metrics.get(0).getMetricValue().equals("100"));
@@ -140,12 +132,9 @@ public class JMXMetricsProcessorTest {
         List<Map> mBeans = (List) config.get("mbeans");
         Set<ObjectInstance> objectInstances = Sets.newHashSet();
         objectInstances.add(new ObjectInstance("java.lang:type=Memory", "test"));
-
-//        Set<Attribute> attributes = Sets.newHashSet();
         List<Attribute> attributes = Lists.newArrayList();
         attributes.add(new Attribute("ObjectPendingFinalizationCount", 0));
         attributes.add(new Attribute("HeapMemoryUsage", createCompositeDataSupportObject()));
-
         List<String> metricNames = Lists.newArrayList();
         metricNames.add("metric1");
         metricNames.add("metric2");
@@ -154,10 +143,7 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
 
-
         JMXMetricsProcessorNew jmxMetricsProcessor = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
-
-//        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
         JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
@@ -169,7 +155,6 @@ public class JMXMetricsProcessorTest {
         Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
-
 
         metricProps = (Map<String, ?>) metricPropertiesMap.get("HeapMemoryUsage.used");
         Assert.assertTrue(metrics.get(1).getMetricPath().equals("Memory|HeapMemoryUsage.used"));
@@ -188,11 +173,9 @@ public class JMXMetricsProcessorTest {
         List<Map> mBeans = (List) config.get("mbeans");
         Set<ObjectInstance> objectInstances = Sets.newHashSet();
         objectInstances.add(new ObjectInstance("org.apache.cassandra.metrics:type=ClientRequest,scope=Read,name=Latency", "test"));
-
         List<Attribute> attributes = Lists.newArrayList();
         attributes.add(new Attribute("Max", new BigDecimal(200)));
         attributes.add(new Attribute("Min", new BigDecimal(100)));
-
         List<String> metricNames = Lists.newArrayList();
         metricNames.add("metric1");
         metricNames.add("metric2");
@@ -201,10 +184,7 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
 
-
         JMXMetricsProcessorNew jmxMetricsProcessor = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
-
-//        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
         JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
@@ -216,7 +196,6 @@ public class JMXMetricsProcessorTest {
         Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
-
 
         Assert.assertTrue(metrics.get(1).getMetricPath().equals("ClientRequest|Read|Latency|Min"));
         Assert.assertTrue(metrics.get(1).getMetricName().equals("Min"));
@@ -249,10 +228,7 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
 
-
         JMXMetricsProcessorNew jmxMetricsProcessor = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
-
-//        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
         JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
@@ -264,7 +240,6 @@ public class JMXMetricsProcessorTest {
         Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
-
 
         Assert.assertTrue(metrics.get(1).getMetricPath().equals("ClientRequest|Read|Latency|Min"));
         Assert.assertTrue(metrics.get(1).getMetricName().equals("Min"));
@@ -283,10 +258,8 @@ public class JMXMetricsProcessorTest {
         List<Map> mBeans = (List) config.get("mbeans");
         Set<ObjectInstance> objectInstances = Sets.newHashSet();
         objectInstances.add(new ObjectInstance("org.apache.cassandra.metrics:type=ClientRequest,scope=Read,name=Latency", "test"));
-
         List<Attribute> attributes = Lists.newArrayList();
         attributes.add(new Attribute("Max", new BigDecimal(200)));
-
         List<String> metricNames = Lists.newArrayList();
         metricNames.add("metric1");
 
@@ -294,8 +267,7 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
 
-
-        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
+        JMXMetricsProcessorNew jmxMetricsProcessor = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
         JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
@@ -379,34 +351,30 @@ public class JMXMetricsProcessorTest {
         List<Map> mBeans = (List) config.get("mbeans");
         Set<ObjectInstance> objectInstances = Sets.newHashSet();
         objectInstances.add(new ObjectInstance("org.apache.activemq.metrics:type=ClientRequest,scope=Read,name=Latency", "test"));
-
+        Map map3 = new HashMap();
+        map3.put("key31", 31);
+        map3.put("key32", 32);
         Map map2 = new HashMap();
         map2.put("key1", 1);
         map2.put("key2", 2);
-
+        map2.put("map3", map3);
         Map attr1 = new HashMap();
         attr1.put("key1", 1);
         attr1.put("key2", 2);
         attr1.put("map2", map2);
         attr1.put("key4", 4);
-
         Attribute mapAttribute = new Attribute("MapOfString", attr1);
-
         List<Attribute> attributes = Lists.newArrayList();
         attributes.add(mapAttribute);
         attributes.add(new Attribute("Max", new BigDecimal(200)));
         attributes.add(new Attribute("HeapMemoryUsage", createCompositeDataSupportObject()));
-
         List<String> metricNames = Lists.newArrayList();
         metricNames.add("metric1");
         metricNames.add("metric2");
-
         when(jmxConnectionAdapter.queryMBeans(eq(jmxConnector), Mockito.any(ObjectName.class))).thenReturn(objectInstances);
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
-
         JMXMetricsProcessorNew jmxMetricsProcessor = new JMXMetricsProcessorNew(jmxConnectionAdapter, jmxConnector);
-
         JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
         Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
@@ -432,23 +400,28 @@ public class JMXMetricsProcessorTest {
         Assert.assertTrue(metrics.get(2).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
         Assert.assertTrue(metrics.get(2).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
 
-        Assert.assertTrue(metrics.get(3).getMetricPath().equals("ClientRequest|Read|Latency|Max"));
-        Assert.assertTrue(metrics.get(3).getMetricName().equals("Max"));
-        Assert.assertTrue(metrics.get(3).getMetricValue().equals("200"));
-        Assert.assertTrue(metrics.get(3).getMetricProperties().getAggregationType().equals("OBSERVATION"));
+        Assert.assertTrue(metrics.get(3).getMetricPath().equals("ClientRequest|Read|Latency|MapOfString.map2.map3.key32"));
+        Assert.assertTrue(metrics.get(3).getMetricName().equals("MapOfString.map2.map3.key32"));
+        Assert.assertTrue(metrics.get(3).getMetricValue().equals("32"));
+        Assert.assertTrue(metrics.get(3).getMetricProperties().getAggregationType().equals("AVERAGE"));
         Assert.assertTrue(metrics.get(3).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
         Assert.assertTrue(metrics.get(3).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
 
-        Assert.assertTrue(metrics.get(4).getMetricPath().equals("ClientRequest|Read|Latency|HeapMemoryUsage.max"));
-        Assert.assertTrue(metrics.get(4).getMetricName().equals("HeapMemoryUsage.max"));
-        Assert.assertTrue(metrics.get(4).getMetricValue().equals("100"));
-        Assert.assertTrue(metrics.get(4).getMetricProperties().getAggregationType().equals("AVERAGE"));
+        Assert.assertTrue(metrics.get(4).getMetricPath().equals("ClientRequest|Read|Latency|Max"));
+        Assert.assertTrue(metrics.get(4).getMetricName().equals("Max"));
+        Assert.assertTrue(metrics.get(4).getMetricValue().equals("200"));
+        Assert.assertTrue(metrics.get(4).getMetricProperties().getAggregationType().equals("OBSERVATION"));
         Assert.assertTrue(metrics.get(4).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
         Assert.assertTrue(metrics.get(4).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
-        Assert.assertTrue(metrics.get(4).getMetricProperties().getDelta() == false);
-        Assert.assertTrue(metrics.get(4).getMetricProperties().getMultiplier().compareTo(new BigDecimal(10)) == 0);
 
-
+        Assert.assertTrue(metrics.get(5).getMetricPath().equals("ClientRequest|Read|Latency|HeapMemoryUsage.max"));
+        Assert.assertTrue(metrics.get(5).getMetricName().equals("HeapMemoryUsage.max"));
+        Assert.assertTrue(metrics.get(5).getMetricValue().equals("100"));
+        Assert.assertTrue(metrics.get(5).getMetricProperties().getAggregationType().equals("AVERAGE"));
+        Assert.assertTrue(metrics.get(5).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
+        Assert.assertTrue(metrics.get(5).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
+        Assert.assertTrue(metrics.get(5).getMetricProperties().getDelta() == false);
+        Assert.assertTrue(metrics.get(5).getMetricProperties().getMultiplier().compareTo(new BigDecimal(10)) == 0);
     }
 
 }

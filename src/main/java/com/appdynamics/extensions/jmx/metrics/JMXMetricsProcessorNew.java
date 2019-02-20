@@ -23,7 +23,7 @@ import static com.appdynamics.extensions.jmx.metrics.Constants.*;
  */
 public class JMXMetricsProcessorNew {
 
-    private static final Logger logger = LoggerFactory.getLogger(JMXMetricsProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(JMXMetricsProcessorNew.class);
     private JMXConnectionAdapter jmxConnectionAdapter;
     private JMXConnector jmxConnector;
 
@@ -74,7 +74,6 @@ public class JMXMetricsProcessorNew {
                 logger.error("Error collecting value for {} {}", instance.getObjectName(), attribute.getName(), e);
             }
         }
-
     }
 
     private void checkAttributeType(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
@@ -86,7 +85,6 @@ public class JMXMetricsProcessorNew {
         } else {
             setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
         }
-
     }
 
     private void setMetricDetailsForCompositeMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
@@ -103,7 +101,6 @@ public class JMXMetricsProcessorNew {
             }
         }
     }
-
 
     private void setMetricDetailsForMapMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
                                                List<String> mBeanKeys, String displayName, Attribute attribute) {
