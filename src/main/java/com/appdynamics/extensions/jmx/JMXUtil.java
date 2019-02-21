@@ -8,6 +8,11 @@
 
 package com.appdynamics.extensions.jmx;
 
+import javax.management.Attribute;
+import javax.management.openmbean.CompositeDataSupport;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by bhuvnesh.kumar on 2/26/18.
  */
@@ -28,5 +33,16 @@ public class JMXUtil {
         return objectName.split("\\.")[0];
     }
 
+    public static boolean isCurrentObjectComposite(Attribute attribute) {
+        return attribute.getValue().getClass().equals(CompositeDataSupport.class);
+    }
+
+    public static boolean isCurrentObjectMap(Object attribute) {
+        return attribute.getClass().equals(Map.class) || attribute.getClass().equals(HashMap.class);
+    }
+
+    public static boolean isCurrentAttributeMap(Attribute attribute) {
+        return attribute.getValue().getClass().equals(Map.class) || attribute.getValue().getClass().equals(HashMap.class);
+    }
 
 }

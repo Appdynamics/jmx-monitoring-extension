@@ -43,14 +43,13 @@ threadTimeout: 30
 # someone needs to configure on their own.
 mbeans:
 #  # This Mbean will extract out Broker metrics
-#  - objectName: "org.apache.activemq:type=Broker,brokerName=*"
-#    mbeanKeys: ["type", "brokerName"]
-#    metrics:
-#      include:
-#        - StorePercentUsage: "Store Percent Usage"
-#          clusterRollUpType: "AVERAGE"
-#          timeRollUpType: "SUM"
-#          aggregationType: "SUM"
+  - objectName: "org.apache.activemq:type=Broker,brokerName=*"
+    mbeanKeys: ["type", "brokerName"]
+    metrics:
+      include:
+        - StorePercentUsage: "Store Percent Usage"
+        - TransportConnectors.openwire: "openwire"
+
 #
 #  # This Mbean will extract out Queue metrics
 #  - objectName: "org.apache.activemq:type=Broker,brokerName=*,destinationType=Queue,destinationName=*"
@@ -70,11 +69,11 @@ mbeans:
 #
 #
 #  # Derived Metrics can be set in the following way
-  - objectName: "java.lang:type=Memory"
-    mbeanKeys: ["type"]
-    metrics:
-      include:
-        - HeapMemoryUsage.committed : "Heap Memory Usage|Committed"
+#  - objectName: "java.lang:type=Memory"
+#    mbeanKeys: ["type"]
+#    metrics:
+#      include:
+#        - HeapMemoryUsage.committed : "Heap Memory Usage|Committed"
 
 
 #

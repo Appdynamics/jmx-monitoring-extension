@@ -16,6 +16,9 @@ import javax.management.remote.JMXConnector;
 import java.io.IOException;
 import java.util.*;
 
+import static com.appdynamics.extensions.jmx.JMXUtil.isCurrentAttributeMap;
+import static com.appdynamics.extensions.jmx.JMXUtil.isCurrentObjectComposite;
+import static com.appdynamics.extensions.jmx.JMXUtil.isCurrentObjectMap;
 import static com.appdynamics.extensions.jmx.metrics.Constants.*;
 
 /**
@@ -111,7 +114,7 @@ public class JMXMetricsProcessor {
             Object attributeValue = attributesFound.get(metricNameKey);
             if (isCurrentObjectMap(attributeValue)) {
                 Attribute attribute1 = new Attribute(key, attributeValue);
-                setMetricDetailsForMapMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
+                checkAttributeType(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
             } else {
                 if (metricPropsPerMetricName.containsKey(key)) {
                     Attribute attribute1 = new Attribute(key, attributeValue);
@@ -136,21 +139,6 @@ public class JMXMetricsProcessor {
 
     }
 
-    private boolean isCurrentObjectComposite(Attribute attribute) {
-        return attribute.getValue().getClass().equals(CompositeDataSupport.class);
-    }
-
-    private boolean isCurrentObjectMap(Object attribute) {
-        return attribute.getClass().equals(Map.class) || attribute.getClass().equals(HashMap.class);
-    }
-
-    private boolean isCurrentAttributeMap(Attribute attribute) {
-        return attribute.getValue().getClass().equals(Map.class) || attribute.getValue().getClass().equals(HashMap.class);
-    }
-
-    private boolean isCurrentObjectList(Attribute attribute) {
-        return attribute.getValue().getClass().equals(List.class) || attribute.getValue().getClass().equals(ArrayList.class);
-    }
 
     private ObjectName getObjectName(ObjectInstance instance) {
         return instance.getObjectName();

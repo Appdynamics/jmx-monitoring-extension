@@ -423,6 +423,5 @@ public class JMXMetricsProcessorTest {
         Assert.assertTrue(metrics.get(5).getMetricProperties().getDelta() == false);
         Assert.assertTrue(metrics.get(5).getMetricProperties().getMultiplier().compareTo(new BigDecimal(10)) == 0);
     }
-
 }
 
