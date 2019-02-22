@@ -85,6 +85,8 @@ public class JMXMetricsProcessor {
             setMetricDetailsForCompositeMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
         } else if (isCurrentAttributeMap(attribute)) {
             setMetricDetailsForMapMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
+        } else if (isCurrentAttributeList(attribute)) {
+            setMetricDetailsForListMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
         } else {
             setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
         }
@@ -123,6 +125,30 @@ public class JMXMetricsProcessor {
             }
         }
     }
+
+    private void setMetricDetailsForListMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
+                                               List<String> mBeanKeys, String displayName, Attribute attribute) {
+        String attributeName = attribute.getName();
+        List attributesFound = (List) attribute.getValue();
+        for (Object metricNameKey : attributesFound) {
+            String key = attributeName + PERIOD + metricNameKey.toString();
+
+            ////********
+            Object attributeValue = metricNameKey;
+            if (isCurrentObjectList(attributeValue)) {
+                Attribute attribute1 = new Attribute(key, attributeValue);
+                checkAttributeTypeAndSetDetails(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
+            } else {
+                if (metricPropsPerMetricName.containsKey(key)) {
+                    Attribute attribute1 = new Attribute(key, attributeValue);
+                    setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
+                }
+            }
+
+            //********
+        }
+    }
+
 
     private void setMetricDetailsForNormalMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
                                                   List<String> mBeanKeys, String displayName, Attribute attribute) {

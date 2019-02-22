@@ -10,7 +10,10 @@ package com.appdynamics.extensions.jmx;
 
 import javax.management.Attribute;
 import javax.management.openmbean.CompositeDataSupport;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,6 +46,14 @@ public class JMXUtil {
 
     public static boolean isCurrentAttributeMap(Attribute attribute) {
         return attribute.getValue().getClass().equals(Map.class) || attribute.getValue().getClass().equals(HashMap.class);
+    }
+
+    public static boolean isCurrentObjectList(Object attribute) {
+        return attribute.getClass().equals(List.class) || attribute.getClass().equals(ArrayList.class) || attribute.getClass().equals(Array.class);
+    }
+
+    public static boolean isCurrentAttributeList(Attribute attribute) {
+        return attribute.getValue().getClass().equals(List.class) || attribute.getValue().getClass().equals(Array.class) || attribute.getValue().getClass().equals(ArrayList.class);
     }
 
 }
