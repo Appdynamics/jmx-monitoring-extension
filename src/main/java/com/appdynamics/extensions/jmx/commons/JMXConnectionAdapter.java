@@ -8,7 +8,6 @@
 
 package com.appdynamics.extensions.jmx.commons;
 
-
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
@@ -40,7 +39,6 @@ public class JMXConnectionAdapter {
         this.username = username;
         this.password = password;
     }
-
 
     public static JMXConnectionAdapter create(String serviceUrl, String host, int port, String username, String password) throws MalformedURLException {
         if (Strings.isNullOrEmpty(serviceUrl)) {

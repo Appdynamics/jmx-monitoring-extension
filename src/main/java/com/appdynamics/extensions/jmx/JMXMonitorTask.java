@@ -77,27 +77,20 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
 
                 try {
                     Map<String, ?> metricProperties = getMapOfProperties(mBean);
-
                     previousTimestamp = System.currentTimeMillis();
                     JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
-
                     currentTimestamp = System.currentTimeMillis();
                     logger.debug("Time to create object of JMXMetricsProcessor in milliseconds: " + (currentTimestamp - previousTimestamp));
-
                     previousTimestamp = System.currentTimeMillis();
                     List<Metric> nodeMetrics = jmxMetricsProcessor.getJMXMetrics(mBean, metricProperties, metricPrefix, server.get(DISPLAY_NAME).toString());
-
                     currentTimestamp = System.currentTimeMillis();
                     logger.debug("Time to get data back from JMXMetricsProcessor in milliseconds: " + (currentTimestamp - previousTimestamp));
-
-
                     if (nodeMetrics.size() > 0) {
                         metricWriter.transformAndPrintMetrics(nodeMetrics);
                     }
                 } catch (MalformedObjectNameException e) {
                     logger.error("Illegal Object Name {} " + configObjName, e);
                     status = false;
-
                 } catch (Exception e) {
                     logger.error("Error fetching JMX metrics for {} and mBean = {}", serverName, configObjName, e);
                     status = false;
@@ -119,7 +112,6 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
         if (mBean == null || mBean.isEmpty()) {
             return metricPropsMap;
         }
-
         Map configMetrics = (Map) mBean.get(METRICS);
         List includeMetrics = (List) configMetrics.get(INCLUDE);
 

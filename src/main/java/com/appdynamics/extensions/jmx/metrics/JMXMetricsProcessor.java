@@ -14,11 +14,11 @@ import javax.management.*;
 import javax.management.openmbean.CompositeDataSupport;
 import javax.management.remote.JMXConnector;
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import static com.appdynamics.extensions.jmx.JMXUtil.isCurrentAttributeMap;
-import static com.appdynamics.extensions.jmx.JMXUtil.isCurrentObjectComposite;
-import static com.appdynamics.extensions.jmx.JMXUtil.isCurrentObjectMap;
+import static com.appdynamics.extensions.jmx.JMXUtil.*;
 import static com.appdynamics.extensions.jmx.metrics.Constants.*;
 
 /**
@@ -49,7 +49,7 @@ public class JMXMetricsProcessor {
             List<Attribute> attributes = jmxConnectionAdapter.getAttributes(jmxConnector, instance.getObjectName(),
                     metricNamesToBeExtracted.toArray(new String[metricNamesToBeExtracted.size()]));
             List<String> mBeanKeys = getMBeanKeys(mBean);
-            collect(metricPrefix, jmxMetrics, attributes, instance, metricsPropertiesMap, mBeanKeys, displayName);
+            collectMetrics(metricPrefix, jmxMetrics, attributes, instance, metricsPropertiesMap, mBeanKeys, displayName);
         }
         return jmxMetrics;
     }
@@ -68,19 +68,19 @@ public class JMXMetricsProcessor {
         return mBeanKeys;
     }
 
-    private void collect(String metricPrefix, List<Metric> jmxMetrics, List<Attribute> attributes,
-                         ObjectInstance instance, Map<String, ?> metricPropsPerMetricName, List<String> mBeanKeys, String displayName) {
+    private void collectMetrics(String metricPrefix, List<Metric> jmxMetrics, List<Attribute> attributes,
+                                ObjectInstance instance, Map<String, ?> metricPropsPerMetricName, List<String> mBeanKeys, String displayName) {
         for (Attribute attribute : attributes) {
             try {
-                checkAttributeType(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
+                checkAttributeTypeAndSetDetails(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
             } catch (Exception e) {
                 logger.error("Error collecting value for {} {}", instance.getObjectName(), attribute.getName(), e);
             }
         }
     }
 
-    private void checkAttributeType(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
-                                    List<String> mBeanKeys, String displayName, Attribute attribute) {
+    private void checkAttributeTypeAndSetDetails(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
+                                                 List<String> mBeanKeys, String displayName, Attribute attribute) {
         if (isCurrentObjectComposite(attribute)) {
             setMetricDetailsForCompositeMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
         } else if (isCurrentAttributeMap(attribute)) {
@@ -114,7 +114,7 @@ public class JMXMetricsProcessor {
             Object attributeValue = attributesFound.get(metricNameKey);
             if (isCurrentObjectMap(attributeValue)) {
                 Attribute attribute1 = new Attribute(key, attributeValue);
-                checkAttributeType(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
+                checkAttributeTypeAndSetDetails(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
             } else {
                 if (metricPropsPerMetricName.containsKey(key)) {
                     Attribute attribute1 = new Attribute(key, attributeValue);
@@ -138,7 +138,6 @@ public class JMXMetricsProcessor {
         jmxMetrics.add(current_metric);
 
     }
-
 
     private ObjectName getObjectName(ObjectInstance instance) {
         return instance.getObjectName();

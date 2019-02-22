@@ -15,12 +15,10 @@ import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.util.AssertUtils;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import com.singularity.ee.agent.systemagent.api.exception.TaskExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -110,13 +108,5 @@ public class JMXMonitor extends ABaseMonitor {
             return CryptoUtil.getPassword(cryptoMap);
         }
         return null;
-    }
-
-
-    public static void main(String[] args) throws TaskExecutionException {
-        JMXMonitor JMXMonitor = new JMXMonitor();
-        Map<String, String> argsMap = new HashMap<String, String>();
-        argsMap.put("config-file", "/Users/bhuvnesh.kumar/repos/appdynamics/extensions/jmx-monitoring-extension/src/test/resources/conf/config.yml");
-        JMXMonitor.execute(argsMap, null);
     }
 }
