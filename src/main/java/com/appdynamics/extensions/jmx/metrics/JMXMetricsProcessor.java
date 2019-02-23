@@ -131,10 +131,11 @@ public class JMXMetricsProcessor {
         String attributeName = attribute.getName();
         List attributesFound = (List) attribute.getValue();
         for (Object metricNameKey : attributesFound) {
-            String key = attributeName + PERIOD + metricNameKey.toString();
+            Attribute listMetric = getListMetric(metricNameKey);
+            String key = attributeName + PERIOD + listMetric.getName();
+            Object attributeValue = listMetric.getValue();
 
             ////********
-            Object attributeValue = metricNameKey;
             if (isCurrentObjectList(attributeValue)) {
                 Attribute attribute1 = new Attribute(key, attributeValue);
                 checkAttributeTypeAndSetDetails(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
@@ -149,7 +150,13 @@ public class JMXMetricsProcessor {
         }
     }
 
+    private Attribute getListMetric(Object metricKey){
+        String[] arr = metricKey.toString().split(":");
+        String key = arr[0].trim();
+        String value = arr[1].trim();
+        return new Attribute(key,value);
 
+    }
     private void setMetricDetailsForNormalMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
                                                   List<String> mBeanKeys, String displayName, Attribute attribute) {
         String attributeName = attribute.getName();
