@@ -40,7 +40,7 @@ public class JMXMetricsProcessorForListsTest {
     List<Map<String, String>> metricReplacer = new ArrayList<Map<String, String>>();
     @Before
     public void before() {
-        monitorContextConfiguration.setConfigYml("src/test/resources/conf/config_for_lists.yml");
+        monitorContextConfiguration.setConfigYml("src/test/resources/conf/config.yml");
         Map<String, String> replace1 = new HashMap<String, String>();
         replace1.put("replace","ms");
         replace1.put("replaceWith","");
@@ -81,7 +81,6 @@ public class JMXMetricsProcessorForListsTest {
         when(jmxConnectionAdapter.queryMBeans(eq(jmxConnector), Mockito.any(ObjectName.class))).thenReturn(objectInstances);
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
-//        when(monitorContextConfiguration.getConfigYml().get("metricCharacterReplacer")).thenReturn(metricReplacer);
 
         JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration,jmxConnectionAdapter, jmxConnector);
         JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();

@@ -120,15 +120,22 @@ mbeans:
             "MACHINE-SAFE" : "3"
           }
 
+        # List Metrics
+        - listOfString.metric one: "listOfString|metric one"
+        - listOfString.metric two: "listOfString|metric two"
+        - listOfString.metric three: "listOfString|metric three"
 
 
+# Note: If the current "metricCharacterReplacer" is not working on your current machine,
+# please add escape charaters "\\" before your value. It changes from OS to OS, some need it, some don't
+# For Example, replace: "%" -> Becomes -> replace: "\\%"
 metricCharacterReplacer:
-   - replace: "\\%"
+   - replace: "%"
      replaceWith: ""
-   - replace: "\\,"
-     replaceWith: "\\-"
-   - replace: "\\."
-     replaceWith: "\\-"
+   - replace: ","
+     replaceWith: "-"
+   - replace: "."
+     replaceWith: "-"
    - replace: "ms"
      replaceWith: ""
 

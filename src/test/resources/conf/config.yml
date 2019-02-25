@@ -50,81 +50,94 @@ mbeans:
         - StorePercentUsage: "Store Percent Usage"
         - TransportConnectors.openwire: "openwire"
 
-#
-#  # This Mbean will extract out Queue metrics
-#  - objectName: "org.apache.activemq:type=Broker,brokerName=*,destinationType=Queue,destinationName=*"
-#    mbeanKeys: ["type", "brokerName","destinationType","destinationName"]
-#    metrics:
-#      include:
-#        - AverageEnqueueTime: "AverageEnqueueTime"
-#        - ConsumerCount: "ConsumerCount"
-#
-#  # This MBean will extract out Topic metrics.
-#  - objectName: "org.apache.activemq:type=Broker,brokerName=*,destinationType=Topic,destinationName=*"
-#    mbeanKeys: ["type", "brokerName","destinationType","destinationName"]
-#    metrics:
-#      include:
-#        - AverageEnqueueTime: "Average Enqueue Time"
-#        - ConsumerCount: "ConsumerCount"
-#
-#
-#  # Derived Metrics can be set in the following way
-#  - objectName: "java.lang:type=Memory"
-#    mbeanKeys: ["type"]
-#    metrics:
-#      include:
-#        - HeapMemoryUsage.committed : "Heap Memory Usage|Committed"
+
+  # This Mbean will extract out Queue metrics
+  - objectName: "org.apache.activemq:type=Broker,brokerName=*,destinationType=Queue,destinationName=*"
+    mbeanKeys: ["type", "brokerName","destinationType","destinationName"]
+    metrics:
+      include:
+        - AverageEnqueueTime: "AverageEnqueueTime"
+        - ConsumerCount: "ConsumerCount"
+
+  # This MBean will extract out Topic metrics.
+  - objectName: "org.apache.activemq:type=Broker,brokerName=*,destinationType=Topic,destinationName=*"
+    mbeanKeys: ["type", "brokerName","destinationType","destinationName"]
+    metrics:
+      include:
+        - AverageEnqueueTime: "Average Enqueue Time"
+        - ConsumerCount: "ConsumerCount"
 
 
+  # Derived Metrics can be set in the following way
+  - objectName: "java.lang:type=Memory"
+    mbeanKeys: ["type"]
+    metrics:
+      include:
+        - HeapMemoryUsage.committed : "Heap Memory Usage|Committed"
+
+
+
+  - objectName: "org.apache.activemq:type=Broker,brokerName=*"
+    mbeanKeys: ["type", "brokerName",]
+    metrics:
+      include:
+        - StorePercentUsage: "Store Percent Usage"
+        - TransportConnectors.amqp: "Transport Connectors| amqp"
+        - TransportConnectors.mqtt: "Transport Connectors| mqtt"
+        - TransportConnectors.stomp: "Transport Connectors| stomp"
 #
-#  - objectName: "org.apache.activemq:type=Broker,brokerName=*"
-#    mbeanKeys: ["type", "brokerName",]
-#    metrics:
-#      include:
-#        - StorePercentUsage: "Store Percent Usage"
-#        - TransportConnectors.amqp: "Transport Connectors| amqp"
-#        - TransportConnectors.mqtt: "Transport Connectors| mqtt"
-#        - TransportConnectors.stomp: "Transport Connectors| stomp"
-##
-#  # This MBean will extract out Topic metrics.
-#  - objectName: "org.apache.activemq:type=Broker,brokerName=*"
-#    mbeanKeys: ["type", "brokerName",]
-#    metrics:
-#      include:
-#        - NormalMetric: "Normal Metric"
-##        Defining the Map for 1 level depth using the composite metric approach
-#        - MapOfStringString1.StringKeyValuePair1: "MapOfStringString1|StringKeyValuePair1"
-#        - MapOfStringString1.StringKeyValuePair2: "MapOfStringString1|StringKeyValuePair2"
-#        - MapOfStringString1.StringKeyValuePair3: "MapOfStringString1|StringKeyValuePair3"
-#        - MapOfStringString1.StringKeyValuePair4: "MapOfStringString1|StringKeyValuePair4"
-#
-##        Defining the map using a new approach, still depth=1, redesign the JMX Metrics Processor a bit
-#        - MapOfStringString1:
-#          - StringKeyValuePair1: "String Key Value Pair 1"
-#            clusterRollUpType: "AVERAGE"
-#            timeRollUpType: "SUM"
-#            aggregationType: "SUM"
-#          - StringKeyValuePair2: "String Key Value Pair 2"
-#            clusterRollUpType: "AVERAGE"
-#            timeRollUpType: "SUM"
-#            aggregationType: "SUM"
-##        Defining the map using a new approach, this can go as deep as it can, will need to use recursion and redesign the JMX Metrics Processor
-#        - MapOfMapOfStringString:
-#          - MapOfStringString1:
-#            - StringKeyValuePair1: "String Key Value Pair 1"
-#              clusterRollUpType: "AVERAGE"
-#              timeRollUpType: "SUM"
-#              aggregationType: "SUM"
-#            - StringKeyValuePair2: "String Key Value Pair 2"
-#              clusterRollUpType: "AVERAGE"
-#              timeRollUpType: "SUM"
-#              aggregationType: "SUM"
-#          - MapOfStringString2:
-#            - StringKeyValuePair1: "String Key Value Pair 1"
-#              clusterRollUpType: "AVERAGE"
-#              timeRollUpType: "SUM"
-#              aggregationType: "SUM"
-#            - StringKeyValuePair2: "String Key Value Pair 2"
-#              clusterRollUpType: "AVERAGE"
-#              timeRollUpType: "SUM"
-#              aggregationType: "SUM"
+  # This MBean will extract out Topic metrics.
+  - objectName: "org.apache.activemq:type=Broker,brokerName=*"
+    mbeanKeys: ["type", "brokerName",]
+    metrics:
+      include:
+        - NormalMetric: "Normal Metric"
+#        Defining the Map for 1 level depth using the composite metric approach
+        - MapOfStringString1.StringKeyValuePair1: "MapOfStringString1|StringKeyValuePair1"
+        - MapOfStringString1.StringKeyValuePair2: "MapOfStringString1|StringKeyValuePair2"
+        - MapOfStringString1.StringKeyValuePair3: "MapOfStringString1|StringKeyValuePair3"
+        - MapOfStringString1.StringKeyValuePair4: "MapOfStringString1|StringKeyValuePair4"
+
+#        Defining the map using a new approach, still depth=1, redesign the JMX Metrics Processor a bit
+        - MapOfStringString1:
+          - StringKeyValuePair1: "String Key Value Pair 1"
+            clusterRollUpType: "AVERAGE"
+            timeRollUpType: "SUM"
+            aggregationType: "SUM"
+          - StringKeyValuePair2: "String Key Value Pair 2"
+            clusterRollUpType: "AVERAGE"
+            timeRollUpType: "SUM"
+            aggregationType: "SUM"
+#        Defining the map using a new approach, this can go as deep as it can, will need to use recursion and redesign the JMX Metrics Processor
+        - MapOfMapOfStringString:
+          - MapOfStringString1:
+            - StringKeyValuePair1: "String Key Value Pair 1"
+              clusterRollUpType: "AVERAGE"
+              timeRollUpType: "SUM"
+              aggregationType: "SUM"
+            - StringKeyValuePair2: "String Key Value Pair 2"
+              clusterRollUpType: "AVERAGE"
+              timeRollUpType: "SUM"
+              aggregationType: "SUM"
+          - MapOfStringString2:
+            - StringKeyValuePair1: "String Key Value Pair 1"
+              clusterRollUpType: "AVERAGE"
+              timeRollUpType: "SUM"
+              aggregationType: "SUM"
+            - StringKeyValuePair2: "String Key Value Pair 2"
+              clusterRollUpType: "AVERAGE"
+              timeRollUpType: "SUM"
+              aggregationType: "SUM"
+
+
+metricCharacterReplacer:
+   - replace: "%"
+     replaceWith: ""
+   - replace: ","
+     replaceWith: "-"
+   - replace: "."
+     replaceWith: "-"
+   - replace: "ms"
+     replaceWith: ""
+
+separatorForMetricLists: ":"
