@@ -119,3 +119,17 @@ mbeans:
             "NODE-SAFE" : "2",
             "MACHINE-SAFE" : "3"
           }
+
+
+
+metricCharacterReplacer:
+   - replace: "\\%"
+     replaceWith: ""
+   - replace: "\\,"
+     replaceWith: "\\-"
+   - replace: "\\."
+     replaceWith: "\\-"
+   - replace: "ms"
+     replaceWith: ""
+
+separatorForMetricLists: ":"

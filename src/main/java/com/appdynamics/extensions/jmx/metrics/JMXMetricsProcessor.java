@@ -153,18 +153,25 @@ public class JMXMetricsProcessor {
     }
 
     private Attribute getListMetric(Object metricKey){
-        String[] arr = metricKey.toString().split(":");
+        String[] arr = metricKey.toString().split(getSeparator());
         String key = arr[0].trim();
         String value = arr[1].trim();
         List<Map<String, String>> metricReplacer = getMetricReplacer();
         key = getMetricAfterCharacterReplacement(key, metricReplacer);
         value = getMetricAfterCharacterReplacement(value, metricReplacer);
         return new Attribute(key,value);
-
     }
 
     private List<Map<String, String>> getMetricReplacer() {
         return (List<Map<String, String>>) monitorContextConfiguration.getConfigYml().get("metricCharacterReplacer");
+    }
+
+    private String getSeparator() {
+        String separator = ":";
+        if(monitorContextConfiguration.getConfigYml().get("separatorForMetricLists") != null){
+            separator =  monitorContextConfiguration.getConfigYml().get("separatorForMetricLists").toString();
+        }
+        return separator;
     }
 
 
