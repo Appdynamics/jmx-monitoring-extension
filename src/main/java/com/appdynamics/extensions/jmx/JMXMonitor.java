@@ -48,7 +48,7 @@ public class JMXMonitor extends ABaseMonitor {
 
     @Override
     protected void doRun(TasksExecutionServiceProvider taskExecutor) {
-        Map<String, ?> config = configuration.getConfigYml();
+        Map<String, ?> config = getContextConfiguration().getConfigYml();
         if (config != null) {
             List<Map> servers = (List) config.get(SERVERS);
             AssertUtils.assertNotNull(servers, "The 'servers' section in config.yml is not initialised");
@@ -72,7 +72,7 @@ public class JMXMonitor extends ABaseMonitor {
 
     @Override
     protected int getTaskCount() {
-        List<Map<String, String>> servers = (List<Map<String, String>>) configuration.getConfigYml().get(SERVERS);
+        List<Map<String, String>> servers = (List<Map<String, String>>) getContextConfiguration().getConfigYml().get(SERVERS);
         AssertUtils.assertNotNull(servers, "The 'servers' section in config.yml is not initialised");
         return servers.size();
     }
@@ -88,10 +88,11 @@ public class JMXMonitor extends ABaseMonitor {
 
         JMXConnectionAdapter adapter = JMXConnectionAdapter.create(serviceUrl, host, port, username, password);
         return new JMXMonitorTask.Builder().
-                metricPrefix(configuration.getMetricPrefix()).
+                metricPrefix(getContextConfiguration().getMetricPrefix()).
                 metricWriter(taskExecutor.getMetricWriteHelper()).
                 jmxConnectionAdapter(adapter).server(server).
-                mbeans((List<Map>) configuration.getConfigYml().get(MBEANS)).build();
+                mbeans((List<Map>) getContextConfiguration().getConfigYml().get(MBEANS)).
+                monitorConfiguration(getContextConfiguration()).build();
     }
 
     private String getPassword(Map server) {

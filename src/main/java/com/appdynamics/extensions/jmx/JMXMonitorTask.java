@@ -17,6 +17,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.appdynamics.extensions.conf.MonitorContextConfiguration;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.remote.JMXConnector;
@@ -39,6 +40,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
     private Map server;
     private JMXConnectionAdapter jmxConnectionAdapter;
     private List<Map> configMBeans;
+    private MonitorContextConfiguration monitorContextConfiguration;
 
     private String serverName;
     private long previousTimestamp = 0;
@@ -78,7 +80,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                 try {
                     Map<String, ?> metricProperties = getMapOfProperties(mBean);
                     previousTimestamp = System.currentTimeMillis();
-                    JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
+                    JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration,jmxConnectionAdapter, jmxConnector);
                     currentTimestamp = System.currentTimeMillis();
                     logger.debug("Time to create object of JMXMetricsProcessor in milliseconds: " + (currentTimestamp - previousTimestamp));
                     previousTimestamp = System.currentTimeMillis();
@@ -226,6 +228,11 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
 
         Builder mbeans(List<Map> mBeans) {
             task.configMBeans = mBeans;
+            return this;
+        }
+
+        Builder monitorConfiguration(MonitorContextConfiguration monitorContextConfiguration){
+            task.monitorContextConfiguration = monitorContextConfiguration;
             return this;
         }
 

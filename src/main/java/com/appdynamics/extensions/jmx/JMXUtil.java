@@ -21,6 +21,9 @@ import java.util.Map;
  */
 public class JMXUtil {
 
+    public static final String REPLACE = "replace";
+    public static final String REPLACE_WITH = "replaceWith";
+
     public static String convertToString(final Object field, final String defaultStr) {
         if (field == null) {
             return defaultStr;
@@ -55,5 +58,20 @@ public class JMXUtil {
     public static boolean isCurrentAttributeList(Attribute attribute) {
         return attribute.getValue().getClass().equals(List.class) || attribute.getValue().getClass().equals(Array.class) || attribute.getValue().getClass().equals(ArrayList.class);
     }
+
+    public static String getMetricAfterCharacterReplacement(String replaceTextHere, List<Map<String, String>> metricReplacer) {
+
+        for (Map chars : metricReplacer) {
+            String replace = (String) chars.get(REPLACE);
+            String replaceWith = (String) chars.get(REPLACE_WITH);
+
+            if (replaceTextHere.contains(replace)) {
+                replaceTextHere = replaceTextHere.replaceAll(replace, replaceWith);
+            }
+        }
+        return replaceTextHere;
+    }
+
+
 
 }

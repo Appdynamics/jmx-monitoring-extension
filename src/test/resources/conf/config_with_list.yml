@@ -15,5 +15,6 @@ mbeans:
 #          delta: false
 
         # Map Metric Level 1
-        - listOfString: "listOfString"
+        - listOfString.metric one: "listOfString|metric one"
+        - listOfString.metric two: "listOfString|metric two"
           separator: ":"

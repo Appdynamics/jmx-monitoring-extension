@@ -1,5 +1,6 @@
 package com.appdynamics.extensions.jmx.metrics;
 
+import com.appdynamics.extensions.conf.MonitorContextConfiguration;
 import com.appdynamics.extensions.jmx.JMXUtil;
 import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.jmx.filters.IncludeFilter;
@@ -29,8 +30,10 @@ public class JMXMetricsProcessor {
     private static final Logger logger = LoggerFactory.getLogger(JMXMetricsProcessor.class);
     private JMXConnectionAdapter jmxConnectionAdapter;
     private JMXConnector jmxConnector;
+    private MonitorContextConfiguration monitorContextConfiguration;
 
-    public JMXMetricsProcessor(JMXConnectionAdapter jmxConnectionAdapter, JMXConnector jmxConnector) {
+    public JMXMetricsProcessor(MonitorContextConfiguration monitorContextConfiguration,JMXConnectionAdapter jmxConnectionAdapter, JMXConnector jmxConnector) {
+        this.monitorContextConfiguration = monitorContextConfiguration;
         this.jmxConnectionAdapter = jmxConnectionAdapter;
         this.jmxConnector = jmxConnector;
     }
@@ -145,7 +148,6 @@ public class JMXMetricsProcessor {
                     setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
                 }
             }
-
             //********
         }
     }
@@ -154,9 +156,18 @@ public class JMXMetricsProcessor {
         String[] arr = metricKey.toString().split(":");
         String key = arr[0].trim();
         String value = arr[1].trim();
+        List<Map<String, String>> metricReplacer = getMetricReplacer();
+        key = getMetricAfterCharacterReplacement(key, metricReplacer);
+        value = getMetricAfterCharacterReplacement(value, metricReplacer);
         return new Attribute(key,value);
 
     }
+
+    private List<Map<String, String>> getMetricReplacer() {
+        return (List<Map<String, String>>) monitorContextConfiguration.getConfigYml().get("metricCharacterReplacer");
+    }
+
+
     private void setMetricDetailsForNormalMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
                                                   List<String> mBeanKeys, String displayName, Attribute attribute) {
         String attributeName = attribute.getName();
