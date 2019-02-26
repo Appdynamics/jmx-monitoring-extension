@@ -32,7 +32,7 @@ public class JMXMetricsProcessor {
     private JMXConnector jmxConnector;
     private MonitorContextConfiguration monitorContextConfiguration;
 
-    public JMXMetricsProcessor(MonitorContextConfiguration monitorContextConfiguration,JMXConnectionAdapter jmxConnectionAdapter, JMXConnector jmxConnector) {
+    public JMXMetricsProcessor(MonitorContextConfiguration monitorContextConfiguration, JMXConnectionAdapter jmxConnectionAdapter, JMXConnector jmxConnector) {
         this.monitorContextConfiguration = monitorContextConfiguration;
         this.jmxConnectionAdapter = jmxConnectionAdapter;
         this.jmxConnector = jmxConnector;
@@ -95,6 +95,19 @@ public class JMXMetricsProcessor {
         }
     }
 
+    private void checkObjectType(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
+                                 List<String> mBeanKeys, String displayName, Attribute attribute) {
+        if (isCurrentObjectMap(attribute.getValue())) {
+            checkAttributeTypeAndSetDetails(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
+        } else if (isCurrentObjectList(attribute.getValue())) {
+            checkAttributeTypeAndSetDetails(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
+        } else {
+            if (metricPropsPerMetricName.containsKey(attribute.getName())) {
+                setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
+            }
+        }
+    }
+
     private void setMetricDetailsForCompositeMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
                                                      List<String> mBeanKeys, String displayName, Attribute attribute) {
         String attributeName = attribute.getName();
@@ -117,49 +130,47 @@ public class JMXMetricsProcessor {
         for (Object metricNameKey : attributesFound.keySet()) {
             String key = attributeName + PERIOD + metricNameKey.toString();
             Object attributeValue = attributesFound.get(metricNameKey);
-            if (isCurrentObjectMap(attributeValue)) {
-                Attribute attribute1 = new Attribute(key, attributeValue);
-                checkAttributeTypeAndSetDetails(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
-            } else {
-                if (metricPropsPerMetricName.containsKey(key)) {
-                    Attribute attribute1 = new Attribute(key, attributeValue);
-                    setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
-                }
-            }
+            Attribute attribute1 = new Attribute(key, attributeValue);
+            checkObjectType(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
+//            if (isCurrentObjectMap(attributeValue)) {
+//                checkAttributeTypeAndSetDetails(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
+//            } else {
+//                if (metricPropsPerMetricName.containsKey(key)) {
+//                    setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
+//                }
+//            }
         }
     }
 
     private void setMetricDetailsForListMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
-                                               List<String> mBeanKeys, String displayName, Attribute attribute) {
+                                                List<String> mBeanKeys, String displayName, Attribute attribute) {
         String attributeName = attribute.getName();
         List attributesFound = (List) attribute.getValue();
         for (Object metricNameKey : attributesFound) {
             Attribute listMetric = getListMetric(metricNameKey);
             String key = attributeName + PERIOD + listMetric.getName();
             Object attributeValue = listMetric.getValue();
+            Attribute attribute1 = new Attribute(key, attributeValue);
+            checkObjectType(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
 
-            ////********
-            if (isCurrentObjectList(attributeValue)) {
-                Attribute attribute1 = new Attribute(key, attributeValue);
-                checkAttributeTypeAndSetDetails(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
-            } else {
-                if (metricPropsPerMetricName.containsKey(key)) {
-                    Attribute attribute1 = new Attribute(key, attributeValue);
-                    setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
-                }
-            }
-            //********
+//            if (isCurrentObjectList(attributeValue)) {
+//                checkAttributeTypeAndSetDetails(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
+//            } else {
+//                if (metricPropsPerMetricName.containsKey(key)) {
+//                    setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
+//                }
+//            }
         }
     }
 
-    private Attribute getListMetric(Object metricKey){
+    private Attribute getListMetric(Object metricKey) {
         String[] arr = metricKey.toString().split(getSeparator());
         String key = arr[0].trim();
         String value = arr[1].trim();
         List<Map<String, String>> metricReplacer = getMetricReplacer();
         key = getMetricAfterCharacterReplacement(key, metricReplacer);
         value = getMetricAfterCharacterReplacement(value, metricReplacer);
-        return new Attribute(key,value);
+        return new Attribute(key, value);
     }
 
     private List<Map<String, String>> getMetricReplacer() {
@@ -168,8 +179,8 @@ public class JMXMetricsProcessor {
 
     private String getSeparator() {
         String separator = ":";
-        if(monitorContextConfiguration.getConfigYml().get("separatorForMetricLists") != null){
-            separator =  monitorContextConfiguration.getConfigYml().get("separatorForMetricLists").toString();
+        if (monitorContextConfiguration.getConfigYml().get("separatorForMetricLists") != null) {
+            separator = monitorContextConfiguration.getConfigYml().get("separatorForMetricLists").toString();
         }
         return separator;
     }
