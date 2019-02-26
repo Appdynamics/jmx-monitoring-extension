@@ -14,5 +14,7 @@ mbeans:
         - HeapMemoryUsage.max : "Heap Memory Usage|Max"
           multiplier: "10"
           delta: false
-        - ListOfMap.key1: "ListOfMap|key1"
-        - ListOfMap.map2.key2: "ListOfMap|map2|key2"
+
+#        - ListOfMap.key1: "ListOfMap|key1"
+#        - ListOfMap.key1: "ListOfMap|key1"
+#        - ListOfMap.map2.key2: "ListOfMap|map2|key2"
