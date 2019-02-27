@@ -9,6 +9,7 @@
 package com.appdynamics.extensions.jmx;
 
 import javax.management.Attribute;
+import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -40,7 +41,8 @@ public class JMXUtil {
     }
 
     public static boolean isCurrentObjectComposite(Attribute attribute) {
-        return attribute.getValue().getClass().equals(CompositeDataSupport.class);
+     return attribute.getValue() instanceof CompositeData;
+//        return attribute.getValue().getClass().equals(CompositeDataSupport.class);
     }
 
     public static boolean isCurrentObjectMap(Object attribute) {

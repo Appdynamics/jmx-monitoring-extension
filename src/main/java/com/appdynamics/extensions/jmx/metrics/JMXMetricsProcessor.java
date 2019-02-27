@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.management.*;
 import javax.management.openmbean.CompositeDataSupport;
+import javax.management.openmbean.CompositeData;
 import javax.management.remote.JMXConnector;
 import java.io.IOException;
 import java.util.List;
@@ -111,12 +112,15 @@ public class JMXMetricsProcessor {
     private void setMetricDetailsForCompositeMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
                                                      List<String> mBeanKeys, String displayName, Attribute attribute) {
         String attributeName = attribute.getName();
-        Set<String> attributesFound = ((CompositeDataSupport) attribute.getValue()).getCompositeType()
-                .keySet();
+        CompositeData metricValue = (CompositeData) attribute.getValue();
+        Set<String> attributesFound = metricValue.getCompositeType().keySet();
+
+//        Set<String> attributesFound = ((CompositeDataSupport) attribute.getValue()).getCompositeType().keySet();
         for (String str : attributesFound) {
             String key = attributeName + PERIOD + str;
             if (metricPropsPerMetricName.containsKey(key)) {
-                Object attributeValue = ((CompositeDataSupport) attribute.getValue()).get(str);
+                Object attributeValue = metricValue.get(str);
+//                Object attributeValue = ((CompositeDataSupport) attribute.getValue()).get(str);
                 Attribute attribute1 = new Attribute(key, attributeValue);
                 setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
             }
@@ -132,13 +136,6 @@ public class JMXMetricsProcessor {
             Object attributeValue = attributesFound.get(metricNameKey);
             Attribute attribute1 = new Attribute(key, attributeValue);
             checkObjectType(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
-//            if (isCurrentObjectMap(attributeValue)) {
-//                checkAttributeTypeAndSetDetails(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
-//            } else {
-//                if (metricPropsPerMetricName.containsKey(key)) {
-//                    setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
-//                }
-//            }
         }
     }
 
@@ -152,14 +149,6 @@ public class JMXMetricsProcessor {
             Object attributeValue = listMetric.getValue();
             Attribute attribute1 = new Attribute(key, attributeValue);
             checkObjectType(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
-
-//            if (isCurrentObjectList(attributeValue)) {
-//                checkAttributeTypeAndSetDetails(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
-//            } else {
-//                if (metricPropsPerMetricName.containsKey(key)) {
-//                    setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
-//                }
-//            }
         }
     }
 
