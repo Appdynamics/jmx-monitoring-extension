@@ -66,11 +66,13 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
     private void populateAndPrintStats() throws IOException {
         JMXConnector jmxConnector = null;
 
+        //#TODO I didn't like how you are calculating the time at every step. Not needed. It adds a lot of distraction.
         try {
             previousTimestamp = System.currentTimeMillis();
             jmxConnector = jmxConnectionAdapter.open();
             currentTimestamp = System.currentTimeMillis();
             logger.debug("Time to open connection in milliseconds: " + (currentTimestamp - previousTimestamp));
+            //#TODO the below comment looks like a school project's comment.
             logger.debug("JMX Connection is now open");
 
             for (Map mBean : configMBeans) {
@@ -82,6 +84,8 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                     previousTimestamp = System.currentTimeMillis();
                     JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration,jmxConnectionAdapter, jmxConnector);
                     currentTimestamp = System.currentTimeMillis();
+                    //#TODO What is the use of the below log statement?.
+
                     logger.debug("Time to create object of JMXMetricsProcessor in milliseconds: " + (currentTimestamp - previousTimestamp));
                     previousTimestamp = System.currentTimeMillis();
                     List<Metric> nodeMetrics = jmxMetricsProcessor.getJMXMetrics(mBean, metricProperties, metricPrefix, server.get(DISPLAY_NAME).toString());

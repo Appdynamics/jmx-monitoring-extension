@@ -43,6 +43,7 @@ public class JMXMetricsProcessor {
             MalformedObjectNameException, IOException, IntrospectionException, InstanceNotFoundException,
             ReflectionException {
         List<Metric> jmxMetrics = Lists.newArrayList();
+        //TODO NULLSTRING is not a NULL string
         String configObjectName = JMXUtil.convertToString(mBean.get(OBJECT_NAME), NULLSTRING);
 
         Set<ObjectInstance> objectInstances = jmxConnectionAdapter.queryMBeans(jmxConnector, ObjectName.getInstance
@@ -58,6 +59,8 @@ public class JMXMetricsProcessor {
         return jmxMetrics;
     }
 
+
+    //#TODO where is this list of exception being thrown from?
     private List<String> applyFilters(Map aConfigMBean, List<String> metricNamesDictionary) throws
             IntrospectionException, ReflectionException, InstanceNotFoundException, IOException {
         Set<String> filteredSet = Sets.newHashSet();
@@ -83,6 +86,9 @@ public class JMXMetricsProcessor {
         }
     }
 
+
+    //TODO this is just too ugly. There is a reason Java belongs to the family of OOP languages.
+    // TODO While I understand what you have done because of our meetings, there is no way I can approve this school code. 
     private void checkAttributeTypeAndSetDetails(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
                                                  List<String> mBeanKeys, String displayName, Attribute attribute) {
         if (isCurrentObjectComposite(attribute)) {
@@ -108,6 +114,9 @@ public class JMXMetricsProcessor {
             }
         }
     }
+
+
+
 
     private void setMetricDetailsForCompositeMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
                                                      List<String> mBeanKeys, String displayName, Attribute attribute) {
