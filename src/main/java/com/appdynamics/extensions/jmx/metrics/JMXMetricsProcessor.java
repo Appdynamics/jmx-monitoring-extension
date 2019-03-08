@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.*;
-import javax.management.openmbean.CompositeDataSupport;
 import javax.management.openmbean.CompositeData;
 import javax.management.remote.JMXConnector;
 import java.io.IOException;
@@ -44,7 +43,7 @@ public class JMXMetricsProcessor {
             ReflectionException {
         List<Metric> jmxMetrics = Lists.newArrayList();
         //TODO NULLSTRING is not a NULL string
-        String configObjectName = JMXUtil.convertToString(mBean.get(OBJECT_NAME), NULLSTRING);
+        String configObjectName = JMXUtil.convertToString(mBean.get(OBJECT_NAME), EMPTY_STRING);
 
         Set<ObjectInstance> objectInstances = jmxConnectionAdapter.queryMBeans(jmxConnector, ObjectName.getInstance
                 (configObjectName));
@@ -54,15 +53,26 @@ public class JMXMetricsProcessor {
             List<Attribute> attributes = jmxConnectionAdapter.getAttributes(jmxConnector, instance.getObjectName(),
                     metricNamesToBeExtracted.toArray(new String[metricNamesToBeExtracted.size()]));
             List<String> mBeanKeys = getMBeanKeys(mBean);
-            collectMetrics(metricPrefix, jmxMetrics, attributes, instance, metricsPropertiesMap, mBeanKeys, displayName);
+            MetricDetails metricDetails = getMetricDetails(metricsPropertiesMap, metricPrefix, displayName, jmxMetrics, instance, mBeanKeys);
+            collectMetrics(metricDetails, attributes, instance);
         }
         return jmxMetrics;
     }
 
+    private MetricDetails getMetricDetails(Map<String, ?> metricsPropertiesMap, String metricPrefix, String displayName, List<Metric> jmxMetrics, ObjectInstance instance, List<String> mBeanKeys) {
+        return new MetricDetails.Builder()
+                        .metricPrefix(metricPrefix)
+                        .jmxMetrics(jmxMetrics)
+                        .instance(instance)
+                        .metricPropsPerMetricName(metricsPropertiesMap)
+                        .mBeanKeys(mBeanKeys)
+                        .displayName(displayName)
+                        .build();
+    }
+
 
     //#TODO where is this list of exception being thrown from?
-    private List<String> applyFilters(Map aConfigMBean, List<String> metricNamesDictionary) throws
-            IntrospectionException, ReflectionException, InstanceNotFoundException, IOException {
+    private List<String> applyFilters(Map aConfigMBean, List<String> metricNamesDictionary) {
         Set<String> filteredSet = Sets.newHashSet();
         Map configMetrics = (Map) aConfigMBean.get(METRICS);
         List includeDictionary = (List) configMetrics.get(INCLUDE);
@@ -75,11 +85,11 @@ public class JMXMetricsProcessor {
         return mBeanKeys;
     }
 
-    private void collectMetrics(String metricPrefix, List<Metric> jmxMetrics, List<Attribute> attributes,
-                                ObjectInstance instance, Map<String, ?> metricPropsPerMetricName, List<String> mBeanKeys, String displayName) {
+    private void collectMetrics(MetricDetails metricInfo, List<Attribute> attributes, ObjectInstance instance) {
         for (Attribute attribute : attributes) {
             try {
-                checkAttributeTypeAndSetDetails(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
+                metricInfo.setAttribute(attribute);
+                checkAttributeTypeAndSetDetails(metricInfo);
             } catch (Exception e) {
                 logger.error("Error collecting value for {} {}", instance.getObjectName(), attribute.getName(), e);
             }
@@ -88,76 +98,71 @@ public class JMXMetricsProcessor {
 
 
     //TODO this is just too ugly. There is a reason Java belongs to the family of OOP languages.
-    // TODO While I understand what you have done because of our meetings, there is no way I can approve this school code. 
-    private void checkAttributeTypeAndSetDetails(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
-                                                 List<String> mBeanKeys, String displayName, Attribute attribute) {
-        if (isCurrentObjectComposite(attribute)) {
-            setMetricDetailsForCompositeMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
-        } else if (isCurrentAttributeMap(attribute)) {
-            setMetricDetailsForMapMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
-        } else if (isCurrentAttributeList(attribute)) {
-            setMetricDetailsForListMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
+    // TODO While I understand what you have done because of our meetings, there is no way I can approve this school code.
+
+    private void checkAttributeTypeAndSetDetails(MetricDetails metricDetails) {
+        if (isCurrentObjectComposite(metricDetails.getAttribute())) {
+            setMetricDetailsForCompositeMetrics(metricDetails);
+        } else if (isCurrentAttributeMap(metricDetails.getAttribute())) {
+            setMetricDetailsForMapMetrics(metricDetails);
+        } else if (isCurrentAttributeList(metricDetails.getAttribute())) {
+            setMetricDetailsForListMetrics(metricDetails);
         } else {
-            setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
+            setMetricDetailsForNormalMetrics(metricDetails);
         }
     }
 
-    private void checkObjectType(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
-                                 List<String> mBeanKeys, String displayName, Attribute attribute) {
-        if (isCurrentObjectMap(attribute.getValue())) {
-            checkAttributeTypeAndSetDetails(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
-        } else if (isCurrentObjectList(attribute.getValue())) {
-            checkAttributeTypeAndSetDetails(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
+
+    private void checkObjectType(MetricDetails metricDetails) {
+        if (isCurrentObjectMap(metricDetails.getAttribute().getValue())) {
+            checkAttributeTypeAndSetDetails(metricDetails);
+        } else if (isCurrentObjectList(metricDetails.getAttribute().getValue())) {
+            checkAttributeTypeAndSetDetails(metricDetails);
         } else {
-            if (metricPropsPerMetricName.containsKey(attribute.getName())) {
-                setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute);
+            if (metricDetails.getMetricPropsPerMetricName().containsKey(metricDetails.getAttribute().getName())) {
+                setMetricDetailsForNormalMetrics(metricDetails);
             }
         }
     }
 
-
-
-
-    private void setMetricDetailsForCompositeMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
-                                                     List<String> mBeanKeys, String displayName, Attribute attribute) {
-        String attributeName = attribute.getName();
-        CompositeData metricValue = (CompositeData) attribute.getValue();
+    private void setMetricDetailsForCompositeMetrics(MetricDetails metricDetails) {
+        String attributeName = metricDetails.getAttribute().getName();
+        CompositeData metricValue = (CompositeData) metricDetails.getAttribute().getValue();
         Set<String> attributesFound = metricValue.getCompositeType().keySet();
 
-//        Set<String> attributesFound = ((CompositeDataSupport) attribute.getValue()).getCompositeType().keySet();
         for (String str : attributesFound) {
             String key = attributeName + PERIOD + str;
-            if (metricPropsPerMetricName.containsKey(key)) {
+            if (metricDetails.getMetricPropsPerMetricName().containsKey(key)) {
                 Object attributeValue = metricValue.get(str);
-//                Object attributeValue = ((CompositeDataSupport) attribute.getValue()).get(str);
                 Attribute attribute1 = new Attribute(key, attributeValue);
-                setMetricDetailsForNormalMetrics(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
+                metricDetails.setAttribute(attribute1);
+                setMetricDetailsForNormalMetrics(metricDetails);
             }
         }
     }
 
-    private void setMetricDetailsForMapMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
-                                               List<String> mBeanKeys, String displayName, Attribute attribute) {
-        String attributeName = attribute.getName();
-        Map attributesFound = (Map) attribute.getValue();
+    private void setMetricDetailsForMapMetrics(MetricDetails metricDetails) {
+        String attributeName = metricDetails.getAttribute().getName();
+        Map attributesFound = (Map) metricDetails.getAttribute().getValue();
         for (Object metricNameKey : attributesFound.keySet()) {
             String key = attributeName + PERIOD + metricNameKey.toString();
             Object attributeValue = attributesFound.get(metricNameKey);
             Attribute attribute1 = new Attribute(key, attributeValue);
-            checkObjectType(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
+            metricDetails.setAttribute(attribute1);
+            checkObjectType(metricDetails);
         }
     }
 
-    private void setMetricDetailsForListMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
-                                                List<String> mBeanKeys, String displayName, Attribute attribute) {
-        String attributeName = attribute.getName();
-        List attributesFound = (List) attribute.getValue();
+    private void setMetricDetailsForListMetrics(MetricDetails metricDetails) {
+        String attributeName = metricDetails.getAttribute().getName();
+        List attributesFound = (List) metricDetails.getAttribute().getValue();
         for (Object metricNameKey : attributesFound) {
             Attribute listMetric = getListMetric(metricNameKey);
             String key = attributeName + PERIOD + listMetric.getName();
             Object attributeValue = listMetric.getValue();
             Attribute attribute1 = new Attribute(key, attributeValue);
-            checkObjectType(metricPrefix, jmxMetrics, instance, metricPropsPerMetricName, mBeanKeys, displayName, attribute1);
+            metricDetails.setAttribute(attribute1);
+            checkObjectType(metricDetails);
         }
     }
 
@@ -183,21 +188,19 @@ public class JMXMetricsProcessor {
         return separator;
     }
 
-
-    private void setMetricDetailsForNormalMetrics(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName,
-                                                  List<String> mBeanKeys, String displayName, Attribute attribute) {
-        String attributeName = attribute.getName();
-        Map<String, ?> props = (Map) metricPropsPerMetricName.get(attributeName);
+    private void setMetricDetailsForNormalMetrics(MetricDetails metricDetails) {
+        String attributeName = metricDetails.getAttribute().getName();
+        Map<String, ?> props = (Map) metricDetails.getMetricPropsPerMetricName().get(attributeName);
         if (props == null) {
             logger.error("Could not find metric properties for {} ", attributeName);
         }
-        String instanceKey = getInstanceKey(instance, mBeanKeys);
-        String metricPath = generateMetricPath(metricPrefix, attributeName, displayName, instanceKey);
-        String attrVal = attribute.getValue().toString();
+        String instanceKey = getInstanceKey(metricDetails.getInstance(), metricDetails.getmBeanKeys());
+        String metricPath = generateMetricPath(metricDetails.getMetricPrefix(), attributeName, metricDetails.getDisplayName(), instanceKey);
+        String attrVal = metricDetails.getAttribute().getValue().toString();
         Metric current_metric = new Metric(attributeName, attrVal, metricPath, props);
-        jmxMetrics.add(current_metric);
-
+        metricDetails.addToJmxMetrics(current_metric);
     }
+
 
     private ObjectName getObjectName(ObjectInstance instance) {
         return instance.getObjectName();
@@ -215,7 +218,7 @@ public class JMXMetricsProcessor {
 
         for (String key : mBeanKeys) {
             String value = getKeyProperty(instance, key);
-            metricsKey.append(Strings.isNullOrEmpty(value) ? NULLSTRING : value + METRICS_SEPARATOR);
+            metricsKey.append(Strings.isNullOrEmpty(value) ? EMPTY_STRING : value + METRICS_SEPARATOR);
         }
         return metricsKey.toString();
     }
@@ -237,6 +240,5 @@ public class JMXMetricsProcessor {
         }
         return metricPath;
     }
-
 
 }
