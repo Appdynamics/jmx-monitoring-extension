@@ -66,14 +66,11 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
     private void populateAndPrintStats() throws IOException {
         JMXConnector jmxConnector = null;
 
-        //#TODO I didn't like how you are calculating the time at every step. Not needed. It adds a lot of distraction.
         try {
             previousTimestamp = System.currentTimeMillis();
             jmxConnector = jmxConnectionAdapter.open();
             currentTimestamp = System.currentTimeMillis();
-            logger.debug("Time to open connection in milliseconds: " + (currentTimestamp - previousTimestamp));
-            //#TODO the below comment looks like a school project's comment.
-            logger.debug("JMX Connection is now open");
+            logger.debug("Time to open connection for "+ serverName +" in milliseconds: " + (currentTimestamp - previousTimestamp));
 
             for (Map mBean : configMBeans) {
                 String configObjName = JMXUtil.convertToString(mBean.get(OBJECT_NAME), "");
@@ -81,16 +78,11 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
 
                 try {
                     Map<String, ?> metricProperties = getMapOfProperties(mBean);
-                    previousTimestamp = System.currentTimeMillis();
                     JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration,jmxConnectionAdapter, jmxConnector);
-                    currentTimestamp = System.currentTimeMillis();
-                    //#TODO What is the use of the below log statement?.
-
-                    logger.debug("Time to create object of JMXMetricsProcessor in milliseconds: " + (currentTimestamp - previousTimestamp));
                     previousTimestamp = System.currentTimeMillis();
                     List<Metric> nodeMetrics = jmxMetricsProcessor.getJMXMetrics(mBean, metricProperties, metricPrefix, server.get(DISPLAY_NAME).toString());
                     currentTimestamp = System.currentTimeMillis();
-                    logger.debug("Time to get data back from JMXMetricsProcessor in milliseconds: " + (currentTimestamp - previousTimestamp));
+                    logger.debug("Time to process metrics for "+ serverName+"  in milliseconds: " + (currentTimestamp - previousTimestamp));
                     if (nodeMetrics.size() > 0) {
                         metricWriter.transformAndPrintMetrics(nodeMetrics);
                     }
@@ -105,7 +97,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
         } finally {
             try {
                 jmxConnectionAdapter.close(jmxConnector);
-                logger.debug("JMX connection is closed.");
+                logger.debug("JMX connection is closed for "+serverName);
             } catch (IOException e) {
                 logger.error("Unable to close the JMX connection.");
             }

@@ -42,7 +42,6 @@ public class JMXMetricsProcessor {
             MalformedObjectNameException, IOException, IntrospectionException, InstanceNotFoundException,
             ReflectionException {
         List<Metric> jmxMetrics = Lists.newArrayList();
-        //TODO NULLSTRING is not a NULL string
         String configObjectName = JMXUtil.convertToString(mBean.get(OBJECT_NAME), EMPTY_STRING);
 
         Set<ObjectInstance> objectInstances = jmxConnectionAdapter.queryMBeans(jmxConnector, ObjectName.getInstance
@@ -55,6 +54,7 @@ public class JMXMetricsProcessor {
             List<String> mBeanKeys = getMBeanKeys(mBean);
             MetricDetails metricDetails = getMetricDetails(metricsPropertiesMap, metricPrefix, displayName, jmxMetrics, instance, mBeanKeys);
             collectMetrics(metricDetails, attributes, instance);
+            int a = 1+ 1;
         }
         return jmxMetrics;
     }
@@ -71,7 +71,6 @@ public class JMXMetricsProcessor {
     }
 
 
-    //#TODO where is this list of exception being thrown from?
     private List<String> applyFilters(Map aConfigMBean, List<String> metricNamesDictionary) {
         Set<String> filteredSet = Sets.newHashSet();
         Map configMetrics = (Map) aConfigMBean.get(METRICS);
