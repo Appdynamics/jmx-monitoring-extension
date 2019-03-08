@@ -54,20 +54,22 @@ public class JMXMetricsProcessor {
             List<String> mBeanKeys = getMBeanKeys(mBean);
             MetricDetails metricDetails = getMetricDetails(metricsPropertiesMap, metricPrefix, displayName, jmxMetrics, instance, mBeanKeys);
             collectMetrics(metricDetails, attributes, instance);
-            int a = 1+ 1;
+            jmxMetrics.addAll(metricDetails.getJmxMetrics());
         }
         return jmxMetrics;
     }
 
     private MetricDetails getMetricDetails(Map<String, ?> metricsPropertiesMap, String metricPrefix, String displayName, List<Metric> jmxMetrics, ObjectInstance instance, List<String> mBeanKeys) {
+        List<Metric> metricList =  Lists.newArrayList();
+
         return new MetricDetails.Builder()
-                        .metricPrefix(metricPrefix)
-                        .jmxMetrics(jmxMetrics)
-                        .instance(instance)
-                        .metricPropsPerMetricName(metricsPropertiesMap)
-                        .mBeanKeys(mBeanKeys)
-                        .displayName(displayName)
-                        .build();
+                .metricPrefix(metricPrefix)
+                .jmxMetrics(metricList)
+                .instance(instance)
+                .metricPropsPerMetricName(metricsPropertiesMap)
+                .mBeanKeys(mBeanKeys)
+                .displayName(displayName)
+                .build();
     }
 
 
@@ -124,6 +126,20 @@ public class JMXMetricsProcessor {
         }
     }
 
+    private void setMetricDetailsForNormalMetrics(MetricDetails metricDetails) {
+        String attributeName = metricDetails.getAttribute().getName();
+        Map<String, ?> props = (Map) metricDetails.getMetricPropsPerMetricName().get(attributeName);
+        if (props == null) {
+            logger.error("Could not find metric properties for {} ", attributeName);
+        }
+        String instanceKey = getInstanceKey(metricDetails.getInstance(), metricDetails.getmBeanKeys());
+        String metricPath = generateMetricPath(metricDetails.getMetricPrefix(), attributeName, metricDetails.getDisplayName(), instanceKey);
+        String attrVal = metricDetails.getAttribute().getValue().toString();
+        Metric current_metric = new Metric(attributeName, attrVal, metricPath, props);
+        metricDetails.addToJmxMetrics(current_metric);
+    }
+
+
     private void setMetricDetailsForCompositeMetrics(MetricDetails metricDetails) {
         String attributeName = metricDetails.getAttribute().getName();
         CompositeData metricValue = (CompositeData) metricDetails.getAttribute().getValue();
@@ -138,6 +154,7 @@ public class JMXMetricsProcessor {
                 setMetricDetailsForNormalMetrics(metricDetails);
             }
         }
+
     }
 
     private void setMetricDetailsForMapMetrics(MetricDetails metricDetails) {
@@ -185,19 +202,6 @@ public class JMXMetricsProcessor {
             separator = monitorContextConfiguration.getConfigYml().get("separatorForMetricLists").toString();
         }
         return separator;
-    }
-
-    private void setMetricDetailsForNormalMetrics(MetricDetails metricDetails) {
-        String attributeName = metricDetails.getAttribute().getName();
-        Map<String, ?> props = (Map) metricDetails.getMetricPropsPerMetricName().get(attributeName);
-        if (props == null) {
-            logger.error("Could not find metric properties for {} ", attributeName);
-        }
-        String instanceKey = getInstanceKey(metricDetails.getInstance(), metricDetails.getmBeanKeys());
-        String metricPath = generateMetricPath(metricDetails.getMetricPrefix(), attributeName, metricDetails.getDisplayName(), instanceKey);
-        String attrVal = metricDetails.getAttribute().getValue().toString();
-        Metric current_metric = new Metric(attributeName, attrVal, metricPath, props);
-        metricDetails.addToJmxMetrics(current_metric);
     }
 
 
