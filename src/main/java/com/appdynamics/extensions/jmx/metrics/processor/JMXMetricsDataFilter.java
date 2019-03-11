@@ -12,25 +12,28 @@ import static com.appdynamics.extensions.jmx.utils.JMXUtil.*;
 public class JMXMetricsDataFilter {
     private static final Logger logger = LoggerFactory.getLogger(JMXMetricsDataFilter.class);
 
-    public static void checkAttributeTypeAndSetDetails(MetricDetails metricDetails) {
+    public static MetricDetails checkAttributeTypeAndSetDetails(MetricDetails metricDetails) {
         if (isCurrentObjectComposite(metricDetails.getAttribute())) {
-            CompositeMetricsProcessor.setMetricDetailsForCompositeMetrics(metricDetails);
+            metricDetails = CompositeMetricsProcessor.setMetricDetailsForCompositeMetrics(metricDetails);
         } else if (isCurrentAttributeMap(metricDetails.getAttribute())) {
-            MapMetricsProcessor.setMetricDetailsForMapMetrics(metricDetails);
+            metricDetails = MapMetricsProcessor.setMetricDetailsForMapMetrics(metricDetails);
         } else if (isCurrentAttributeList(metricDetails.getAttribute())) {
-            ListMetricsProcessor.setMetricDetailsForListMetrics(metricDetails);
+            metricDetails = ListMetricsProcessor.setMetricDetailsForListMetrics(metricDetails);
         } else {
-            BaseMetricsProcessor.setMetricDetailsForBaseMetrics(metricDetails);
+            metricDetails = BaseMetricsProcessor.setMetricDetailsForBaseMetrics(metricDetails);
         }
+
+        return metricDetails;
     }
 
-    public static void checkObjectType(MetricDetails metricDetails) {
+    public static MetricDetails checkObjectType(MetricDetails metricDetails) {
         if (isCurrentObjectMap(metricDetails.getAttribute().getValue()) || isCurrentObjectList(metricDetails.getAttribute().getValue())) {
-            checkAttributeTypeAndSetDetails(metricDetails);
+            metricDetails = checkAttributeTypeAndSetDetails(metricDetails);
         } else {
             if (metricDetails.getMetricPropsPerMetricName().containsKey(metricDetails.getAttribute().getName())) {
-                BaseMetricsProcessor.setMetricDetailsForBaseMetrics(metricDetails);
+                metricDetails = BaseMetricsProcessor.setMetricDetailsForBaseMetrics(metricDetails);
             }
         }
+    return metricDetails;
     }
 }

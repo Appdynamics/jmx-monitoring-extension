@@ -51,7 +51,7 @@ public class JMXMetricsProcessor {
                     metricNamesToBeExtracted.toArray(new String[metricNamesToBeExtracted.size()]));
             List<String> mBeanKeys = getMBeanKeys(mBean);
             MetricDetails metricDetails = getMetricDetails(metricsPropertiesMap, metricPrefix, displayName, jmxMetrics, instance, mBeanKeys);
-            collectMetrics(metricDetails, attributes, instance);
+            metricDetails = collectMetrics(metricDetails, attributes, instance);
             jmxMetrics.addAll(metricDetails.getJmxMetrics());
         }
         return jmxMetrics;
@@ -85,15 +85,17 @@ public class JMXMetricsProcessor {
         return mBeanKeys;
     }
 
-    private void collectMetrics(MetricDetails metricInfo, List<Attribute> attributes, ObjectInstance instance) {
+    private MetricDetails collectMetrics(MetricDetails metricDetails, List<Attribute> attributes, ObjectInstance instance) {
         for (Attribute attribute : attributes) {
             try {
-                metricInfo.setAttribute(attribute);
-                JMXMetricsDataFilter.checkAttributeTypeAndSetDetails(metricInfo);
+                metricDetails.setAttribute(attribute);
+                metricDetails = JMXMetricsDataFilter.checkAttributeTypeAndSetDetails(metricDetails);
             } catch (Exception e) {
                 logger.error("Error collecting value for {} {}", instance.getObjectName(), attribute.getName(), e);
             }
         }
+
+        return metricDetails;
     }
 
     private List<Map<String, String>> getMetricReplacer() {

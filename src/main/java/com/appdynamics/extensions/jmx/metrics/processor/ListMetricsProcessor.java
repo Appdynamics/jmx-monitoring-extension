@@ -13,7 +13,7 @@ import static com.appdynamics.extensions.jmx.utils.Constants.PERIOD;
  */
 public class ListMetricsProcessor {
 
-    static void setMetricDetailsForListMetrics(MetricDetails metricDetails) {
+    static MetricDetails setMetricDetailsForListMetrics(MetricDetails metricDetails) {
         String attributeName = metricDetails.getAttribute().getName();
         List attributesFound = (List) metricDetails.getAttribute().getValue();
         for (Object metricNameKey : attributesFound) {
@@ -22,8 +22,10 @@ public class ListMetricsProcessor {
             Object attributeValue = listMetric.getValue();
             Attribute attribute1 = new Attribute(key, attributeValue);
             metricDetails.setAttribute(attribute1);
-            JMXMetricsDataFilter.checkObjectType(metricDetails);
+            metricDetails = JMXMetricsDataFilter.checkObjectType(metricDetails);
         }
+
+        return metricDetails;
     }
 
     private static Attribute getListMetric(Object metricKey, MetricDetails metricDetails) {

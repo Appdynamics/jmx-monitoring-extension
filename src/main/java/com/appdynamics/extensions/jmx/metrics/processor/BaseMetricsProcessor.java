@@ -20,7 +20,7 @@ import static com.appdynamics.extensions.jmx.utils.Constants.METRICS_SEPARATOR;
 public class BaseMetricsProcessor {
     private static final Logger logger = LoggerFactory.getLogger(BaseMetricsProcessor.class);
 
-    public static void setMetricDetailsForBaseMetrics(MetricDetails metricDetails) {
+    public static MetricDetails setMetricDetailsForBaseMetrics(MetricDetails metricDetails) {
         String attributeName = metricDetails.getAttribute().getName();
         Map<String, ?> props = (Map) metricDetails.getMetricPropsPerMetricName().get(attributeName);
         if (props == null) {
@@ -31,6 +31,7 @@ public class BaseMetricsProcessor {
         String attrVal = metricDetails.getAttribute().getValue().toString();
         Metric current_metric = new Metric(attributeName, attrVal, metricPath, props);
         metricDetails.addToJmxMetrics(current_metric);
+        return metricDetails;
     }
 
     private static String getInstanceKey(ObjectInstance instance, List<String> mBeanKeys) {

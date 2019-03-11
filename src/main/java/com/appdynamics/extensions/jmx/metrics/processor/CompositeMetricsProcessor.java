@@ -13,7 +13,7 @@ import static com.appdynamics.extensions.jmx.utils.Constants.PERIOD;
  */
 public class CompositeMetricsProcessor {
 
-    static void setMetricDetailsForCompositeMetrics(MetricDetails metricDetails) {
+    static MetricDetails setMetricDetailsForCompositeMetrics(MetricDetails metricDetails) {
         String attributeName = metricDetails.getAttribute().getName();
         CompositeData metricValue = (CompositeData) metricDetails.getAttribute().getValue();
         Set<String> attributesFound = metricValue.getCompositeType().keySet();
@@ -24,9 +24,11 @@ public class CompositeMetricsProcessor {
                 Object attributeValue = metricValue.get(str);
                 Attribute attribute1 = new Attribute(key, attributeValue);
                 metricDetails.setAttribute(attribute1);
-                BaseMetricsProcessor.setMetricDetailsForBaseMetrics(metricDetails);
+                metricDetails = BaseMetricsProcessor.setMetricDetailsForBaseMetrics(metricDetails);
             }
         }
+
+        return metricDetails;
     }
 
 }
