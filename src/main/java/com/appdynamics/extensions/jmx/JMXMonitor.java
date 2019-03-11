@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import static com.appdynamics.extensions.jmx.JMXUtil.convertToString;
-import static com.appdynamics.extensions.jmx.metrics.Constants.*;
+import static com.appdynamics.extensions.jmx.utils.JMXUtil.convertToString;
+import static com.appdynamics.extensions.jmx.utils.Constants.*;
 
 /**
  * Created by bhuvnesh.kumar on 2/23/18.

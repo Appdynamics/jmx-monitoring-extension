@@ -8,7 +8,7 @@
 
 package com.appdynamics.extensions.jmx.filters;
 
-import com.appdynamics.extensions.jmx.JMXUtil;
+import com.appdynamics.extensions.jmx.utils.JMXUtil;
 
 import java.util.List;
 import java.util.Map;

@@ -13,6 +13,7 @@ import com.appdynamics.extensions.MetricWriteHelper;
 import com.appdynamics.extensions.conf.MonitorContextConfiguration;
 import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.jmx.metrics.JMXMetricsProcessor;
+import com.appdynamics.extensions.jmx.utils.JMXUtil;
 import com.appdynamics.extensions.metrics.Metric;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -26,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appdynamics.extensions.jmx.metrics.Constants.*;
+import static com.appdynamics.extensions.jmx.utils.Constants.*;
 
 /**
  * Created by bhuvnesh.kumar on 2/23/18.

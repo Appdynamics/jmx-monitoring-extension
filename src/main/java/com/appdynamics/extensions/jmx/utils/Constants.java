@@ -6,7 +6,7 @@
  *
  */
 
-package com.appdynamics.extensions.jmx.metrics;
+package com.appdynamics.extensions.jmx.utils;
 
 public class Constants {
 

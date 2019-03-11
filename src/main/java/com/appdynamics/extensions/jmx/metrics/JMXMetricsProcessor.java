@@ -1,7 +1,8 @@
 package com.appdynamics.extensions.jmx.metrics;
 
 import com.appdynamics.extensions.conf.MonitorContextConfiguration;
-import com.appdynamics.extensions.jmx.JMXUtil;
+import com.appdynamics.extensions.jmx.metrics.processor.JMXMetricsDataFilter;
+import com.appdynamics.extensions.jmx.utils.JMXUtil;
 import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.jmx.filters.IncludeFilter;
 import com.appdynamics.extensions.metrics.Metric;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appdynamics.extensions.jmx.metrics.Constants.*;
+import static com.appdynamics.extensions.jmx.utils.Constants.*;
 
 /**
  * Created by bhuvnesh.kumar on 12/19/18.
@@ -89,7 +90,6 @@ public class JMXMetricsProcessor {
             try {
                 metricInfo.setAttribute(attribute);
                 JMXMetricsDataFilter.checkAttributeTypeAndSetDetails(metricInfo);
-                int a = 4 + 5;
             } catch (Exception e) {
                 logger.error("Error collecting value for {} {}", instance.getObjectName(), attribute.getName(), e);
             }

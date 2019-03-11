@@ -1,9 +1,11 @@
-package com.appdynamics.extensions.jmx.metrics;
+package com.appdynamics.extensions.jmx.metrics.processor;
+
+import com.appdynamics.extensions.jmx.metrics.MetricDetails;
 
 import javax.management.Attribute;
 import java.util.Map;
 
-import static com.appdynamics.extensions.jmx.metrics.Constants.PERIOD;
+import static com.appdynamics.extensions.jmx.utils.Constants.PERIOD;
 
 /**
  * Created by bhuvnesh.kumar on 3/11/19.

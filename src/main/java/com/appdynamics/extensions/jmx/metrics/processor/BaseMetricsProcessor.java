@@ -1,5 +1,6 @@
-package com.appdynamics.extensions.jmx.metrics;
+package com.appdynamics.extensions.jmx.metrics.processor;
 
+import com.appdynamics.extensions.jmx.metrics.MetricDetails;
 import com.appdynamics.extensions.metrics.Metric;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
@@ -10,8 +11,8 @@ import javax.management.ObjectName;
 import java.util.List;
 import java.util.Map;
 
-import static com.appdynamics.extensions.jmx.metrics.Constants.EMPTY_STRING;
-import static com.appdynamics.extensions.jmx.metrics.Constants.METRICS_SEPARATOR;
+import static com.appdynamics.extensions.jmx.utils.Constants.EMPTY_STRING;
+import static com.appdynamics.extensions.jmx.utils.Constants.METRICS_SEPARATOR;
 
 /**
  * Created by bhuvnesh.kumar on 3/11/19.

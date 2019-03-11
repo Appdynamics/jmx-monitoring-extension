@@ -1,9 +1,10 @@
-package com.appdynamics.extensions.jmx.metrics;
+package com.appdynamics.extensions.jmx.metrics.processor;
 
+import com.appdynamics.extensions.jmx.metrics.MetricDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.appdynamics.extensions.jmx.JMXUtil.*;
+import static com.appdynamics.extensions.jmx.utils.JMXUtil.*;
 
 /**
  * Created by bhuvnesh.kumar on 3/11/19.

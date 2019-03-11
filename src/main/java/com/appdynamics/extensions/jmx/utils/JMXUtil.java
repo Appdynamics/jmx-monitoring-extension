@@ -6,7 +6,7 @@
  *
  */
 
-package com.appdynamics.extensions.jmx;
+package com.appdynamics.extensions.jmx.utils;
 
 import javax.management.Attribute;
 import javax.management.openmbean.CompositeData;
@@ -42,7 +42,6 @@ public class JMXUtil {
 
     public static boolean isCurrentObjectComposite(Attribute attribute) {
      return attribute.getValue() instanceof CompositeData;
-//        return attribute.getValue().getClass().equals(CompositeDataSupport.class);
     }
 
     public static boolean isCurrentObjectMap(Object attribute) {
@@ -62,11 +61,9 @@ public class JMXUtil {
     }
 
     public static String getMetricAfterCharacterReplacement(String replaceTextHere, List<Map<String, String>> metricReplacer) {
-
         for (Map chars : metricReplacer) {
             String replace = (String) chars.get(REPLACE);
             String replaceWith = (String) chars.get(REPLACE_WITH);
-
             if (replaceTextHere.contains(replace)) {
                 replaceTextHere = replaceTextHere.replaceAll(replace, replaceWith);
             }
