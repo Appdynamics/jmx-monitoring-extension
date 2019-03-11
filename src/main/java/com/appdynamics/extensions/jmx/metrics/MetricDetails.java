@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * Created by bhuvnesh.kumar on 3/7/19.
  */
-public class MetricDetails {
+ class MetricDetails {
     private String metricPrefix;
     private List<Metric> jmxMetrics;
     private ObjectInstance instance;
