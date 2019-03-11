@@ -1,10 +1,7 @@
 package com.appdynamics.extensions.jmx.metrics;
 
-import com.appdynamics.extensions.conf.MonitorContextConfiguration;
-
 import javax.management.Attribute;
 import java.util.List;
-import java.util.Map;
 
 import static com.appdynamics.extensions.jmx.JMXUtil.getMetricAfterCharacterReplacement;
 import static com.appdynamics.extensions.jmx.metrics.Constants.PERIOD;
@@ -14,39 +11,26 @@ import static com.appdynamics.extensions.jmx.metrics.Constants.PERIOD;
  */
 public class ListMetricsProcessor {
 
-    static void setMetricDetailsForListMetrics(MetricDetails metricDetails, MonitorContextConfiguration monitorContextConfiguration) {
+    static void setMetricDetailsForListMetrics(MetricDetails metricDetails) {
         String attributeName = metricDetails.getAttribute().getName();
         List attributesFound = (List) metricDetails.getAttribute().getValue();
         for (Object metricNameKey : attributesFound) {
-            Attribute listMetric = getListMetric(metricNameKey, monitorContextConfiguration);
+            Attribute listMetric = getListMetric(metricNameKey, metricDetails);
             String key = attributeName + PERIOD + listMetric.getName();
             Object attributeValue = listMetric.getValue();
             Attribute attribute1 = new Attribute(key, attributeValue);
             metricDetails.setAttribute(attribute1);
-            JMXMetricsDataFilter.checkObjectType(metricDetails, monitorContextConfiguration);
+            JMXMetricsDataFilter.checkObjectType(metricDetails);
         }
     }
 
-    private static Attribute getListMetric(Object metricKey, MonitorContextConfiguration monitorContextConfiguration) {
-        String[] arr = metricKey.toString().split(getSeparator(monitorContextConfiguration));
+    private static Attribute getListMetric(Object metricKey, MetricDetails metricDetails) {
+        String[] arr = metricKey.toString().split(metricDetails.getSeparator());
         String key = arr[0].trim();
         String value = arr[1].trim();
-        List<Map<String, String>> metricReplacer = getMetricReplacer(monitorContextConfiguration);
-        key = getMetricAfterCharacterReplacement(key, metricReplacer);
-        value = getMetricAfterCharacterReplacement(value, metricReplacer);
+        key = getMetricAfterCharacterReplacement(key, metricDetails.getMetricCharacterReplacer());
+        value = getMetricAfterCharacterReplacement(value, metricDetails.getMetricCharacterReplacer());
         return new Attribute(key, value);
-    }
-
-    private static List<Map<String, String>> getMetricReplacer(MonitorContextConfiguration monitorContextConfiguration) {
-        return (List<Map<String, String>>) monitorContextConfiguration.getConfigYml().get("metricCharacterReplacer");
-    }
-
-    private static String getSeparator(MonitorContextConfiguration monitorContextConfiguration) {
-        String separator = ":";
-        if (monitorContextConfiguration.getConfigYml().get("separatorForMetricLists") != null) {
-            separator = monitorContextConfiguration.getConfigYml().get("separatorForMetricLists").toString();
-        }
-        return separator;
     }
 
 }

@@ -66,9 +66,10 @@ public class JMXMetricsProcessor {
                 .metricPropsPerMetricName(metricsPropertiesMap)
                 .mBeanKeys(mBeanKeys)
                 .displayName(displayName)
+                .metricCharacterReplacer(getMetricReplacer())
+                .separator(getSeparator())
                 .build();
     }
-
 
     private List<String> applyFilters(Map aConfigMBean, List<String> metricNamesDictionary) {
         Set<String> filteredSet = Sets.newHashSet();
@@ -87,12 +88,24 @@ public class JMXMetricsProcessor {
         for (Attribute attribute : attributes) {
             try {
                 metricInfo.setAttribute(attribute);
-                JMXMetricsDataFilter.checkAttributeTypeAndSetDetails(metricInfo, monitorContextConfiguration);
+                JMXMetricsDataFilter.checkAttributeTypeAndSetDetails(metricInfo);
                 int a = 4 + 5;
             } catch (Exception e) {
                 logger.error("Error collecting value for {} {}", instance.getObjectName(), attribute.getName(), e);
             }
         }
+    }
+
+    private List<Map<String, String>> getMetricReplacer() {
+        return (List<Map<String, String>>) monitorContextConfiguration.getConfigYml().get("metricCharacterReplacer");
+    }
+
+    private String getSeparator() {
+        String separator = ":";
+        if (monitorContextConfiguration.getConfigYml().get("separatorForMetricLists") != null) {
+            separator = monitorContextConfiguration.getConfigYml().get("separatorForMetricLists").toString();
+        }
+        return separator;
     }
 
 }

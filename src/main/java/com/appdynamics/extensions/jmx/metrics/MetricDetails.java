@@ -18,17 +18,24 @@ public class MetricDetails {
     private java.util.List<String> mBeanKeys;
     private String displayName;
     private Attribute attribute;
+    private List<Map<String, String>> metricCharacterReplacer;
+    private String separator;
 
+    public List<Map<String, String>> getMetricCharacterReplacer() {
+        return metricCharacterReplacer;
+    }
 
-//    public MetricDetails(String metricPrefix, List<Metric> jmxMetrics, ObjectInstance instance, Map<String, ?> metricPropsPerMetricName, List<String> mBeanKeys, String displayName, Attribute attribute) {
-//        this.metricPrefix = metricPrefix;
-//        this.jmxMetrics = jmxMetrics;
-//        this.instance = instance;
-//        this.metricPropsPerMetricName = metricPropsPerMetricName;
-//        this.mBeanKeys = mBeanKeys;
-//        this.displayName = displayName;
-//        this.attribute = attribute;
-//    }
+    public void setMetricCharacterReplacer(List<Map<String, String>> metricCharacterReplacer) {
+        this.metricCharacterReplacer = metricCharacterReplacer;
+    }
+
+    public String getSeparator() {
+        return separator;
+    }
+
+    public void setSeparator(String separator) {
+        this.separator = separator;
+    }
 
     public String getMetricPrefix() {
         return metricPrefix;
@@ -125,6 +132,16 @@ public class MetricDetails {
 
         Builder attribute(Attribute attribute) {
             task.attribute = attribute;
+            return this;
+        }
+
+        Builder metricCharacterReplacer(List<Map<String, String>> metricCharacterReplacer) {
+            task.metricCharacterReplacer = metricCharacterReplacer;
+            return this;
+        }
+
+        Builder separator(String separator) {
+            task.separator = separator;
             return this;
         }
 

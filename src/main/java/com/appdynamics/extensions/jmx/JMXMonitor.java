@@ -30,21 +30,17 @@ import static com.appdynamics.extensions.jmx.metrics.Constants.*;
  */
 public class JMXMonitor extends ABaseMonitor {
 
-
     private static final Logger logger = LoggerFactory.getLogger(JMXMonitor.class);
 
-    //Required for MonitorConfiguration initialisation
     @Override
     protected String getDefaultMetricPrefix() {
         return CUSTOMMETRICS + METRICS_SEPARATOR + MONITORNAME;
     }
 
-    //Required for MonitorConfiguration initialisation
     @Override
     public String getMonitorName() {
         return MONITORNAME;
     }
-
 
     @Override
     protected void doRun(TasksExecutionServiceProvider taskExecutor) {
@@ -110,4 +106,5 @@ public class JMXMonitor extends ABaseMonitor {
         }
         return null;
     }
+
 }
