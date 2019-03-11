@@ -36,7 +36,6 @@ public class BaseMetricsProcessor {
 
     private static String getInstanceKey(ObjectInstance instance, List<String> mBeanKeys) {
         StringBuilder metricsKey = new StringBuilder();
-
         for (String key : mBeanKeys) {
             String value = getKeyProperty(instance, key);
             metricsKey.append(Strings.isNullOrEmpty(value) ? EMPTY_STRING : value + METRICS_SEPARATOR);
@@ -68,7 +67,7 @@ public class BaseMetricsProcessor {
 
     private static String getKeyProperty(ObjectInstance instance, String property) {
         if (instance == null) {
-            return "";
+            return EMPTY_STRING;
         }
         return getObjectName(instance).getKeyProperty(property);
     }

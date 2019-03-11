@@ -17,13 +17,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.appdynamics.extensions.jmx.utils.Constants.REPLACE;
+import static com.appdynamics.extensions.jmx.utils.Constants.REPLACE_WITH;
+
 /**
  * Created by bhuvnesh.kumar on 2/26/18.
  */
 public class JMXUtil {
-
-    public static final String REPLACE = "replace";
-    public static final String REPLACE_WITH = "replaceWith";
 
     public static String convertToString(final Object field, final String defaultStr) {
         if (field == null) {

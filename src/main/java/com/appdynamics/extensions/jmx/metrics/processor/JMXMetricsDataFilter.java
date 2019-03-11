@@ -1,8 +1,6 @@
 package com.appdynamics.extensions.jmx.metrics.processor;
 
 import com.appdynamics.extensions.jmx.metrics.MetricDetails;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static com.appdynamics.extensions.jmx.utils.JMXUtil.*;
 
@@ -10,7 +8,6 @@ import static com.appdynamics.extensions.jmx.utils.JMXUtil.*;
  * Created by bhuvnesh.kumar on 3/11/19.
  */
 public class JMXMetricsDataFilter {
-    private static final Logger logger = LoggerFactory.getLogger(JMXMetricsDataFilter.class);
 
     public static MetricDetails checkAttributeTypeAndSetDetails(MetricDetails metricDetails) {
         if (isCurrentObjectComposite(metricDetails.getAttribute())) {
@@ -34,6 +31,6 @@ public class JMXMetricsDataFilter {
                 metricDetails = BaseMetricsProcessor.setMetricDetailsForBaseMetrics(metricDetails);
             }
         }
-    return metricDetails;
+        return metricDetails;
     }
 }

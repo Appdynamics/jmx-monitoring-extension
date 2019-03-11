@@ -48,7 +48,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
     private long currentTimestamp = 0;
 
     public void run() {
-        serverName = JMXUtil.convertToString(server.get(DISPLAY_NAME), "");
+        serverName = JMXUtil.convertToString(server.get(DISPLAY_NAME), EMPTY_STRING);
 
         try {
             logger.debug("JMX monitoring task initiated for server {}", serverName);
@@ -61,10 +61,8 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
         }
     }
 
-
     private void populateAndPrintStats() throws IOException {
         JMXConnector jmxConnector = null;
-
         try {
             previousTimestamp = System.currentTimeMillis();
             jmxConnector = jmxConnectionAdapter.open();
@@ -72,7 +70,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
             logger.debug("Time to open connection for " + serverName + " in milliseconds: " + (currentTimestamp - previousTimestamp));
 
             for (Map mBean : configMBeans) {
-                String configObjName = JMXUtil.convertToString(mBean.get(OBJECT_NAME), "");
+                String configObjName = JMXUtil.convertToString(mBean.get(OBJECT_NAME), EMPTY_STRING);
                 logger.debug("Processing mBean {} from the config file", configObjName);
 
                 try {

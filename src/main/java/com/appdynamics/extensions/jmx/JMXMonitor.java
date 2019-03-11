@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import static com.appdynamics.extensions.jmx.utils.JMXUtil.convertToString;
 import static com.appdynamics.extensions.jmx.utils.Constants.*;
+import static com.appdynamics.extensions.jmx.utils.JMXUtil.convertToString;
 
 /**
  * Created by bhuvnesh.kumar on 2/23/18.
@@ -63,7 +63,6 @@ public class JMXMonitor extends ABaseMonitor {
         } else {
             logger.error("The config.yml is not loaded due to previous errors.The task will not run");
         }
-
     }
 
     @Override
@@ -75,11 +74,11 @@ public class JMXMonitor extends ABaseMonitor {
 
     private JMXMonitorTask createTask(Map server, TasksExecutionServiceProvider taskExecutor) throws IOException {
 
-        String serviceUrl = convertToString(server.get(SERVICEURL), "");
-        String host = convertToString(server.get(HOST), "");
-        String portStr = convertToString(server.get(PORT), "");
-        int port = (portStr == null || portStr == "") ? -1 : Integer.parseInt(portStr);
-        String username = convertToString(server.get(USERNAME), "");
+        String serviceUrl = convertToString(server.get(SERVICEURL), EMPTY_STRING);
+        String host = convertToString(server.get(HOST), EMPTY_STRING);
+        String portStr = convertToString(server.get(PORT), EMPTY_STRING);
+        int port = (portStr == null || portStr == EMPTY_STRING) ? -1 : Integer.parseInt(portStr);
+        String username = convertToString(server.get(USERNAME), EMPTY_STRING);
         String password = getPassword(server);
 
         JMXConnectionAdapter adapter = JMXConnectionAdapter.create(serviceUrl, host, port, username, password);
@@ -92,12 +91,12 @@ public class JMXMonitor extends ABaseMonitor {
     }
 
     private String getPassword(Map server) {
-        String password = convertToString(server.get(PASSWORD), "");
+        String password = convertToString(server.get(PASSWORD), EMPTY_STRING);
         if (!Strings.isNullOrEmpty(password)) {
             return password;
         }
-        String encryptionKey = convertToString(server.get(ENCRYPTION_KEY), "");
-        String encryptedPassword = convertToString(server.get(ENCRYPTEDPASSWORD), "");
+        String encryptionKey = convertToString(server.get(ENCRYPTION_KEY), EMPTY_STRING);
+        String encryptedPassword = convertToString(server.get(ENCRYPTEDPASSWORD), EMPTY_STRING);
         if (!Strings.isNullOrEmpty(encryptionKey) && !Strings.isNullOrEmpty(encryptedPassword)) {
             java.util.Map<String, String> cryptoMap = Maps.newHashMap();
             cryptoMap.put(PASSWORD_ENCRYPTED, encryptedPassword);

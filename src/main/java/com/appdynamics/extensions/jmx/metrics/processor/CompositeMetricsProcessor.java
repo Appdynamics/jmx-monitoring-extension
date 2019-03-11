@@ -27,7 +27,6 @@ public class CompositeMetricsProcessor {
                 metricDetails = BaseMetricsProcessor.setMetricDetailsForBaseMetrics(metricDetails);
             }
         }
-
         return metricDetails;
     }
 

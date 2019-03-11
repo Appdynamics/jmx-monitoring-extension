@@ -99,13 +99,13 @@ public class JMXMetricsProcessor {
     }
 
     private List<Map<String, String>> getMetricReplacer() {
-        return (List<Map<String, String>>) monitorContextConfiguration.getConfigYml().get("metricCharacterReplacer");
+        return (List<Map<String, String>>) monitorContextConfiguration.getConfigYml().get(METRIC_CHARACTER_REPLACER);
     }
 
     private String getSeparator() {
-        String separator = ":";
-        if (monitorContextConfiguration.getConfigYml().get("separatorForMetricLists") != null) {
-            separator = monitorContextConfiguration.getConfigYml().get("separatorForMetricLists").toString();
+        String separator = COLON;
+        if (monitorContextConfiguration.getConfigYml().get(SEPARATOR_FOR_METRIC_LISTS) != null) {
+            separator = monitorContextConfiguration.getConfigYml().get(SEPARATOR_FOR_METRIC_LISTS).toString();
         }
         return separator;
     }
