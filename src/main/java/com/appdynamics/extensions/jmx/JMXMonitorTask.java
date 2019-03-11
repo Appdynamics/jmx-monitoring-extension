@@ -10,6 +10,7 @@ package com.appdynamics.extensions.jmx;
 
 import com.appdynamics.extensions.AMonitorTaskRunnable;
 import com.appdynamics.extensions.MetricWriteHelper;
+import com.appdynamics.extensions.conf.MonitorContextConfiguration;
 import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.jmx.metrics.JMXMetricsProcessor;
 import com.appdynamics.extensions.metrics.Metric;
@@ -17,7 +18,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.appdynamics.extensions.conf.MonitorContextConfiguration;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.remote.JMXConnector;
@@ -52,11 +52,9 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
         try {
             logger.debug("JMX monitoring task initiated for server {}", serverName);
             populateAndPrintStats();
-
         } catch (Exception e) {
             logger.error("Error in JMX Monitoring Task for Server {}", serverName, e);
             status = false;
-
         } finally {
             logger.debug("JMX Monitoring Task Complete.");
         }
@@ -70,7 +68,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
             previousTimestamp = System.currentTimeMillis();
             jmxConnector = jmxConnectionAdapter.open();
             currentTimestamp = System.currentTimeMillis();
-            logger.debug("Time to open connection for "+ serverName +" in milliseconds: " + (currentTimestamp - previousTimestamp));
+            logger.debug("Time to open connection for " + serverName + " in milliseconds: " + (currentTimestamp - previousTimestamp));
 
             for (Map mBean : configMBeans) {
                 String configObjName = JMXUtil.convertToString(mBean.get(OBJECT_NAME), "");
@@ -78,11 +76,11 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
 
                 try {
                     Map<String, ?> metricProperties = getMapOfProperties(mBean);
-                    JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration,jmxConnectionAdapter, jmxConnector);
+                    JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration, jmxConnectionAdapter, jmxConnector);
                     previousTimestamp = System.currentTimeMillis();
                     List<Metric> nodeMetrics = jmxMetricsProcessor.getJMXMetrics(mBean, metricProperties, metricPrefix, server.get(DISPLAY_NAME).toString());
                     currentTimestamp = System.currentTimeMillis();
-                    logger.debug("Time to process metrics for "+ serverName+"  in milliseconds: " + (currentTimestamp - previousTimestamp));
+                    logger.debug("Time to process metrics for " + serverName + "  in milliseconds: " + (currentTimestamp - previousTimestamp));
                     if (nodeMetrics.size() > 0) {
                         metricWriter.transformAndPrintMetrics(nodeMetrics);
                     }
@@ -97,7 +95,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
         } finally {
             try {
                 jmxConnectionAdapter.close(jmxConnector);
-                logger.debug("JMX connection is closed for "+serverName);
+                logger.debug("JMX connection is closed for " + serverName);
             } catch (IOException e) {
                 logger.error("Unable to close the JMX connection.");
             }
@@ -227,7 +225,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
             return this;
         }
 
-        Builder monitorConfiguration(MonitorContextConfiguration monitorContextConfiguration){
+        Builder monitorConfiguration(MonitorContextConfiguration monitorContextConfiguration) {
             task.monitorContextConfiguration = monitorContextConfiguration;
             return this;
         }
