@@ -1,31 +1,34 @@
 package com.appdynamics.extensions.jmx.metrics.processor;
 
 import com.appdynamics.extensions.jmx.metrics.MetricDetails;
+import com.appdynamics.extensions.metrics.Metric;
 
 import javax.management.Attribute;
+import java.util.ArrayList;
 import java.util.List;
 
-import static com.appdynamics.extensions.jmx.utils.JMXUtil.getMetricAfterCharacterReplacement;
 import static com.appdynamics.extensions.jmx.utils.Constants.PERIOD;
+import static com.appdynamics.extensions.jmx.utils.JMXUtil.getMetricAfterCharacterReplacement;
 
 /**
  * Created by bhuvnesh.kumar on 3/11/19.
  */
-public class ListMetricsProcessor {
+class ListMetricsProcessor {
 
-    static MetricDetails setMetricDetailsForListMetrics(MetricDetails metricDetails) {
-        String attributeName = metricDetails.getAttribute().getName();
-        List attributesFound = (List) metricDetails.getAttribute().getValue();
-        for (Object metricNameKey : attributesFound) {
+    static List<Metric> setMetricDetailsForListMetrics(MetricDetails metricDetails, Attribute attribute) {
+        List<Metric> metricList = new ArrayList<Metric>();
+
+        String attributeName = attribute.getName();
+        List attributeValuesFromList = (List) attribute.getValue();
+        for (Object metricNameKey : attributeValuesFromList) {
             Attribute listMetric = getListMetric(metricNameKey, metricDetails);
             String key = attributeName + PERIOD + listMetric.getName();
             Object attributeValue = listMetric.getValue();
             Attribute attribute1 = new Attribute(key, attributeValue);
             metricDetails.setAttribute(attribute1);
-            metricDetails = JMXMetricsDataFilter.checkObjectType(metricDetails);
+            metricList.addAll(JMXMetricsDataFilter.checkAttributeTypeAndSetDetails(metricDetails, attribute1));
         }
-
-        return metricDetails;
+        return metricList;
     }
 
     private static Attribute getListMetric(Object metricKey, MetricDetails metricDetails) {

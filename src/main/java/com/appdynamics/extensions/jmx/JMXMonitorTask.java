@@ -33,9 +33,8 @@ import static com.appdynamics.extensions.jmx.utils.Constants.*;
  * Created by bhuvnesh.kumar on 2/23/18.
  */
 public class JMXMonitorTask implements AMonitorTaskRunnable {
-    private Boolean status = true;
-
     private static final Logger logger = LoggerFactory.getLogger(JMXMonitorTask.class);
+    private Boolean status = true;
     private String metricPrefix;
     private MetricWriteHelper metricWriter;
     private Map server;
@@ -75,11 +74,10 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
 
                 try {
                     Map<String, ?> metricProperties = getMapOfProperties(mBean);
-                    JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration, jmxConnectionAdapter, jmxConnector);
-                    previousTimestamp = System.currentTimeMillis();
-                    List<Metric> nodeMetrics = jmxMetricsProcessor.getJMXMetrics(mBean, metricProperties, metricPrefix, server.get(DISPLAY_NAME).toString());
-                    currentTimestamp = System.currentTimeMillis();
-                    logger.debug("Time to process metrics for " + serverName + "  in milliseconds: " + (currentTimestamp - previousTimestamp));
+                    JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration,
+                            jmxConnectionAdapter, jmxConnector);
+                    List<Metric> nodeMetrics = jmxMetricsProcessor.getJMXMetrics(mBean,
+                            metricProperties, metricPrefix, server.get(DISPLAY_NAME).toString());
                     if (nodeMetrics.size() > 0) {
                         metricWriter.transformAndPrintMetrics(nodeMetrics);
                     }

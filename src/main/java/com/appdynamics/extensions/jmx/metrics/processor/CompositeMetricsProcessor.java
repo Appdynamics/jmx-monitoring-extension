@@ -1,9 +1,12 @@
 package com.appdynamics.extensions.jmx.metrics.processor;
 
 import com.appdynamics.extensions.jmx.metrics.MetricDetails;
+import com.appdynamics.extensions.metrics.Metric;
 
 import javax.management.Attribute;
 import javax.management.openmbean.CompositeData;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import static com.appdynamics.extensions.jmx.utils.Constants.PERIOD;
@@ -11,12 +14,13 @@ import static com.appdynamics.extensions.jmx.utils.Constants.PERIOD;
 /**
  * Created by bhuvnesh.kumar on 3/11/19.
  */
-public class CompositeMetricsProcessor {
+class CompositeMetricsProcessor {
 
-    static MetricDetails setMetricDetailsForCompositeMetrics(MetricDetails metricDetails) {
-        String attributeName = metricDetails.getAttribute().getName();
-        CompositeData metricValue = (CompositeData) metricDetails.getAttribute().getValue();
+    static List<Metric> setMetricDetailsForCompositeMetrics(MetricDetails metricDetails, Attribute attribute) {
+        String attributeName = attribute.getName();
+        CompositeData metricValue = (CompositeData) attribute.getValue();
         Set<String> attributesFound = metricValue.getCompositeType().keySet();
+        List<Metric> metricList = new ArrayList<Metric>();
 
         for (String str : attributesFound) {
             String key = attributeName + PERIOD + str;
@@ -24,10 +28,9 @@ public class CompositeMetricsProcessor {
                 Object attributeValue = metricValue.get(str);
                 Attribute attribute1 = new Attribute(key, attributeValue);
                 metricDetails.setAttribute(attribute1);
-                metricDetails = BaseMetricsProcessor.setMetricDetailsForBaseMetrics(metricDetails);
+                metricList.add(BaseMetricsProcessor.setMetricDetailsForBaseMetrics(metricDetails, attribute1));
             }
         }
-        return metricDetails;
+        return metricList;
     }
-
 }

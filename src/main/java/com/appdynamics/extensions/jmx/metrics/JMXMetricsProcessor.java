@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import javax.management.*;
 import javax.management.remote.JMXConnector;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,8 +52,8 @@ public class JMXMetricsProcessor {
                     metricNamesToBeExtracted.toArray(new String[metricNamesToBeExtracted.size()]));
             List<String> mBeanKeys = getMBeanKeys(mBean);
             MetricDetails metricDetails = getMetricDetails(metricsPropertiesMap, metricPrefix, displayName, jmxMetrics, instance, mBeanKeys);
-            metricDetails = collectMetrics(metricDetails, attributes, instance);
-            jmxMetrics.addAll(metricDetails.getJmxMetrics());
+            jmxMetrics.addAll(collectMetrics(metricDetails, attributes));
+
         }
         return jmxMetrics;
     }
@@ -85,17 +86,19 @@ public class JMXMetricsProcessor {
         return mBeanKeys;
     }
 
-    private MetricDetails collectMetrics(MetricDetails metricDetails, List<Attribute> attributes, ObjectInstance instance) {
+    private List<Metric> collectMetrics(MetricDetails metricDetails, List<Attribute> attributes) {
+        List<Metric> jmxMetrics = new ArrayList<Metric>();
+
         for (Attribute attribute : attributes) {
             try {
                 metricDetails.setAttribute(attribute);
-                metricDetails = JMXMetricsDataFilter.checkAttributeTypeAndSetDetails(metricDetails);
+                jmxMetrics.addAll(JMXMetricsDataFilter.checkAttributeTypeAndSetDetails(metricDetails, attribute)) ;
             } catch (Exception e) {
-                logger.error("Error collecting value for {} {}", instance.getObjectName(), attribute.getName(), e);
+                logger.error("Error collecting value for {} {}", metricDetails.getInstance().getObjectName(), attribute.getName(), e);
             }
         }
 
-        return metricDetails;
+        return jmxMetrics;
     }
 
     private List<Map<String, String>> getMetricReplacer() {

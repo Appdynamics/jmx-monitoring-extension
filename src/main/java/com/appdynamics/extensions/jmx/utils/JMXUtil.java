@@ -8,12 +8,6 @@
 
 package com.appdynamics.extensions.jmx.utils;
 
-import javax.management.Attribute;
-import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.CompositeDataSupport;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,26 +34,6 @@ public class JMXUtil {
         return objectName.split("\\.")[0];
     }
 
-    public static boolean isCurrentObjectComposite(Attribute attribute) {
-     return attribute.getValue() instanceof CompositeData;
-    }
-
-    public static boolean isCurrentObjectMap(Object attribute) {
-        return attribute.getClass().equals(Map.class) || attribute.getClass().equals(HashMap.class);
-    }
-
-    public static boolean isCurrentAttributeMap(Attribute attribute) {
-        return attribute.getValue().getClass().equals(Map.class) || attribute.getValue().getClass().equals(HashMap.class);
-    }
-
-    public static boolean isCurrentObjectList(Object attribute) {
-        return attribute.getClass().equals(List.class) || attribute.getClass().equals(ArrayList.class) || attribute.getClass().equals(Array.class);
-    }
-
-    public static boolean isCurrentAttributeList(Attribute attribute) {
-        return attribute.getValue().getClass().equals(List.class) || attribute.getValue().getClass().equals(Array.class) || attribute.getValue().getClass().equals(ArrayList.class);
-    }
-
     public static String getMetricAfterCharacterReplacement(String replaceTextHere, List<Map<String, String>> metricReplacer) {
         for (Map chars : metricReplacer) {
             String replace = (String) chars.get(REPLACE);
@@ -70,7 +44,6 @@ public class JMXUtil {
         }
         return replaceTextHere;
     }
-
 
 
 }

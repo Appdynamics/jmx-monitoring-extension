@@ -1,36 +1,46 @@
 package com.appdynamics.extensions.jmx.metrics.processor;
 
 import com.appdynamics.extensions.jmx.metrics.MetricDetails;
+import com.appdynamics.extensions.metrics.Metric;
 
-import static com.appdynamics.extensions.jmx.utils.JMXUtil.*;
+import javax.management.Attribute;
+import javax.management.openmbean.CompositeData;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by bhuvnesh.kumar on 3/11/19.
  */
 public class JMXMetricsDataFilter {
 
-    public static MetricDetails checkAttributeTypeAndSetDetails(MetricDetails metricDetails) {
-        if (isCurrentObjectComposite(metricDetails.getAttribute())) {
-            metricDetails = CompositeMetricsProcessor.setMetricDetailsForCompositeMetrics(metricDetails);
-        } else if (isCurrentAttributeMap(metricDetails.getAttribute())) {
-            metricDetails = MapMetricsProcessor.setMetricDetailsForMapMetrics(metricDetails);
-        } else if (isCurrentAttributeList(metricDetails.getAttribute())) {
-            metricDetails = ListMetricsProcessor.setMetricDetailsForListMetrics(metricDetails);
-        } else {
-            metricDetails = BaseMetricsProcessor.setMetricDetailsForBaseMetrics(metricDetails);
-        }
-
-        return metricDetails;
-    }
-
-    public static MetricDetails checkObjectType(MetricDetails metricDetails) {
-        if (isCurrentObjectMap(metricDetails.getAttribute().getValue()) || isCurrentObjectList(metricDetails.getAttribute().getValue())) {
-            metricDetails = checkAttributeTypeAndSetDetails(metricDetails);
+    public static List<Metric> checkAttributeTypeAndSetDetails(MetricDetails metricDetails, Attribute attribute) {
+        List<Metric> metricList = new ArrayList<Metric>();
+        if (isCurrentAttributeComposite(attribute)) {
+            metricList.addAll(CompositeMetricsProcessor.setMetricDetailsForCompositeMetrics(metricDetails, attribute));
+        } else if (isCurrentAttributeMap(attribute)) {
+            metricList.addAll(MapMetricsProcessor.setMetricDetailsForMapMetrics(metricDetails, attribute));
+        } else if (isCurrentAttributeList(attribute)) {
+            metricList.addAll(ListMetricsProcessor.setMetricDetailsForListMetrics(metricDetails, attribute));
         } else {
             if (metricDetails.getMetricPropsPerMetricName().containsKey(metricDetails.getAttribute().getName())) {
-                metricDetails = BaseMetricsProcessor.setMetricDetailsForBaseMetrics(metricDetails);
+                metricList.add(BaseMetricsProcessor.setMetricDetailsForBaseMetrics(metricDetails, attribute));
             }
         }
-        return metricDetails;
+        return metricList;
+    }
+
+    private static boolean isCurrentAttributeComposite(Attribute attribute) {
+        return attribute.getValue() instanceof CompositeData;
+    }
+
+    private static boolean isCurrentAttributeMap(Attribute attribute) {
+        return attribute.getValue().getClass().equals(Map.class) || attribute.getValue().getClass().equals(HashMap.class);
+    }
+
+    private static boolean isCurrentAttributeList(Attribute attribute) {
+        return attribute.getValue().getClass().equals(List.class) || attribute.getValue().getClass().equals(Array.class) || attribute.getValue().getClass().equals(ArrayList.class);
     }
 }

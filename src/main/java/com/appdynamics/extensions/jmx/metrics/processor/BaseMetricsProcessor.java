@@ -6,6 +6,7 @@ import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.Attribute;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import java.util.List;
@@ -17,25 +18,24 @@ import static com.appdynamics.extensions.jmx.utils.Constants.METRICS_SEPARATOR;
 /**
  * Created by bhuvnesh.kumar on 3/11/19.
  */
-public class BaseMetricsProcessor {
+class BaseMetricsProcessor {
     private static final Logger logger = LoggerFactory.getLogger(BaseMetricsProcessor.class);
 
-    public static MetricDetails setMetricDetailsForBaseMetrics(MetricDetails metricDetails) {
-        String attributeName = metricDetails.getAttribute().getName();
+    static Metric setMetricDetailsForBaseMetrics(MetricDetails metricDetails, Attribute attribute) {
+        String attributeName = attribute.getName();
         Map<String, ?> props = (Map) metricDetails.getMetricPropsPerMetricName().get(attributeName);
         if (props == null) {
             logger.error("Could not find metric properties for {} ", attributeName);
         }
         String instanceKey = getInstanceKey(metricDetails.getInstance(), metricDetails.getmBeanKeys());
         String metricPath = generateMetricPath(metricDetails.getMetricPrefix(), attributeName, metricDetails.getDisplayName(), instanceKey);
-        String attrVal = metricDetails.getAttribute().getValue().toString();
-        Metric current_metric = new Metric(attributeName, attrVal, metricPath, props);
-        metricDetails.addToJmxMetrics(current_metric);
-        return metricDetails;
+        String attrVal = attribute.getValue().toString();
+        return new Metric(attributeName, attrVal, metricPath, props);
     }
 
     private static String getInstanceKey(ObjectInstance instance, List<String> mBeanKeys) {
         StringBuilder metricsKey = new StringBuilder();
+
         for (String key : mBeanKeys) {
             String value = getKeyProperty(instance, key);
             metricsKey.append(Strings.isNullOrEmpty(value) ? EMPTY_STRING : value + METRICS_SEPARATOR);
