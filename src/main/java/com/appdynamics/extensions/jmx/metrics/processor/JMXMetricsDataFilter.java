@@ -25,7 +25,7 @@ public class JMXMetricsDataFilter {
         } else if (isCurrentAttributeList(attribute)) {
             metricList.addAll(ListMetricsProcessor.setMetricDetailsForListMetrics(metricDetails, attribute));
         } else {
-            if (metricDetails.getMetricPropsPerMetricName().containsKey(metricDetails.getAttribute().getName())) {
+            if (metricDetails.getMetricPropsPerMetricName().containsKey(attribute.getName())) {
                 metricList.add(BaseMetricsProcessor.setMetricDetailsForBaseMetrics(metricDetails, attribute));
             }
         }

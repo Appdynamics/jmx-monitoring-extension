@@ -25,7 +25,6 @@ class ListMetricsProcessor {
             String key = attributeName + PERIOD + listMetric.getName();
             Object attributeValue = listMetric.getValue();
             Attribute attribute1 = new Attribute(key, attributeValue);
-            metricDetails.setAttribute(attribute1);
             metricList.addAll(JMXMetricsDataFilter.checkAttributeTypeAndSetDetails(metricDetails, attribute1));
         }
         return metricList;

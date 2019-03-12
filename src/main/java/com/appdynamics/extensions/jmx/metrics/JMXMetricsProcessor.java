@@ -1,10 +1,10 @@
 package com.appdynamics.extensions.jmx.metrics;
 
 import com.appdynamics.extensions.conf.MonitorContextConfiguration;
-import com.appdynamics.extensions.jmx.metrics.processor.JMXMetricsDataFilter;
-import com.appdynamics.extensions.jmx.utils.JMXUtil;
 import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.jmx.filters.IncludeFilter;
+import com.appdynamics.extensions.jmx.metrics.processor.JMXMetricsDataFilter;
+import com.appdynamics.extensions.jmx.utils.JMXUtil;
 import com.appdynamics.extensions.metrics.Metric;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -59,11 +59,9 @@ public class JMXMetricsProcessor {
     }
 
     private MetricDetails getMetricDetails(Map<String, ?> metricsPropertiesMap, String metricPrefix, String displayName, List<Metric> jmxMetrics, ObjectInstance instance, List<String> mBeanKeys) {
-        List<Metric> metricList = Lists.newArrayList();
 
         return new MetricDetails.Builder()
                 .metricPrefix(metricPrefix)
-                .jmxMetrics(metricList)
                 .instance(instance)
                 .metricPropsPerMetricName(metricsPropertiesMap)
                 .mBeanKeys(mBeanKeys)
@@ -91,13 +89,11 @@ public class JMXMetricsProcessor {
 
         for (Attribute attribute : attributes) {
             try {
-                metricDetails.setAttribute(attribute);
-                jmxMetrics.addAll(JMXMetricsDataFilter.checkAttributeTypeAndSetDetails(metricDetails, attribute)) ;
+                jmxMetrics.addAll(JMXMetricsDataFilter.checkAttributeTypeAndSetDetails(metricDetails, attribute));
             } catch (Exception e) {
                 logger.error("Error collecting value for {} {}", metricDetails.getInstance().getObjectName(), attribute.getName(), e);
             }
         }
-
         return jmxMetrics;
     }
 

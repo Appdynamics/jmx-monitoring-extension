@@ -1,8 +1,5 @@
 package com.appdynamics.extensions.jmx.metrics;
 
-import com.appdynamics.extensions.metrics.Metric;
-
-import javax.management.Attribute;
 import javax.management.ObjectInstance;
 import java.util.List;
 import java.util.Map;
@@ -10,14 +7,12 @@ import java.util.Map;
 /**
  * Created by bhuvnesh.kumar on 3/7/19.
  */
- public class MetricDetails {
+public class MetricDetails {
     private String metricPrefix;
-    private List<Metric> jmxMetrics;
     private ObjectInstance instance;
     private Map<String, ?> metricPropsPerMetricName;
     private java.util.List<String> mBeanKeys;
     private String displayName;
-    private Attribute attribute;
     private List<Map<String, String>> metricCharacterReplacer;
     private String separator;
 
@@ -43,18 +38,6 @@ import java.util.Map;
 
     public void setMetricPrefix(String metricPrefix) {
         this.metricPrefix = metricPrefix;
-    }
-
-    public void addToJmxMetrics(Metric metric) {
-        jmxMetrics.add(metric);
-    }
-
-    public List<Metric> getJmxMetrics() {
-        return jmxMetrics;
-    }
-
-    public void setJmxMetrics(List<Metric> jmxMetrics) {
-        this.jmxMetrics = jmxMetrics;
     }
 
     public ObjectInstance getInstance() {
@@ -89,24 +72,11 @@ import java.util.Map;
         this.displayName = displayName;
     }
 
-    public Attribute getAttribute() {
-        return attribute;
-    }
-
-    public void setAttribute(Attribute attribute) {
-        this.attribute = attribute;
-    }
-
     public static class Builder {
         private MetricDetails task = new MetricDetails();
 
         Builder metricPrefix(String metricPrefix) {
             task.metricPrefix = metricPrefix;
-            return this;
-        }
-
-        Builder jmxMetrics(List<Metric> jmxMetrics) {
-            task.jmxMetrics = jmxMetrics;
             return this;
         }
 
@@ -130,11 +100,6 @@ import java.util.Map;
             return this;
         }
 
-        Builder attribute(Attribute attribute) {
-            task.attribute = attribute;
-            return this;
-        }
-
         Builder metricCharacterReplacer(List<Map<String, String>> metricCharacterReplacer) {
             task.metricCharacterReplacer = metricCharacterReplacer;
             return this;
@@ -149,6 +114,5 @@ import java.util.Map;
             return task;
         }
     }
-
 
 }

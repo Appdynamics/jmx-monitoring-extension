@@ -24,7 +24,6 @@ class MapMetricsProcessor {
             String key = attributeName + PERIOD + metricNameKey.toString();
             Object attributeValue = attributesFound.get(metricNameKey);
             Attribute attribute1 = new Attribute(key, attributeValue);
-            metricDetails.setAttribute(attribute1);
             metricList.addAll(JMXMetricsDataFilter.checkAttributeTypeAndSetDetails(metricDetails, attribute1));
         }
         return metricList;

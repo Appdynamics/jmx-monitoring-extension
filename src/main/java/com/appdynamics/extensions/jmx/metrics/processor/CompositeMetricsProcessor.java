@@ -27,7 +27,6 @@ class CompositeMetricsProcessor {
             if (metricDetails.getMetricPropsPerMetricName().containsKey(key)) {
                 Object attributeValue = metricValue.get(str);
                 Attribute attribute1 = new Attribute(key, attributeValue);
-                metricDetails.setAttribute(attribute1);
                 metricList.add(BaseMetricsProcessor.setMetricDetailsForBaseMetrics(metricDetails, attribute1));
             }
         }
