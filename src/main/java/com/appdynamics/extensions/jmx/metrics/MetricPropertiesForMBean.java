@@ -100,4 +100,10 @@ public class MetricPropertiesForMBean {
         }
     }
 
+    public static List<String> getMBeanKeys(Map aConfigMBean) {
+        List<String> mBeanKeys = (List) aConfigMBean.get(MBEANKEYS);
+        return mBeanKeys;
+    }
+
+
 }

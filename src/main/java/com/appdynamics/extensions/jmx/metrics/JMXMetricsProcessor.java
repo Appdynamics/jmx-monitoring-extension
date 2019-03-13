@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appdynamics.extensions.jmx.metrics.MetricPropertiesForMBean.getMBeanKeys;
 import static com.appdynamics.extensions.jmx.metrics.MetricPropertiesForMBean.getMapOfProperties;
 import static com.appdynamics.extensions.jmx.utils.Constants.*;
 
@@ -51,20 +52,19 @@ public class JMXMetricsProcessor {
             List<String> metricNamesToBeExtracted = applyFilters(mBean, metricNamesDictionary);
             List<Attribute> attributes = jmxConnectionAdapter.getAttributes(jmxConnector, instance.getObjectName(),
                     metricNamesToBeExtracted.toArray(new String[metricNamesToBeExtracted.size()]));
-            List<String> mBeanKeys = getMBeanKeys(mBean);
-            MetricDetails metricDetails = getMetricDetails(getMapOfProperties(mBean), metricPrefix, displayName, instance, mBeanKeys);
+            MetricDetails metricDetails = getMetricDetails(mBean, metricPrefix, displayName, instance);
             jmxMetrics.addAll(collectMetrics(metricDetails, attributes));
         }
         return jmxMetrics;
     }
 
-    private MetricDetails getMetricDetails(Map<String, ?> metricsPropertiesMap, String metricPrefix, String displayName, ObjectInstance instance, List<String> mBeanKeys) {
+    private MetricDetails getMetricDetails(Map mBean, String metricPrefix, String displayName, ObjectInstance instance) {
 
         return new MetricDetails.Builder()
                 .metricPrefix(metricPrefix)
                 .instance(instance)
-                .metricPropsPerMetricName(metricsPropertiesMap)
-                .mBeanKeys(mBeanKeys)
+                .metricPropsPerMetricName(getMapOfProperties(mBean))
+                .mBeanKeys(getMBeanKeys(mBean))
                 .displayName(displayName)
                 .metricCharacterReplacer(getMetricReplacer())
                 .separator(getSeparator())
@@ -79,10 +79,6 @@ public class JMXMetricsProcessor {
         return Lists.newArrayList(filteredSet);
     }
 
-    private List<String> getMBeanKeys(Map aConfigMBean) {
-        List<String> mBeanKeys = (List) aConfigMBean.get(MBEANKEYS);
-        return mBeanKeys;
-    }
 
     private List<Metric> collectMetrics(MetricDetails metricDetails, List<Attribute> attributes) {
         List<Metric> jmxMetrics = new ArrayList<Metric>();
