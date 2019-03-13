@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appdynamics.extensions.jmx.metrics.MetricPropertiesForMBean.getMapOfProperties;
 import static com.appdynamics.extensions.jmx.utils.Constants.*;
 
 /**
@@ -37,7 +38,7 @@ public class JMXMetricsProcessor {
         this.jmxConnector = jmxConnector;
     }
 
-    public List<Metric> getJMXMetrics(Map mBean, Map<String, ?> metricsPropertiesMap, String metricPrefix, String displayName) throws
+    public List<Metric> getJMXMetrics(Map mBean, String metricPrefix, String displayName) throws
             MalformedObjectNameException, IOException, IntrospectionException, InstanceNotFoundException,
             ReflectionException {
         List<Metric> jmxMetrics = Lists.newArrayList();
@@ -51,14 +52,13 @@ public class JMXMetricsProcessor {
             List<Attribute> attributes = jmxConnectionAdapter.getAttributes(jmxConnector, instance.getObjectName(),
                     metricNamesToBeExtracted.toArray(new String[metricNamesToBeExtracted.size()]));
             List<String> mBeanKeys = getMBeanKeys(mBean);
-            MetricDetails metricDetails = getMetricDetails(metricsPropertiesMap, metricPrefix, displayName, jmxMetrics, instance, mBeanKeys);
+            MetricDetails metricDetails = getMetricDetails(getMapOfProperties(mBean), metricPrefix, displayName, instance, mBeanKeys);
             jmxMetrics.addAll(collectMetrics(metricDetails, attributes));
-
         }
         return jmxMetrics;
     }
 
-    private MetricDetails getMetricDetails(Map<String, ?> metricsPropertiesMap, String metricPrefix, String displayName, List<Metric> jmxMetrics, ObjectInstance instance, List<String> mBeanKeys) {
+    private MetricDetails getMetricDetails(Map<String, ?> metricsPropertiesMap, String metricPrefix, String displayName, ObjectInstance instance, List<String> mBeanKeys) {
 
         return new MetricDetails.Builder()
                 .metricPrefix(metricPrefix)
@@ -108,5 +108,6 @@ public class JMXMetricsProcessor {
         }
         return separator;
     }
+
 
 }

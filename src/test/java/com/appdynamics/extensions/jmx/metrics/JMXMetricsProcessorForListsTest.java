@@ -2,7 +2,6 @@ package com.appdynamics.extensions.jmx.metrics;
 
 import com.appdynamics.extensions.AMonitorJob;
 import com.appdynamics.extensions.conf.MonitorContextConfiguration;
-import com.appdynamics.extensions.jmx.JMXMonitorTask;
 import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.metrics.Metric;
 import com.appdynamics.extensions.yml.YmlReader;
@@ -38,22 +37,24 @@ public class JMXMetricsProcessorForListsTest {
     private MonitorContextConfiguration monitorContextConfiguration = new MonitorContextConfiguration("JMXMonitor",
             "Custom Metrics|JMXMonitor|", Mockito.mock(File.class), Mockito.mock(AMonitorJob.class));
     List<Map<String, String>> metricReplacer = new ArrayList<Map<String, String>>();
+
     @Before
     public void before() {
         monitorContextConfiguration.setConfigYml("src/test/resources/conf/config.yml");
         Map<String, String> replace1 = new HashMap<String, String>();
-        replace1.put("replace","ms");
-        replace1.put("replaceWith","");
+        replace1.put("replace", "ms");
+        replace1.put("replaceWith", "");
 
         Map<String, String> replace2 = new HashMap<String, String>();
-        replace2.put("replace","%");
-        replace2.put("replaceWith","");
+        replace2.put("replace", "%");
+        replace2.put("replaceWith", "");
 
         metricReplacer.add(replace1);
         metricReplacer.add(replace2);
 
 
     }
+
     @Test
     public void getListMetricsThroughJMX() throws MalformedObjectNameException, IntrospectionException, ReflectionException,
             InstanceNotFoundException, IOException, OpenDataException {
@@ -80,10 +81,8 @@ public class JMXMetricsProcessorForListsTest {
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
 
-        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration,jmxConnectionAdapter, jmxConnector);
-        JMXMonitorTask activeMQMonitorTask = new JMXMonitorTask();
-        Map<String, ?> metricPropertiesMap = activeMQMonitorTask.getMapOfProperties(mBeans.get(0));
-        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPropertiesMap, "", "");
+        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration, jmxConnectionAdapter, jmxConnector);
+        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), "", "");
 
         Assert.assertTrue(metrics.get(0).getMetricPath().equals("ClientRequest|Read|Latency|listOfString.metric one"));
         Assert.assertTrue(metrics.get(0).getMetricName().equals("listOfString.metric one"));

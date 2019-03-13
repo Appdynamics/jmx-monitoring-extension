@@ -15,15 +15,12 @@ import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.jmx.metrics.JMXMetricsProcessor;
 import com.appdynamics.extensions.jmx.utils.JMXUtil;
 import com.appdynamics.extensions.metrics.Metric;
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.remote.JMXConnector;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,13 +68,11 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
             for (Map mBean : configMBeans) {
                 String configObjName = JMXUtil.convertToString(mBean.get(OBJECT_NAME), EMPTY_STRING);
                 logger.debug("Processing mBean {} from the config file", configObjName);
-
                 try {
-                    Map<String, ?> metricProperties = getMapOfProperties(mBean);
                     JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration,
                             jmxConnectionAdapter, jmxConnector);
                     List<Metric> nodeMetrics = jmxMetricsProcessor.getJMXMetrics(mBean,
-                            metricProperties, metricPrefix, server.get(DISPLAY_NAME).toString());
+                            metricPrefix, server.get(DISPLAY_NAME).toString());
                     if (nodeMetrics.size() > 0) {
                         metricWriter.transformAndPrintMetrics(nodeMetrics);
                     }
@@ -99,91 +94,91 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
         }
     }
 
-    public Map<String, ?> getMapOfProperties(Map mBean) {
-
-        Map<String, ? super Object> metricPropsMap = Maps.newHashMap();
-        if (mBean == null || mBean.isEmpty()) {
-            return metricPropsMap;
-        }
-        Map configMetrics = (Map) mBean.get(METRICS);
-        List includeMetrics = (List) configMetrics.get(INCLUDE);
-
-        if (includeMetrics != null) {
-            for (Object metad : includeMetrics) {
-                Map localMetaData = (Map) metad;
-                Map.Entry entry = (Map.Entry) localMetaData.entrySet().iterator().next();
-                String metricName = entry.getKey().toString();
-                String alias = entry.getValue().toString();
-
-                Map<String, ? super Object> metricProperties = new HashMap<String, Object>();
-                metricProperties.put(ALIAS, Strings.isNullOrEmpty(alias) ? metricName : alias);
-
-                setProps(mBean, metricProperties, metricName, alias); //global level
-                setProps(localMetaData, metricProperties, metricName, alias); //local level
-                metricPropsMap.put(metricName, metricProperties);
-            }
-        }
-        return metricPropsMap;
-    }
-
-    private void setProps(Map metadata, Map props, String metricName, String alias) {
-        if (metadata.get(ALIAS) != null) {
-            props.put(ALIAS, metadata.get(ALIAS).toString());
-        } else if (!Strings.isNullOrEmpty(alias)) {
-            props.put(ALIAS, alias);
-        } else {
-            if (props.get(ALIAS) == null) {
-                props.put(ALIAS, metricName);
-            }
-        }
-        if (metadata.get(MULTIPLIER) != null) {
-            props.put(MULTIPLIER, metadata.get(MULTIPLIER).toString());
-        } else {
-            if (props.get(MULTIPLIER) == null) {
-                props.put(MULTIPLIER, "1");
-            }
-        }
-        if (metadata.get(CONVERT) != null) {
-            props.put(CONVERT, metadata.get(CONVERT));
-        } else {
-            if (props.get(CONVERT) == null) {
-                props.put(CONVERT, (Map) null);
-            }
-        }
-        if (metadata.get(DELTA) != null) {
-            props.put(DELTA, metadata.get(DELTA).toString());
-
-        } else {
-            if (props.get(DELTA) == null) {
-                props.put(DELTA, FALSE);
-            }
-
-        }
-        if (metadata.get(CLUSTERROLLUPTYPE) != null) {
-            props.put(CLUSTERROLLUPTYPE, metadata.get(CLUSTERROLLUPTYPE).toString());
-
-        } else {
-            if (props.get(CLUSTERROLLUPTYPE) == null) {
-                props.put(CLUSTERROLLUPTYPE, INDIVIDUAL);
-            }
-        }
-        if (metadata.get(TIMEROLLUPTYPE) != null) {
-            props.put(TIMEROLLUPTYPE, metadata.get(TIMEROLLUPTYPE).toString());
-
-        } else {
-            if (props.get(TIMEROLLUPTYPE) == null) {
-                props.put(TIMEROLLUPTYPE, AVERAGE);
-            }
-        }
-        if (metadata.get(AGGREGATIONTYPE) != null) {
-            props.put(AGGREGATIONTYPE, metadata.get(AGGREGATIONTYPE).toString());
-
-        } else {
-            if (props.get(AGGREGATIONTYPE) == null) {
-                props.put(AGGREGATIONTYPE, AVERAGE);
-            }
-        }
-    }
+//    public Map<String, ?> getMapOfProperties(Map mBean) {
+//
+//        Map<String, ? super Object> metricPropsMap = Maps.newHashMap();
+//        if (mBean == null || mBean.isEmpty()) {
+//            return metricPropsMap;
+//        }
+//        Map configMetrics = (Map) mBean.get(METRICS);
+//        List includeMetrics = (List) configMetrics.get(INCLUDE);
+//
+//        if (includeMetrics != null) {
+//            for (Object metad : includeMetrics) {
+//                Map localMetaData = (Map) metad;
+//                Map.Entry entry = (Map.Entry) localMetaData.entrySet().iterator().next();
+//                String metricName = entry.getKey().toString();
+//                String alias = entry.getValue().toString();
+//
+//                Map<String, ? super Object> metricProperties = new HashMap<String, Object>();
+//                metricProperties.put(ALIAS, Strings.isNullOrEmpty(alias) ? metricName : alias);
+//
+//                setProps(mBean, metricProperties, metricName, alias); //global level
+//                setProps(localMetaData, metricProperties, metricName, alias); //local level
+//                metricPropsMap.put(metricName, metricProperties);
+//            }
+//        }
+//        return metricPropsMap;
+//    }
+//
+//    private void setProps(Map metadata, Map props, String metricName, String alias) {
+//        if (metadata.get(ALIAS) != null) {
+//            props.put(ALIAS, metadata.get(ALIAS).toString());
+//        } else if (!Strings.isNullOrEmpty(alias)) {
+//            props.put(ALIAS, alias);
+//        } else {
+//            if (props.get(ALIAS) == null) {
+//                props.put(ALIAS, metricName);
+//            }
+//        }
+//        if (metadata.get(MULTIPLIER) != null) {
+//            props.put(MULTIPLIER, metadata.get(MULTIPLIER).toString());
+//        } else {
+//            if (props.get(MULTIPLIER) == null) {
+//                props.put(MULTIPLIER, "1");
+//            }
+//        }
+//        if (metadata.get(CONVERT) != null) {
+//            props.put(CONVERT, metadata.get(CONVERT));
+//        } else {
+//            if (props.get(CONVERT) == null) {
+//                props.put(CONVERT, (Map) null);
+//            }
+//        }
+//        if (metadata.get(DELTA) != null) {
+//            props.put(DELTA, metadata.get(DELTA).toString());
+//
+//        } else {
+//            if (props.get(DELTA) == null) {
+//                props.put(DELTA, FALSE);
+//            }
+//
+//        }
+//        if (metadata.get(CLUSTERROLLUPTYPE) != null) {
+//            props.put(CLUSTERROLLUPTYPE, metadata.get(CLUSTERROLLUPTYPE).toString());
+//
+//        } else {
+//            if (props.get(CLUSTERROLLUPTYPE) == null) {
+//                props.put(CLUSTERROLLUPTYPE, INDIVIDUAL);
+//            }
+//        }
+//        if (metadata.get(TIMEROLLUPTYPE) != null) {
+//            props.put(TIMEROLLUPTYPE, metadata.get(TIMEROLLUPTYPE).toString());
+//
+//        } else {
+//            if (props.get(TIMEROLLUPTYPE) == null) {
+//                props.put(TIMEROLLUPTYPE, AVERAGE);
+//            }
+//        }
+//        if (metadata.get(AGGREGATIONTYPE) != null) {
+//            props.put(AGGREGATIONTYPE, metadata.get(AGGREGATIONTYPE).toString());
+//
+//        } else {
+//            if (props.get(AGGREGATIONTYPE) == null) {
+//                props.put(AGGREGATIONTYPE, AVERAGE);
+//            }
+//        }
+//    }
 
     public void onTaskComplete() {
         logger.debug("Task Complete");
