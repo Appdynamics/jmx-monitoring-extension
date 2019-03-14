@@ -52,7 +52,7 @@ public class JMXMonitor extends ABaseMonitor {
                 for (Map server : servers) {
                     try {
                         JMXMonitorTask task = createTask(server, taskExecutor);
-                        taskExecutor.submit((String) server.get(NAME), task);
+                        taskExecutor.submit((String) server.get(DISPLAY_NAME), task);
                     } catch (IOException e) {
                         logger.error("Cannot construct JMX uri for {}", convertToString(server.get(DISPLAY_NAME), ""));
                     }
@@ -105,5 +105,4 @@ public class JMXMonitor extends ABaseMonitor {
         }
         return null;
     }
-
 }
