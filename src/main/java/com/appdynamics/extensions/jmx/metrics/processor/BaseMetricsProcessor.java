@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import javax.management.Attribute;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,9 +29,9 @@ class BaseMetricsProcessor {
             logger.error("Could not find metric properties for {} ", attributeName);
         }
         String instanceKey = getInstanceKey(metricDetails.getInstance(), metricDetails.getmBeanKeys());
-        String metricPath = generateMetricPath(metricDetails.getMetricPrefix(), attributeName, metricDetails.getDisplayName(), instanceKey);
         String attrVal = attribute.getValue().toString();
-        return new Metric(attributeName, attrVal, metricPath, props);
+        String[] metricPathTokens = generateMetricPathTokens(attributeName, metricDetails.getDisplayName(), instanceKey);
+        return new Metric(attributeName, attrVal, props, metricDetails.getMetricPrefix(), metricPathTokens);
     }
 
     private static String getInstanceKey(ObjectInstance instance, List<String> mBeanKeys) {
@@ -43,22 +44,20 @@ class BaseMetricsProcessor {
         return metricsKey.toString();
     }
 
-    private static String generateMetricPath(String metricPrefix, String attributeName, String displayName, String instanceKey) {
-        String metricPath;
-        if (Strings.isNullOrEmpty(metricPrefix)) {
+    private static String[] generateMetricPathTokens(String attributeName, String displayName, String instanceKey) {
+        LinkedList<String> metricTokens = new LinkedList<>();
             if (Strings.isNullOrEmpty(displayName)) {
-                metricPath = instanceKey + attributeName;
+                metricTokens.add(instanceKey);
+                metricTokens.add(attributeName);
+
             } else {
-                metricPath = displayName + METRICS_SEPARATOR + instanceKey + attributeName;
+                metricTokens.add(displayName);
+                metricTokens.add(instanceKey);
+                metricTokens.add(attributeName);
             }
-        } else {
-            if (Strings.isNullOrEmpty(displayName)) {
-                metricPath = metricPrefix + METRICS_SEPARATOR + instanceKey + attributeName;
-            } else {
-                metricPath = metricPrefix + METRICS_SEPARATOR + displayName + METRICS_SEPARATOR + instanceKey + attributeName;
-            }
-        }
-        return metricPath;
+        String[] tokens = new String[metricTokens.size()];
+        tokens = metricTokens.toArray(tokens);
+        return tokens;
     }
 
     private static ObjectName getObjectName(ObjectInstance instance) {

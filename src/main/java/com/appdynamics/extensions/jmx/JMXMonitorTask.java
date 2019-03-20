@@ -15,6 +15,7 @@ import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.jmx.metrics.JMXMetricsProcessor;
 import com.appdynamics.extensions.jmx.utils.JMXUtil;
 import com.appdynamics.extensions.metrics.Metric;
+import com.appdynamics.extensions.util.AssertUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +41,6 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
     private MonitorContextConfiguration monitorContextConfiguration;
 
     private String serverName;
-    private long previousTimestamp = 0;
-    private long currentTimestamp = 0;
 
     public void run() {
         serverName = JMXUtil.convertToString(server.get(DISPLAY_NAME), EMPTY_STRING);
@@ -59,6 +58,8 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
 
     private void populateAndPrintStats() throws IOException {
         JMXConnector jmxConnector = null;
+        long previousTimestamp = 0;
+        long currentTimestamp = 0;
         try {
             previousTimestamp = System.currentTimeMillis();
             jmxConnector = jmxConnectionAdapter.open();
@@ -71,6 +72,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                 try {
                     JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration,
                             jmxConnectionAdapter, jmxConnector);
+                    AssertUtils.assertNotNull(server.get(DISPLAY_NAME), DISPLAY_NAME+" can not be null in the config.yml");
                     List<Metric> nodeMetrics = jmxMetricsProcessor.getJMXMetrics(mBean,
                             metricPrefix, server.get(DISPLAY_NAME).toString());
                     if (nodeMetrics.size() > 0) {
@@ -97,7 +99,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
 
     public void onTaskComplete() {
         logger.debug("Task Complete");
-        if (status == true) {
+        if (status ) {
             metricWriter.printMetric(metricPrefix + METRICS_SEPARATOR + server.get(DISPLAY_NAME).toString() + METRICS_SEPARATOR + AVAILABILITY, "1", "AVERAGE", "AVERAGE", "INDIVIDUAL");
         } else {
             metricWriter.printMetric(metricPrefix + METRICS_SEPARATOR + server.get(DISPLAY_NAME).toString() + METRICS_SEPARATOR + AVAILABILITY, "0", "AVERAGE", "AVERAGE", "INDIVIDUAL");

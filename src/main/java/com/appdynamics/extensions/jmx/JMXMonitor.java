@@ -10,13 +10,11 @@ package com.appdynamics.extensions.jmx;
 
 import com.appdynamics.extensions.ABaseMonitor;
 import com.appdynamics.extensions.TasksExecutionServiceProvider;
-import com.appdynamics.extensions.crypto.CryptoUtil;
 import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
+import com.appdynamics.extensions.logging.ExtensionsLoggerFactory;
 import com.appdynamics.extensions.util.AssertUtils;
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
+import com.appdynamics.extensions.util.CryptoUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -30,7 +28,7 @@ import static com.appdynamics.extensions.jmx.utils.JMXUtil.convertToString;
  */
 public class JMXMonitor extends ABaseMonitor {
 
-    private static final Logger logger = LoggerFactory.getLogger(JMXMonitor.class);
+    private static final Logger logger = ExtensionsLoggerFactory.getLogger(JMXMonitor.class);
 
     @Override
     protected String getDefaultMetricPrefix() {
@@ -65,22 +63,19 @@ public class JMXMonitor extends ABaseMonitor {
         }
     }
 
-    @Override
-    protected int getTaskCount() {
-        List<Map<String, String>> servers = (List<Map<String, String>>) getContextConfiguration().getConfigYml().get(SERVERS);
+    protected List<Map<String, ?>> getServers() {
+        List<Map<String, ?>> servers = (List<Map<String, ?>>) getContextConfiguration().getConfigYml().get(SERVERS);
         AssertUtils.assertNotNull(servers, "The 'servers' section in config.yml is not initialised");
-        return servers.size();
+        return servers;
     }
 
     private JMXMonitorTask createTask(Map server, TasksExecutionServiceProvider taskExecutor) throws IOException {
-
         String serviceUrl = convertToString(server.get(SERVICEURL), EMPTY_STRING);
         String host = convertToString(server.get(HOST), EMPTY_STRING);
         String portStr = convertToString(server.get(PORT), EMPTY_STRING);
         int port = (portStr == null || portStr == EMPTY_STRING) ? -1 : Integer.parseInt(portStr);
         String username = convertToString(server.get(USERNAME), EMPTY_STRING);
         String password = getPassword(server);
-
         JMXConnectionAdapter adapter = JMXConnectionAdapter.create(serviceUrl, host, port, username, password);
         return new JMXMonitorTask.Builder().
                 metricPrefix(getContextConfiguration().getMetricPrefix()).
@@ -91,18 +86,10 @@ public class JMXMonitor extends ABaseMonitor {
     }
 
     private String getPassword(Map server) {
-        String password = convertToString(server.get(PASSWORD), EMPTY_STRING);
-        if (!Strings.isNullOrEmpty(password)) {
-            return password;
+        if (getContextConfiguration().getConfigYml().get(ENCRYPTION_KEY) != null) {
+            String encryptionKey = getContextConfiguration().getConfigYml().get(ENCRYPTION_KEY).toString();
+            server.put(ENCRYPTION_KEY, encryptionKey);
         }
-        String encryptionKey = convertToString(server.get(ENCRYPTION_KEY), EMPTY_STRING);
-        String encryptedPassword = convertToString(server.get(ENCRYPTEDPASSWORD), EMPTY_STRING);
-        if (!Strings.isNullOrEmpty(encryptionKey) && !Strings.isNullOrEmpty(encryptedPassword)) {
-            java.util.Map<String, String> cryptoMap = Maps.newHashMap();
-            cryptoMap.put(PASSWORD_ENCRYPTED, encryptedPassword);
-            cryptoMap.put(ENCRYPTION_KEY, encryptionKey);
-            return CryptoUtil.getPassword(cryptoMap);
-        }
-        return null;
+        return CryptoUtils.getPassword(server);
     }
 }
