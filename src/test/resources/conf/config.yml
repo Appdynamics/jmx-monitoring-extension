@@ -130,13 +130,13 @@ mbeans:
 #              aggregationType: "SUM"
 #
 
-metricCharacterReplacer:
+metricPathReplacements:
    - replace: "%"
      replaceWith: ""
    - replace: ","
      replaceWith: "-"
    - replace: "."
-     replaceWith: "-"
+     replaceWith: "."
    - replace: "ms"
      replaceWith: ""
 

@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.appdynamics.extensions.jmx.utils.Constants.PERIOD;
-import static com.appdynamics.extensions.jmx.utils.JMXUtil.getMetricAfterCharacterReplacement;
 
 /**
  * Created by bhuvnesh.kumar on 3/11/19.
@@ -34,8 +33,6 @@ class ListMetricsProcessor {
         String[] arr = metricKey.toString().split(metricDetails.getSeparator());
         String key = arr[0].trim();
         String value = arr[1].trim();
-        key = getMetricAfterCharacterReplacement(key, metricDetails.getMetricCharacterReplacer());
-        value = getMetricAfterCharacterReplacement(value, metricDetails.getMetricCharacterReplacer());
         return new Attribute(key, value);
     }
 

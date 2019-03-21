@@ -34,16 +34,6 @@ public class JMXUtil {
         return objectName.split("\\.")[0];
     }
 
-    public static String getMetricAfterCharacterReplacement(String replaceTextHere, List<Map<String, String>> metricReplacer) {
-        for (Map chars : metricReplacer) {
-            String replace = (String) chars.get(REPLACE);
-            String replaceWith = (String) chars.get(REPLACE_WITH);
-            if (replaceTextHere.contains(replace)) {
-                replaceTextHere = replaceTextHere.replaceAll(replace, replaceWith);
-            }
-        }
-        return replaceTextHere;
-    }
 
 
 }

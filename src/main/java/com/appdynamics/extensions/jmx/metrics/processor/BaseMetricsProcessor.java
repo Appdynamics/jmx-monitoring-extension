@@ -28,36 +28,33 @@ class BaseMetricsProcessor {
         if (props == null) {
             logger.error("Could not find metric properties for {} ", attributeName);
         }
-        String instanceKey = getInstanceKey(metricDetails.getInstance(), metricDetails.getmBeanKeys());
-        String attrVal = attribute.getValue().toString();
-        String[] metricPathTokens = generateMetricPathTokens(attributeName, metricDetails.getDisplayName(), instanceKey);
-        return new Metric(attributeName, attrVal, props, metricDetails.getMetricPrefix(), metricPathTokens);
-    }
-
-    private static String getInstanceKey(ObjectInstance instance, List<String> mBeanKeys) {
-        StringBuilder metricsKey = new StringBuilder();
-
-        for (String key : mBeanKeys) {
-            String value = getKeyProperty(instance, key);
-            metricsKey.append(Strings.isNullOrEmpty(value) ? EMPTY_STRING : value + METRICS_SEPARATOR);
-        }
-        return metricsKey.toString();
-    }
-
-    private static String[] generateMetricPathTokens(String attributeName, String displayName, String instanceKey) {
         LinkedList<String> metricTokens = new LinkedList<>();
-            if (Strings.isNullOrEmpty(displayName)) {
-                metricTokens.add(instanceKey);
-                metricTokens.add(attributeName);
-
-            } else {
-                metricTokens.add(displayName);
-                metricTokens.add(instanceKey);
-                metricTokens.add(attributeName);
-            }
+        metricTokens = getInstanceKey(metricDetails.getInstance(), metricDetails.getmBeanKeys(), metricTokens);
+        metricTokens = generateMetricPathTokens(attributeName, metricDetails.getDisplayName(), metricTokens);
+        String attrVal = attribute.getValue().toString();
+        attrVal = attrVal.replaceAll("[^0-9.]", "");
         String[] tokens = new String[metricTokens.size()];
         tokens = metricTokens.toArray(tokens);
-        return tokens;
+
+        return new Metric(attributeName, attrVal, props, metricDetails.getMetricPrefix(), tokens);
+    }
+
+    private static LinkedList<String> getInstanceKey(ObjectInstance instance, List<String> mBeanKeys, LinkedList<String> metricTokens) {
+        for (String key : mBeanKeys) {
+            String value = getKeyProperty(instance, key);
+            metricTokens.add(Strings.isNullOrEmpty(value) ? EMPTY_STRING : value);
+        }
+        return metricTokens;
+    }
+
+    private static LinkedList<String> generateMetricPathTokens(String attributeName, String displayName, LinkedList<String> metricTokens) {
+            if (Strings.isNullOrEmpty(displayName)) {
+                metricTokens.add(attributeName);
+            } else {
+                metricTokens.add(displayName);
+                metricTokens.add(attributeName);
+            }
+        return metricTokens;
     }
 
     private static ObjectName getObjectName(ObjectInstance instance) {

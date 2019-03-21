@@ -1,12 +1,16 @@
 package com.appdynamics.extensions.jmx.metrics;
 
-import com.appdynamics.extensions.AMonitorJob;
+import com.appdynamics.extensions.ABaseMonitor;
+import com.appdynamics.extensions.conf.MonitorContext;
 import com.appdynamics.extensions.conf.MonitorContextConfiguration;
 import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.metrics.Metric;
+import com.appdynamics.extensions.metrics.MetricCharSequenceReplacer;
+import com.appdynamics.extensions.util.MetricPathUtils;
 import com.appdynamics.extensions.yml.YmlReader;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.singularity.ee.agent.systemagent.api.MetricWriter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +27,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -34,26 +39,35 @@ public class JMXMetricsProcessorForListsTest {
 
     JMXConnector jmxConnector = mock(JMXConnector.class);
     JMXConnectionAdapter jmxConnectionAdapter = mock(JMXConnectionAdapter.class);
-    private MonitorContextConfiguration monitorContextConfiguration = new MonitorContextConfiguration("JMXMonitor",
-            "Custom Metrics|JMXMonitor|", Mockito.mock(File.class), Mockito.mock(AMonitorJob.class));
-    List<Map<String, String>> metricReplacer = new ArrayList<Map<String, String>>();
+    private Map<String, ?> conf;
 
+//    private MonitorContextConfiguration monitorConfiguration = new MonitorContextConfiguration("JMXMonitor",
+//            "Custom Metrics|JMXMonitor|", Mockito.mock(File.class), Mockito.mock(AMonitorJob.class));
+
+    private MonitorContextConfiguration monitorConfiguration;
     @Before
     public void before() {
-        monitorContextConfiguration.setConfigYml("src/test/resources/conf/config.yml");
-        Map<String, String> replace1 = new HashMap<String, String>();
-        replace1.put("replace", "ms");
-        replace1.put("replaceWith", "");
+    conf = YmlReader.readFromFileAsMap(new File("src/test/resources/conf/config.yml"));
+    ABaseMonitor baseMonitor = mock(ABaseMonitor.class);
+//        MonitorContextConfiguration monitorConfiguration = mock(MonitorContextConfiguration.class);
 
-        Map<String, String> replace2 = new HashMap<String, String>();
-        replace2.put("replace", "%");
-        replace2.put("replaceWith", "");
+        monitorConfiguration = mock(MonitorContextConfiguration.class);
+    MonitorContext context = mock(MonitorContext.class);
+    when(baseMonitor.getContextConfiguration()).thenReturn(monitorConfiguration);
+    when(monitorConfiguration.getContext()).thenReturn(context);
 
-        metricReplacer.add(replace1);
-        metricReplacer.add(replace2);
-
-
+    when(monitorConfiguration.getMetricPrefix()).thenReturn("Custom Metrics|JMX Monitor");
+        MetricPathUtils.registerMetricCharSequenceReplacer(baseMonitor);
+    MetricCharSequenceReplacer replacer = MetricCharSequenceReplacer.createInstance(conf);
+    when(context.getMetricCharSequenceReplacer()).thenReturn(replacer);
+    MetricWriter metricWriter = mock(MetricWriter.class);
+    when(baseMonitor.getMetricWriter(anyString(), anyString(), anyString(), anyString())).thenReturn(metricWriter);
+//
+//
+//
     }
+
+
 
     @Test
     public void getListMetricsThroughJMX() throws MalformedObjectNameException, IntrospectionException, ReflectionException,
@@ -81,38 +95,39 @@ public class JMXMetricsProcessorForListsTest {
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
 
-        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration, jmxConnectionAdapter, jmxConnector);
-        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), "", "");
 
-        Assert.assertTrue(metrics.get(0).getMetricPath().equals("ClientRequest|Read|Latency|listOfString.metric one"));
+        JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorConfiguration, jmxConnectionAdapter, jmxConnector);
+        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), "Custom Metrics|JMX Monitor", "");
+
+        Assert.assertTrue(metrics.get(0).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|listOfString.metric one"));
         Assert.assertTrue(metrics.get(0).getMetricName().equals("listOfString.metric one"));
         Assert.assertTrue(metrics.get(0).getMetricValue().equals("11"));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals("AVERAGE"));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
 
-        Assert.assertTrue(metrics.get(1).getMetricPath().equals("ClientRequest|Read|Latency|listOfString.metric two"));
+        Assert.assertTrue(metrics.get(1).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|listOfString.metric two"));
         Assert.assertTrue(metrics.get(1).getMetricName().equals("listOfString.metric two"));
         Assert.assertTrue(metrics.get(1).getMetricValue().equals("12"));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals("AVERAGE"));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
 
-        Assert.assertTrue(metrics.get(2).getMetricPath().equals("ClientRequest|Read|Latency|listOfString.metric three"));
+        Assert.assertTrue(metrics.get(2).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|listOfString.metric three"));
         Assert.assertTrue(metrics.get(2).getMetricName().equals("listOfString.metric three"));
         Assert.assertTrue(metrics.get(2).getMetricValue().equals("13"));
         Assert.assertTrue(metrics.get(2).getMetricProperties().getAggregationType().equals("AVERAGE"));
         Assert.assertTrue(metrics.get(2).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
         Assert.assertTrue(metrics.get(2).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
 
-        Assert.assertTrue(metrics.get(3).getMetricPath().equals("ClientRequest|Read|Latency|Max"));
+        Assert.assertTrue(metrics.get(3).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|Max"));
         Assert.assertTrue(metrics.get(3).getMetricName().equals("Max"));
         Assert.assertTrue(metrics.get(3).getMetricValue().equals("200"));
         Assert.assertTrue(metrics.get(3).getMetricProperties().getAggregationType().equals("OBSERVATION"));
         Assert.assertTrue(metrics.get(3).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
         Assert.assertTrue(metrics.get(3).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
 
-        Assert.assertTrue(metrics.get(4).getMetricPath().equals("ClientRequest|Read|Latency|HeapMemoryUsage.max"));
+        Assert.assertTrue(metrics.get(4).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|HeapMemoryUsage.max"));
         Assert.assertTrue(metrics.get(4).getMetricName().equals("HeapMemoryUsage.max"));
         Assert.assertTrue(metrics.get(4).getMetricValue().equals("100"));
         Assert.assertTrue(metrics.get(4).getMetricProperties().getAggregationType().equals("AVERAGE"));
@@ -178,4 +193,25 @@ public class JMXMetricsProcessorForListsTest {
                 itemValuesForCompositeDataSupport);
     }
 
+    private  Map getMetricCharacterReplacer(){
+        Map metricReplacer = new HashMap();
+
+        Map metricReplacer_1 = new HashMap();
+        metricReplacer_1.put("replace",":");
+        metricReplacer_1.put("replaceWith",":");
+
+        Map metricReplacer_2 = new HashMap();
+        metricReplacer_2.put("replace",":");
+        metricReplacer_2.put("replaceWith",":");
+
+        List<Map> replacerMap = new ArrayList<>();
+        replacerMap.add(metricReplacer_1);
+        replacerMap.add(metricReplacer_2);
+
+        metricReplacer.put("metricPathReplacements", replacerMap);
+
+        monitorConfiguration.getContext().getMetricCharSequenceReplacer();
+
+        return metricReplacer;
+    }
 }
