@@ -8,12 +8,17 @@
 
 package com.appdynamics.extensions.jmx.metrics;
 
+import com.appdynamics.extensions.ABaseMonitor;
+import com.appdynamics.extensions.conf.MonitorContext;
 import com.appdynamics.extensions.conf.MonitorContextConfiguration;
 import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.metrics.Metric;
+import com.appdynamics.extensions.metrics.MetricCharSequenceReplacer;
+import com.appdynamics.extensions.util.MetricPathUtils;
 import com.appdynamics.extensions.yml.YmlReader;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.singularity.ee.agent.systemagent.api.MetricWriter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,32 +33,35 @@ import javax.management.remote.JMXConnector;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.mockito.Mockito.*;
 
 public class JMXMetricsProcessorTest {
 
-    JMXConnector jmxConnector = mock(JMXConnector.class);
-    JMXConnectionAdapter jmxConnectionAdapter = mock(JMXConnectionAdapter.class);
-    MonitorContextConfiguration monitorContextConfiguration;
-    List<Map<String, String>> metricReplacer = new ArrayList<Map<String, String>>();
+    private JMXConnector jmxConnector = mock(JMXConnector.class);
+    private JMXConnectionAdapter jmxConnectionAdapter = mock(JMXConnectionAdapter.class);
+    private MonitorContextConfiguration monitorContextConfiguration;
+    private String metricPrefix;
 
     @Before
     public void before() {
-        monitorContextConfiguration = Mockito.mock(MonitorContextConfiguration.class);
-        Map<String, String> replace1 = new HashMap<String, String>();
-        replace1.put("replace", "ms");
-        replace1.put("replaceWith", "");
-
-        Map<String, String> replace2 = new HashMap<String, String>();
-        replace2.put("replace", "%");
-        replace2.put("replaceWith", "");
-
-        metricReplacer.add(replace1);
-        metricReplacer.add(replace2);
-
-
+        Map<String, ?> conf = YmlReader.readFromFileAsMap(new File("src/test/resources/conf/config.yml"));
+        ABaseMonitor baseMonitor = mock(ABaseMonitor.class);
+        monitorContextConfiguration = mock(MonitorContextConfiguration.class);
+        MonitorContext context = mock(MonitorContext.class);
+        when(baseMonitor.getContextConfiguration()).thenReturn(monitorContextConfiguration);
+        when(monitorContextConfiguration.getContext()).thenReturn(context);
+        when(monitorContextConfiguration.getMetricPrefix()).thenReturn("Custom Metrics|JMX Monitor");
+        metricPrefix = "Custom Metrics|JMX Monitor";
+        MetricPathUtils.registerMetricCharSequenceReplacer(baseMonitor);
+        MetricCharSequenceReplacer replacer = MetricCharSequenceReplacer.createInstance(conf);
+        when(context.getMetricCharSequenceReplacer()).thenReturn(replacer);
+        MetricWriter metricWriter = mock(MetricWriter.class);
+        when(baseMonitor.getMetricWriter(anyString(), anyString(), anyString(), anyString())).thenReturn(metricWriter);
     }
 
     @Test
@@ -75,11 +83,9 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
         JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration, jmxConnectionAdapter, jmxConnector);
-
         Map<String, ?> metricPropertiesMap = MetricPropertiesForMBean.getMapOfProperties(mBeans.get(0));
-        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), "", "");
-
-        Assert.assertTrue(metrics.get(0).getMetricPath().equals("ClientRequest|Read|Latency|Max"));
+        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPrefix, "");
+        Assert.assertTrue(metrics.get(0).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|Max"));
         Assert.assertTrue(metrics.get(0).getMetricName().equals("Max"));
         Assert.assertTrue(metrics.get(0).getMetricValue().equals("200"));
         Map<String, ?> metricProps = (Map<String, ?>) metricPropertiesMap.get("Max");
@@ -87,7 +93,7 @@ public class JMXMetricsProcessorTest {
         Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
 
-        Assert.assertTrue(metrics.get(1).getMetricPath().equals("ClientRequest|Read|Latency|Min"));
+        Assert.assertTrue(metrics.get(1).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|Min"));
         Assert.assertTrue(metrics.get(1).getMetricName().equals("Min"));
         Assert.assertTrue(metrics.get(1).getMetricValue().equals("100"));
         metricProps = (Map<String, ?>) metricPropertiesMap.get("Min");
@@ -107,20 +113,17 @@ public class JMXMetricsProcessorTest {
         objectInstances.add(new ObjectInstance("java.lang:type=Memory", "test"));
         List<Attribute> attributes = Lists.newArrayList();
         attributes.add(new Attribute("HeapMemoryUsage", createCompositeDataSupportObject()));
-
         List<String> metricNames = Lists.newArrayList();
         metricNames.add("metric1");
         metricNames.add("metric2");
-
-
         when(jmxConnectionAdapter.queryMBeans(eq(jmxConnector), Mockito.any(ObjectName.class))).thenReturn(objectInstances);
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
         JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration, jmxConnectionAdapter, jmxConnector);
         Map<String, ?> metricPropertiesMap = MetricPropertiesForMBean.getMapOfProperties(mBeans.get(0));
-        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), "", "");
+        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPrefix, "");
 
-        Assert.assertTrue(metrics.get(0).getMetricPath().equals("Memory|HeapMemoryUsage.max"));
+        Assert.assertTrue(metrics.get(0).getMetricPath().equals("Custom Metrics|JMX Monitor|Memory|HeapMemoryUsage.max"));
         Assert.assertTrue(metrics.get(0).getMetricName().equals("HeapMemoryUsage.max"));
         Assert.assertTrue(metrics.get(0).getMetricValue().equals("100"));
         Map<String, ?> metricProps = (Map<String, ?>) metricPropertiesMap.get("HeapMemoryUsage.max");
@@ -129,7 +132,7 @@ public class JMXMetricsProcessorTest {
         Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
 
-        Assert.assertTrue(metrics.get(1).getMetricPath().equals("Memory|HeapMemoryUsage.used"));
+        Assert.assertTrue(metrics.get(1).getMetricPath().equals("Custom Metrics|JMX Monitor|Memory|HeapMemoryUsage.used"));
         Assert.assertTrue(metrics.get(1).getMetricName().equals("HeapMemoryUsage.used"));
         Assert.assertTrue(metrics.get(1).getMetricValue().equals("50"));
         metricProps = (Map<String, ?>) metricPropertiesMap.get("HeapMemoryUsage.used");
@@ -159,10 +162,10 @@ public class JMXMetricsProcessorTest {
 
         JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration, jmxConnectionAdapter, jmxConnector);
         Map<String, ?> metricPropertiesMap = MetricPropertiesForMBean.getMapOfProperties(mBeans.get(0));
-        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), "", "");
+        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPrefix, "");
 
         Map<String, ?> metricProps = (Map<String, ?>) metricPropertiesMap.get("ObjectPendingFinalizationCount");
-        Assert.assertTrue(metrics.get(0).getMetricPath().equals("Memory|ObjectPendingFinalizationCount"));
+        Assert.assertTrue(metrics.get(0).getMetricPath().equals("Custom Metrics|JMX Monitor|Memory|ObjectPendingFinalizationCount"));
         Assert.assertTrue(metrics.get(0).getMetricName().equals("ObjectPendingFinalizationCount"));
         Assert.assertTrue(metrics.get(0).getMetricValue().equals("0"));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
@@ -170,7 +173,7 @@ public class JMXMetricsProcessorTest {
         Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
 
         metricProps = (Map<String, ?>) metricPropertiesMap.get("HeapMemoryUsage.used");
-        Assert.assertTrue(metrics.get(1).getMetricPath().equals("Memory|HeapMemoryUsage.used"));
+        Assert.assertTrue(metrics.get(1).getMetricPath().equals("Custom Metrics|JMX Monitor|Memory|HeapMemoryUsage.used"));
         Assert.assertTrue(metrics.get(1).getMetricName().equals("HeapMemoryUsage.used"));
         Assert.assertTrue(metrics.get(1).getMetricValue().equals("50"));
         Assert.assertTrue(metrics.get(1).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
@@ -199,9 +202,9 @@ public class JMXMetricsProcessorTest {
 
         JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration, jmxConnectionAdapter, jmxConnector);
         Map<String, ?> metricPropertiesMap = MetricPropertiesForMBean.getMapOfProperties(mBeans.get(0));
-        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), "", "");
+        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPrefix, "");
 
-        Assert.assertTrue(metrics.get(0).getMetricPath().equals("ClientRequest|Read|Latency|Max"));
+        Assert.assertTrue(metrics.get(0).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|Max"));
         Assert.assertTrue(metrics.get(0).getMetricName().equals("Max"));
         Assert.assertTrue(metrics.get(0).getMetricValue().equals("200"));
         Map<String, ?> metricProps = (Map<String, ?>) metricPropertiesMap.get("Max");
@@ -209,7 +212,7 @@ public class JMXMetricsProcessorTest {
         Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
 
-        Assert.assertTrue(metrics.get(1).getMetricPath().equals("ClientRequest|Read|Latency|Min"));
+        Assert.assertTrue(metrics.get(1).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|Min"));
         Assert.assertTrue(metrics.get(1).getMetricName().equals("Min"));
         Assert.assertTrue(metrics.get(1).getMetricValue().equals("100"));
         metricProps = (Map<String, ?>) metricPropertiesMap.get("Min");
@@ -241,9 +244,9 @@ public class JMXMetricsProcessorTest {
 
         JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration, jmxConnectionAdapter, jmxConnector);
         Map<String, ?> metricPropertiesMap = MetricPropertiesForMBean.getMapOfProperties(mBeans.get(0));
-        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), "", "");
+        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPrefix, "");
 
-        Assert.assertTrue(metrics.get(0).getMetricPath().equals("ClientRequest|Read|Latency|Max"));
+        Assert.assertTrue(metrics.get(0).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|Max"));
         Assert.assertTrue(metrics.get(0).getMetricName().equals("Max"));
         Assert.assertTrue(metrics.get(0).getMetricValue().equals("200"));
         Map<String, ?> metricProps = (Map<String, ?>) metricPropertiesMap.get("Max");
@@ -251,7 +254,7 @@ public class JMXMetricsProcessorTest {
         Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
 
-        Assert.assertTrue(metrics.get(1).getMetricPath().equals("ClientRequest|Read|Latency|Min"));
+        Assert.assertTrue(metrics.get(1).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|Min"));
         Assert.assertTrue(metrics.get(1).getMetricName().equals("Min"));
         Assert.assertTrue(metrics.get(1).getMetricValue().equals("100"));
         metricProps = (Map<String, ?>) metricPropertiesMap.get("Min");
@@ -278,11 +281,10 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
 
         JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration, jmxConnectionAdapter, jmxConnector);
-        Map<String, ?> metricPropertiesMap = MetricPropertiesForMBean.getMapOfProperties(mBeans.get(0));
-        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), "", "");
+        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPrefix, "");
         Map<Object, Object> metricProps = metrics.get(0).getMetricProperties().getConversionValues();
 
-        Assert.assertTrue(metrics.get(0).getMetricPath().equals("ClientRequest|Read|Latency|Max"));
+        Assert.assertTrue(metrics.get(0).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|Max"));
         Assert.assertTrue(metrics.get(0).getMetricName().equals("Max"));
         Assert.assertTrue(metrics.get(0).getMetricValue().equals("200"));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals("OBSERVATION"));
@@ -384,45 +386,44 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
         JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration, jmxConnectionAdapter, jmxConnector);
-        Map<String, ?> metricPropertiesMap = MetricPropertiesForMBean.getMapOfProperties(mBeans.get(0));
-        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), "", "");
+        List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPrefix, "");
 
-        Assert.assertTrue(metrics.get(0).getMetricPath().equals("ClientRequest|Read|Latency|MapOfString.key1"));
+        Assert.assertTrue(metrics.get(0).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|MapOfString.key1"));
         Assert.assertTrue(metrics.get(0).getMetricName().equals("MapOfString.key1"));
         Assert.assertTrue(metrics.get(0).getMetricValue().equals("1"));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals("AVERAGE"));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
         Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
 
-        Assert.assertTrue(metrics.get(1).getMetricPath().equals("ClientRequest|Read|Latency|MapOfString.key2"));
+        Assert.assertTrue(metrics.get(1).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|MapOfString.key2"));
         Assert.assertTrue(metrics.get(1).getMetricName().equals("MapOfString.key2"));
         Assert.assertTrue(metrics.get(1).getMetricValue().equals("2"));
         Assert.assertTrue(metrics.get(1).getMetricProperties().getAggregationType().equals("OBSERVATION"));
         Assert.assertTrue(metrics.get(1).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
         Assert.assertTrue(metrics.get(1).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
 
-        Assert.assertTrue(metrics.get(2).getMetricPath().equals("ClientRequest|Read|Latency|MapOfString.map2.key2"));
+        Assert.assertTrue(metrics.get(2).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|MapOfString.map2.key2"));
         Assert.assertTrue(metrics.get(2).getMetricName().equals("MapOfString.map2.key2"));
         Assert.assertTrue(metrics.get(2).getMetricValue().equals("2"));
         Assert.assertTrue(metrics.get(2).getMetricProperties().getAggregationType().equals("AVERAGE"));
         Assert.assertTrue(metrics.get(2).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
         Assert.assertTrue(metrics.get(2).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
 
-        Assert.assertTrue(metrics.get(3).getMetricPath().equals("ClientRequest|Read|Latency|MapOfString.map2.map3.key32"));
+        Assert.assertTrue(metrics.get(3).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|MapOfString.map2.map3.key32"));
         Assert.assertTrue(metrics.get(3).getMetricName().equals("MapOfString.map2.map3.key32"));
         Assert.assertTrue(metrics.get(3).getMetricValue().equals("32"));
         Assert.assertTrue(metrics.get(3).getMetricProperties().getAggregationType().equals("AVERAGE"));
         Assert.assertTrue(metrics.get(3).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
         Assert.assertTrue(metrics.get(3).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
 
-        Assert.assertTrue(metrics.get(4).getMetricPath().equals("ClientRequest|Read|Latency|Max"));
+        Assert.assertTrue(metrics.get(4).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|Max"));
         Assert.assertTrue(metrics.get(4).getMetricName().equals("Max"));
         Assert.assertTrue(metrics.get(4).getMetricValue().equals("200"));
         Assert.assertTrue(metrics.get(4).getMetricProperties().getAggregationType().equals("OBSERVATION"));
         Assert.assertTrue(metrics.get(4).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
         Assert.assertTrue(metrics.get(4).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
 
-        Assert.assertTrue(metrics.get(5).getMetricPath().equals("ClientRequest|Read|Latency|HeapMemoryUsage.max"));
+        Assert.assertTrue(metrics.get(5).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|HeapMemoryUsage.max"));
         Assert.assertTrue(metrics.get(5).getMetricName().equals("HeapMemoryUsage.max"));
         Assert.assertTrue(metrics.get(5).getMetricValue().equals("100"));
         Assert.assertTrue(metrics.get(5).getMetricProperties().getAggregationType().equals("AVERAGE"));

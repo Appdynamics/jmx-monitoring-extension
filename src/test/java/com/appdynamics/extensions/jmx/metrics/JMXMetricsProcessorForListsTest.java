@@ -25,7 +25,9 @@ import javax.management.remote.JMXConnector;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -37,36 +39,25 @@ import static org.mockito.Mockito.when;
  */
 public class JMXMetricsProcessorForListsTest {
 
-    JMXConnector jmxConnector = mock(JMXConnector.class);
-    JMXConnectionAdapter jmxConnectionAdapter = mock(JMXConnectionAdapter.class);
-    private Map<String, ?> conf;
-
-//    private MonitorContextConfiguration monitorConfiguration = new MonitorContextConfiguration("JMXMonitor",
-//            "Custom Metrics|JMXMonitor|", Mockito.mock(File.class), Mockito.mock(AMonitorJob.class));
-
+    private JMXConnector jmxConnector = mock(JMXConnector.class);
+    private JMXConnectionAdapter jmxConnectionAdapter = mock(JMXConnectionAdapter.class);
     private MonitorContextConfiguration monitorConfiguration;
+
     @Before
     public void before() {
-    conf = YmlReader.readFromFileAsMap(new File("src/test/resources/conf/config.yml"));
-    ABaseMonitor baseMonitor = mock(ABaseMonitor.class);
-//        MonitorContextConfiguration monitorConfiguration = mock(MonitorContextConfiguration.class);
-
+        Map<String, ?> conf = YmlReader.readFromFileAsMap(new File("src/test/resources/conf/config.yml"));
+        ABaseMonitor baseMonitor = mock(ABaseMonitor.class);
         monitorConfiguration = mock(MonitorContextConfiguration.class);
-    MonitorContext context = mock(MonitorContext.class);
-    when(baseMonitor.getContextConfiguration()).thenReturn(monitorConfiguration);
-    when(monitorConfiguration.getContext()).thenReturn(context);
-
-    when(monitorConfiguration.getMetricPrefix()).thenReturn("Custom Metrics|JMX Monitor");
+        MonitorContext context = mock(MonitorContext.class);
+        when(baseMonitor.getContextConfiguration()).thenReturn(monitorConfiguration);
+        when(monitorConfiguration.getContext()).thenReturn(context);
+        when(monitorConfiguration.getMetricPrefix()).thenReturn("Custom Metrics|JMX Monitor");
         MetricPathUtils.registerMetricCharSequenceReplacer(baseMonitor);
-    MetricCharSequenceReplacer replacer = MetricCharSequenceReplacer.createInstance(conf);
-    when(context.getMetricCharSequenceReplacer()).thenReturn(replacer);
-    MetricWriter metricWriter = mock(MetricWriter.class);
-    when(baseMonitor.getMetricWriter(anyString(), anyString(), anyString(), anyString())).thenReturn(metricWriter);
-//
-//
-//
+        MetricCharSequenceReplacer replacer = MetricCharSequenceReplacer.createInstance(conf);
+        when(context.getMetricCharSequenceReplacer()).thenReturn(replacer);
+        MetricWriter metricWriter = mock(MetricWriter.class);
+        when(baseMonitor.getMetricWriter(anyString(), anyString(), anyString(), anyString())).thenReturn(metricWriter);
     }
-
 
 
     @Test
@@ -191,27 +182,5 @@ public class JMXMetricsProcessorForListsTest {
         Object[] itemValuesForCompositeDataSupport = {new BigDecimal(100), new BigDecimal(50)};
         return new CompositeDataSupport(compositeType, itemNamesForCompositeDataSupport,
                 itemValuesForCompositeDataSupport);
-    }
-
-    private  Map getMetricCharacterReplacer(){
-        Map metricReplacer = new HashMap();
-
-        Map metricReplacer_1 = new HashMap();
-        metricReplacer_1.put("replace",":");
-        metricReplacer_1.put("replaceWith",":");
-
-        Map metricReplacer_2 = new HashMap();
-        metricReplacer_2.put("replace",":");
-        metricReplacer_2.put("replaceWith",":");
-
-        List<Map> replacerMap = new ArrayList<>();
-        replacerMap.add(metricReplacer_1);
-        replacerMap.add(metricReplacer_2);
-
-        metricReplacer.put("metricPathReplacements", replacerMap);
-
-        monitorConfiguration.getContext().getMetricCharSequenceReplacer();
-
-        return metricReplacer;
     }
 }
