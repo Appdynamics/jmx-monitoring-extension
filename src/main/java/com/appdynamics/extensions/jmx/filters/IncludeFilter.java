@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class IncludeFilter {
+    // TODO should not use Raw Types, can you change wherever applicable
     private List dictionary;
 
     public IncludeFilter(List dictionary) {

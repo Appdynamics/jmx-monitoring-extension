@@ -20,6 +20,10 @@ import static com.appdynamics.extensions.jmx.utils.Constants.*;
 /**
  * Created by bhuvnesh.kumar on 3/13/19.
  */
+// TODO this can be simplified. Its very confusing and unclear, all you have to do is iterate thru map instead of Object
+//  if you dont' want to use name and alias separately in config, then handle first entry separately after that all you
+//  have to do is add the properties to the map. Also there is no example for global properties and global properties
+//  are not needed imo, every metric should have own properties. we can discuss this lmk
 public class MetricPropertiesForMBean {
 
     public static Map<String, ?> getMapOfProperties(Map mBean) {
@@ -39,6 +43,7 @@ public class MetricPropertiesForMBean {
                 String alias = entry.getValue().toString();
 
                 Map<String, ? super Object> metricProperties = new HashMap<String, Object>();
+                // TODO you don't have to do this taken care of in commons
                 metricProperties.put(ALIAS, Strings.isNullOrEmpty(alias) ? metricName : alias);
 
                 setProps(mBean, metricProperties, metricName, alias); //global level

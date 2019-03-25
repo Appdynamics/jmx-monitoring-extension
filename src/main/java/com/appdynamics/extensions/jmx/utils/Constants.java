@@ -10,6 +10,7 @@ package com.appdynamics.extensions.jmx.utils;
 
 public class Constants {
 
+    // TODO you can remove unused constants.
     public static final String OBJECT_NAME = "objectName";
     public static final String METRICS = "metrics";
     public static final String INCLUDE = "include";
@@ -24,6 +25,7 @@ public class Constants {
     public static final String ENCRYPTEDPASSWORD = "encryptedPassword";
     public static final String PASSWORD = "password";
     public static final String PASSWORD_ENCRYPTED = "password-encrypted";
+    // TODO encryption_key is incorrectly configured
     public static final String ENCRYPTION_KEY = "encryption-key";
     public static final String MONITORNAME = "JMX Monitor";
     public static final String HOST = "host";

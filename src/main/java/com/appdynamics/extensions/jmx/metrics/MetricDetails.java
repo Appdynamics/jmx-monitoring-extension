@@ -16,11 +16,14 @@ import java.util.Map;
  * Created by bhuvnesh.kumar on 3/7/19.
  */
 public class MetricDetails {
+    // TODO metricPrefix is not something unique to each metric, this can be avoided in this class
     private String metricPrefix;
     private ObjectInstance instance;
     private Map<String, ?> metricPropsPerMetricName;
+    // TODO why fully qualified name, there are no conflicts here
     private java.util.List<String> mBeanKeys;
     private String displayName;
+    // TODO not required in 2.2.0
     private List<Map<String, String>> metricCharacterReplacer;
     private String separator;
 
@@ -81,6 +84,7 @@ public class MetricDetails {
     }
 
     public static class Builder {
+        // TODO same comments as in JMXMonitorTask.Builder
         private MetricDetails task = new MetricDetails();
 
         Builder metricPrefix(String metricPrefix) {

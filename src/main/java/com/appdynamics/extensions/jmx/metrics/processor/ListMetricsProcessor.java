@@ -28,6 +28,8 @@ class ListMetricsProcessor {
         String attributeName = attribute.getName();
         List attributeValuesFromList = (List) attribute.getValue();
         for (Object metricNameKey : attributeValuesFromList) {
+            // TODO something is not right here, you are creating an attribute whose value is already of type String,
+            //  then you are checking the attribute type. Please check this, something is definitely wrong
             Attribute listMetric = getListMetric(metricNameKey, metricDetails);
             String key = attributeName + PERIOD + listMetric.getName();
             Object attributeValue = listMetric.getValue();
