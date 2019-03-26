@@ -48,8 +48,7 @@ public class JMXMonitor extends ABaseMonitor {
             //TODO: use getServers() method (handles asserNotNull) with a try-catch here
             List<Map> servers = (List) config.get(SERVERS);
             AssertUtils.assertNotNull(servers, "The 'servers' section in config.yml is not initialised");
-            // TODO servers will never be null at this point, you can remove servers != null
-            //TODO: null or ISEmpty check is not needed. Can we remove if-else here?
+            // TODO servers will never be null at this point, you can remove servers != null also ISEmpty check is not needed. Can we remove if-else here?
             if (servers != null && !servers.isEmpty()) {
                 for (Map server : servers) {
                     // TODO if displayName is required field, it should be checked here against null and empty value
