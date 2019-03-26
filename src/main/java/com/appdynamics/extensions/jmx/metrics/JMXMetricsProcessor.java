@@ -35,7 +35,9 @@ import static com.appdynamics.extensions.jmx.utils.Constants.*;
  * Created by bhuvnesh.kumar on 12/19/18.
  */
 public class JMXMetricsProcessor {
+    // TODO should not use Raw Types, can you change wherever applicable
 
+    // TODO use ExtensionsLoggerFactory
     private static final Logger logger = LoggerFactory.getLogger(JMXMetricsProcessor.class);
     private JMXConnectionAdapter jmxConnectionAdapter;
     private JMXConnector jmxConnector;
@@ -53,13 +55,17 @@ public class JMXMetricsProcessor {
             ReflectionException {
         List<Metric> jmxMetrics = Lists.newArrayList();
         String configObjectName = JMXUtil.convertToString(mBean.get(OBJECT_NAME), EMPTY_STRING);
-
+        // TODO chances of NPE here, please check configObjectName for null references before calling getInstance
+        // TODO if configObjectName is resolved to empty why would you proceed with the below steps? should'nt it be a config error?
         Set<ObjectInstance> objectInstances = jmxConnectionAdapter.queryMBeans(jmxConnector, ObjectName.getInstance
                 (configObjectName));
         for (ObjectInstance instance : objectInstances) {
 //            TODO: add logger debug for instances
+            // TODO can you change the name? dictionary is misleading for list of String
             List<String> metricNamesDictionary = jmxConnectionAdapter.getReadableAttributeNames(jmxConnector, instance);
             List<String> metricNamesToBeExtracted = applyFilters(mBean, metricNamesDictionary);
+            // TODO the getAttributes method returns empty list if list returned from the mbean server is null so you
+            //  should check that and log it will be useful for debugging. YOu can also skip collectMetrics in such case since no work will be done
             List<Attribute> attributes = jmxConnectionAdapter.getAttributes(jmxConnector, instance.getObjectName(),
                     metricNamesToBeExtracted.toArray(new String[metricNamesToBeExtracted.size()]));
             MetricDetails metricDetails = getMetricDetails(mBean, metricPrefix, displayName, instance);
@@ -81,6 +87,7 @@ public class JMXMetricsProcessor {
                 .build();
     }
 
+    // TODO can you change the name? dictionary is misleading for list of String
     private List<String> applyFilters(Map aConfigMBean, List<String> metricNamesDictionary) {
         Set<String> filteredSet = Sets.newHashSet();
         Map configMetrics = (Map) aConfigMBean.get(METRICS);
@@ -105,11 +112,14 @@ public class JMXMetricsProcessor {
         return jmxMetrics;
     }
 
+
+// TODO not required
     private List<Map<String, String>> getMetricReplacer() {
         return (List<Map<String, String>>) monitorContextConfiguration.getConfigYml().get(METRIC_CHARACTER_REPLACER);
     }
 
     private String getSeparator() {
+        // TODO first get the separator and check if it null or empty and then use default, in the current logic an empty separator will break things
         String separator = COLON;
         if (monitorContextConfiguration.getConfigYml().get(SEPARATOR_FOR_METRIC_LISTS) != null) {
             separator = monitorContextConfiguration.getConfigYml().get(SEPARATOR_FOR_METRIC_LISTS).toString();

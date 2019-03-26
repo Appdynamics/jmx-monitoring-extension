@@ -18,6 +18,7 @@
     <packaging>jar</packaging>
 
     <name>jmx-monitoring-extension</name>
+    <!-- TODO URL is misleading this is not where project is hosted, can you remove this?-->
     <url>http://maven.apache.org</url>
 
 
@@ -57,6 +58,7 @@
             <version>1.9.5</version>
             <scope>test</scope>
         </dependency>
+        <!--TODO commons-io is included in appd commons pom.xml. Please remove-->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>

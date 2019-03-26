@@ -23,6 +23,7 @@ import static com.appdynamics.extensions.jmx.utils.Constants.PERIOD;
  */
 class MapMetricsProcessor {
 
+    // TODO should not use raw types, please change wherever applicable
     static List<Metric> setMetricDetailsForMapMetrics(MetricDetails metricDetails, Attribute attribute) {
         List<Metric> metricList = new ArrayList<Metric>();
 

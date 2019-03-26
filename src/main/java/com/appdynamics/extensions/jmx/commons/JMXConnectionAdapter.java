@@ -70,6 +70,7 @@ public class JMXConnectionAdapter {
     }
 
     public Set<ObjectInstance> queryMBeans(JMXConnector jmxConnection, ObjectName objectName) throws IOException {
+        // TODO getMBeanServerConnection can be extracted out to a method
         MBeanServerConnection connection = jmxConnection.getMBeanServerConnection();
         return connection.queryMBeans(objectName, null);
     }
@@ -96,6 +97,7 @@ public class JMXConnectionAdapter {
     }
 
 
+    // TODO if this is never used can you please remove it?
     boolean matchAttributeName(Attribute attribute, String matchedWith) {
         return attribute.getName().equalsIgnoreCase(matchedWith);
     }

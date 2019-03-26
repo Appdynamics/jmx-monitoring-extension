@@ -35,6 +35,7 @@ class CompositeMetricsProcessor {
             if (metricDetails.getMetricPropsPerMetricName().containsKey(key)) {
                 Object attributeValue = metricValue.get(str);
                 Attribute attribute1 = new Attribute(key, attributeValue);
+                // TODO please check this if attributeValue can be of any other type. If not sure then I think it would be better to check the type again. We can discuss this
                 metricList.add(BaseMetricsProcessor.setMetricDetailsForBaseMetrics(metricDetails, attribute1));
             }
         }

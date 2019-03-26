@@ -29,6 +29,7 @@ servers:
 #encryptionKey: ""
 
 # number of concurrent tasks.
+# TODO please change the comment, from what I figure out it should be 1 thread per server
 # This doesn't need to be changed unless many servers are configured
 numberOfThreads: 10
 # TODO: threadTimeout is not being used anywhere
@@ -88,6 +89,7 @@ mbeans:
     metrics:
       include:
         # Normal Metric
+        # TODO if you are not using name and alias separately then <name: alias> has to be enforced as the first entry in the map and documented.
         - Max: "Max"
           aggregationType: "OBSERVATION"
           timeRollUpType: "AVERAGE"
