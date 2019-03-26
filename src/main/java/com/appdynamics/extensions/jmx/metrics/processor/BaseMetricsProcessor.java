@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appdynamics.extensions.jmx.utils.Constants.EMPTY_STRING;
-import static com.appdynamics.extensions.jmx.utils.Constants.METRICS_SEPARATOR;
 
 /**
  * Created by bhuvnesh.kumar on 3/11/19.
@@ -34,6 +33,7 @@ class BaseMetricsProcessor {
         String attributeName = attribute.getName();
         Map<String, ?> props = (Map) metricDetails.getMetricPropsPerMetricName().get(attributeName);
         if (props == null) {
+//            TODO: do we need to log it as an error?
             logger.error("Could not find metric properties for {} ", attributeName);
         }
         LinkedList<String> metricTokens = new LinkedList<>();

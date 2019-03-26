@@ -47,6 +47,7 @@ public class JMXMetricsProcessor {
         this.jmxConnector = jmxConnector;
     }
 
+    //TODO: can throw a common exception for all JMX (JMException) and catch it separately instead of just MalformedObjectNameException
     public List<Metric> getJMXMetrics(Map mBean, String metricPrefix, String displayName) throws
             MalformedObjectNameException, IOException, IntrospectionException, InstanceNotFoundException,
             ReflectionException {
@@ -56,6 +57,7 @@ public class JMXMetricsProcessor {
         Set<ObjectInstance> objectInstances = jmxConnectionAdapter.queryMBeans(jmxConnector, ObjectName.getInstance
                 (configObjectName));
         for (ObjectInstance instance : objectInstances) {
+//            TODO: add logger debug for instances
             List<String> metricNamesDictionary = jmxConnectionAdapter.getReadableAttributeNames(jmxConnector, instance);
             List<String> metricNamesToBeExtracted = applyFilters(mBean, metricNamesDictionary);
             List<Attribute> attributes = jmxConnectionAdapter.getAttributes(jmxConnector, instance.getObjectName(),
@@ -75,7 +77,7 @@ public class JMXMetricsProcessor {
                 .mBeanKeys(getMBeanKeys(mBean))
                 .displayName(displayName)
                 .metricCharacterReplacer(getMetricReplacer())
-                .separator(getSeparator())
+                .separator(getSeparator()) //TODO: Separator is not an ObjectInstance level configuration. Should be passed to the processor. Check the feasibility, as it may need lot of refactoring
                 .build();
     }
 
@@ -83,6 +85,7 @@ public class JMXMetricsProcessor {
         Set<String> filteredSet = Sets.newHashSet();
         Map configMetrics = (Map) aConfigMBean.get(METRICS);
         List includeDictionary = (List) configMetrics.get(INCLUDE);
+//        TODO: why pass filteredSet set into applyFilter() and convert to a list again, when you can simply create and return it from applyFilter method itself
         new IncludeFilter(includeDictionary).applyFilter(filteredSet, metricNamesDictionary);
         return Lists.newArrayList(filteredSet);
     }
@@ -93,6 +96,7 @@ public class JMXMetricsProcessor {
 
         for (Attribute attribute : attributes) {
             try {
+//                TODO: Add logger debug
                 jmxMetrics.addAll(JMXMetricsDataFilter.checkAttributeTypeAndSetDetails(metricDetails, attribute));
             } catch (Exception e) {
                 logger.error("Error collecting value for {} {}", metricDetails.getInstance().getObjectName(), attribute.getName(), e);

@@ -31,7 +31,7 @@ servers:
 # number of concurrent tasks.
 # This doesn't need to be changed unless many servers are configured
 numberOfThreads: 10
-
+# TODO: threadTimeout is not being used anywhere
 #timeout for the thread
 threadTimeout: 30
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

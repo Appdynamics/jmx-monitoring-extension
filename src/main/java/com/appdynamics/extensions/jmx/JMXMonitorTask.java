@@ -73,11 +73,13 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                     JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration,
                             jmxConnectionAdapter, jmxConnector);
                     AssertUtils.assertNotNull(server.get(DISPLAY_NAME), DISPLAY_NAME+" can not be null in the config.yml");
+//                TODO:    better to cast a String than to call .toString. (casting to a String is cheaper)
                     List<Metric> nodeMetrics = jmxMetricsProcessor.getJMXMetrics(mBean,
                             metricPrefix, server.get(DISPLAY_NAME).toString());
                     if (nodeMetrics.size() > 0) {
                         metricWriter.transformAndPrintMetrics(nodeMetrics);
                     }
+// TODO: Apply a more generic catch to cover other JMX exceptions ... JMXExcepetion
                 } catch (MalformedObjectNameException e) {
                     logger.error("Illegal Object Name {} " + configObjName, e);
                     status = false;
@@ -86,7 +88,9 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                     status = false;
                 }
             }
+            //TODO: Missing catch May be some IOExcpetion
         } finally {
+            //TODO: Missing Heartbeat metrics
             try {
                 jmxConnectionAdapter.close(jmxConnector);
                 logger.debug("JMX connection is closed for " + serverName);
@@ -99,6 +103,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
 
     public void onTaskComplete() {
         logger.debug("Task Complete");
+//        TODO: use a ternary operator on status to set metric value and we can get rid of if else and extra line
         if (status ) {
             metricWriter.printMetric(metricPrefix + METRICS_SEPARATOR + server.get(DISPLAY_NAME).toString() + METRICS_SEPARATOR + AVAILABILITY, "1", "AVERAGE", "AVERAGE", "INDIVIDUAL");
         } else {

@@ -44,13 +44,17 @@ public class JMXMonitor extends ABaseMonitor {
     protected void doRun(TasksExecutionServiceProvider taskExecutor) {
         Map<String, ?> config = getContextConfiguration().getConfigYml();
         if (config != null) {
+            //TODO: use getServers() method (handles asserNotNull) with a try-catch here
             List<Map> servers = (List) config.get(SERVERS);
             AssertUtils.assertNotNull(servers, "The 'servers' section in config.yml is not initialised");
+            //TODO: null or ISEmpty check is not needed. Can we remove if-else here?
             if (servers != null && !servers.isEmpty()) {
                 for (Map server : servers) {
                     try {
+                        //TODO: need an assertNotNull for each of the server with a ValidationException catch
                         JMXMonitorTask task = createTask(server, taskExecutor);
                         taskExecutor.submit((String) server.get(DISPLAY_NAME), task);
+
                     } catch (IOException e) {
                         logger.error("Cannot construct JMX uri for {}", convertToString(server.get(DISPLAY_NAME), ""));
                     }
@@ -73,6 +77,7 @@ public class JMXMonitor extends ABaseMonitor {
         String serviceUrl = convertToString(server.get(SERVICEURL), EMPTY_STRING);
         String host = convertToString(server.get(HOST), EMPTY_STRING);
         String portStr = convertToString(server.get(PORT), EMPTY_STRING);
+//        TODO: ParseInt can lead to NumberFormatException, throw NumberFormatException as well
         int port = (portStr == null || portStr == EMPTY_STRING) ? -1 : Integer.parseInt(portStr);
         String username = convertToString(server.get(USERNAME), EMPTY_STRING);
         String password = getPassword(server);

@@ -23,7 +23,12 @@ import java.util.Map;
  * Created by bhuvnesh.kumar on 3/11/19.
  */
 public class JMXMetricsDataFilter {
-
+//TODO: This class could have been implemented as Factory Design Pattern(MetricsProcessorFactory). feasibility
+    /*
+    MetricsProcessorFactory
+    An abstract class maybe MetricsProcessor
+         which should be extended by BaseMetricsProcessor, ListMetricsProcessor, MapMetricsProcessor, CompositeMetricsProcessor
+     */
     public static List<Metric> checkAttributeTypeAndSetDetails(MetricDetails metricDetails, Attribute attribute) {
         List<Metric> metricList = new ArrayList<Metric>();
         if (isCurrentAttributeComposite(attribute)) {

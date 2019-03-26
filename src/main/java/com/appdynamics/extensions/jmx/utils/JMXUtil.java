@@ -20,6 +20,7 @@ import static com.appdynamics.extensions.jmx.utils.Constants.REPLACE_WITH;
 public class JMXUtil {
 
     public static String convertToString(final Object field, final String defaultStr) {
+//        TODO: can we use isNullOrEmpty on field.toString()?
         if (field == null) {
             return defaultStr;
         }
