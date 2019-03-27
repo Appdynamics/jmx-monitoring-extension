@@ -9,6 +9,7 @@
 package com.appdynamics.extensions.jmx.metrics.processor;
 
 import com.appdynamics.extensions.jmx.metrics.MetricDetails;
+import com.appdynamics.extensions.logging.ExtensionsLoggerFactory;
 import com.appdynamics.extensions.metrics.Metric;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
@@ -26,26 +27,29 @@ import static com.appdynamics.extensions.jmx.utils.Constants.EMPTY_STRING;
 /**
  * Created by bhuvnesh.kumar on 3/11/19.
  */
-class BaseMetricsProcessor {
-    private static final Logger logger = LoggerFactory.getLogger(BaseMetricsProcessor.class);
+class BaseMetricsProcessor implements JMXMetricProcessor{
+    private static final Logger logger = ExtensionsLoggerFactory.getLogger(BaseMetricsProcessor.class);
 
-    static Metric setMetricDetailsForBaseMetrics(MetricDetails metricDetails, Attribute attribute) {
-        String attributeName = attribute.getName();
-        Map<String, ?> props = (Map) metricDetails.getMetricPropsPerMetricName().get(attributeName);
-        if (props == null) {
-//            TODO: do we need to log it as an error?
-            logger.error("Could not find metric properties for {} ", attributeName);
-        }
-        LinkedList<String> metricTokens = new LinkedList<>();
-        metricTokens = getInstanceKey(metricDetails.getInstance(), metricDetails.getmBeanKeys(), metricTokens);
-        metricTokens = generateMetricPathTokens(attributeName, metricDetails.getDisplayName(), metricTokens);
-        String attrVal = attribute.getValue().toString();
-        attrVal = attrVal.replaceAll("[^0-9.]", "");
-        String[] tokens = new String[metricTokens.size()];
-        tokens = metricTokens.toArray(tokens);
-
-        return new Metric(attributeName, attrVal, props, metricDetails.getMetricPrefix(), tokens);
+    public BaseMetricsProcessor() {
     }
+
+//    Metric setMetricDetailsForBaseMetrics(MetricDetails metricDetails, Attribute attribute) {
+//        String attributeName = attribute.getName();
+//        Map<String, ?> props = (Map) metricDetails.getMetricPropsPerMetricName().get(attributeName);
+//        if (props == null) {
+////            TODO: do we need to log it as an error?
+//            logger.error("Could not find metric properties for {} ", attributeName);
+//        }
+//        LinkedList<String> metricTokens = new LinkedList<>();
+//        metricTokens = getInstanceKey(metricDetails.getInstance(), metricDetails.getmBeanKeys(), metricTokens);
+//        metricTokens = generateMetricPathTokens(attributeName, metricDetails.getDisplayName(), metricTokens);
+//        String attrVal = attribute.getValue().toString();
+//        attrVal = attrVal.replaceAll("[^0-9.]", "");
+//        String[] tokens = new String[metricTokens.size()];
+//        tokens = metricTokens.toArray(tokens);
+//
+//        return new Metric(attributeName, attrVal, props, metricDetails.getMetricPrefix(), tokens);
+//    }
 
     private static LinkedList<String> getInstanceKey(ObjectInstance instance, List<String> mBeanKeys, LinkedList<String> metricTokens) {
         for (String key : mBeanKeys) {
@@ -75,4 +79,24 @@ class BaseMetricsProcessor {
         }
         return getObjectName(instance).getKeyProperty(property);
     }
+
+    @Override
+    public List<Metric> populateMetricsFromEntity(MetricDetails metricDetails, Attribute attribute) {
+        String attributeName = attribute.getName();
+        Map<String, ?> props = (Map) metricDetails.getMetricPropsPerMetricName().get(attributeName);
+        if (props == null) {
+//            TODO: do we need to log it as an error?
+            logger.error("Could not find metric properties for {} ", attributeName);
+        }
+        LinkedList<String> metricTokens = new LinkedList<>();
+        metricTokens = getInstanceKey(metricDetails.getInstance(), metricDetails.getmBeanKeys(), metricTokens);
+        metricTokens = generateMetricPathTokens(attributeName, metricDetails.getDisplayName(), metricTokens);
+        String attrVal = attribute.getValue().toString();
+        attrVal = attrVal.replaceAll("[^0-9.]", "");
+        String[] tokens = new String[metricTokens.size()];
+        tokens = metricTokens.toArray(tokens);
+
+        return (List<Metric>) new Metric(attributeName, attrVal, props, metricDetails.getMetricPrefix(), tokens);
+    }
+
 }

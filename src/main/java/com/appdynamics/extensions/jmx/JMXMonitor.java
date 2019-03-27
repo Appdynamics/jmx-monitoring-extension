@@ -10,18 +10,14 @@ package com.appdynamics.extensions.jmx;
 
 import com.appdynamics.extensions.ABaseMonitor;
 import com.appdynamics.extensions.TasksExecutionServiceProvider;
-import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.logging.ExtensionsLoggerFactory;
 import com.appdynamics.extensions.util.AssertUtils;
-import com.appdynamics.extensions.util.CryptoUtils;
 import org.slf4j.Logger;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import static com.appdynamics.extensions.jmx.utils.Constants.*;
-import static com.appdynamics.extensions.jmx.utils.JMXUtil.convertToString;
 
 /**
  * Created by bhuvnesh.kumar on 2/23/18.
@@ -48,13 +44,9 @@ public class JMXMonitor extends ABaseMonitor {
             if (!servers.isEmpty()) {
                 for (Map server : servers) {
                     AssertUtils.assertNotNull(server.get(DISPLAY_NAME), DISPLAY_NAME + " can not be null in the config.yml");
-                    try {
-                        JMXMonitorTask task = createTask(server, taskExecutor);
-                        taskExecutor.submit((String) server.get(DISPLAY_NAME), task);
 
-                    } catch (IOException e) {
-                        logger.error("Cannot construct JMX uri for " + server.get(DISPLAY_NAME).toString(), e);
-                    }
+                    JMXMonitorTask task = new JMXMonitorTask(taskExecutor.getMetricWriteHelper(), server, getContextConfiguration());
+                    taskExecutor.submit((String) server.get(DISPLAY_NAME), task);
                 }
             } else {
                 logger.error("There are no servers configured");
@@ -68,32 +60,5 @@ public class JMXMonitor extends ABaseMonitor {
         List<Map<String, ?>> servers = (List<Map<String, ?>>) getContextConfiguration().getConfigYml().get(SERVERS);
         AssertUtils.assertNotNull(servers, "The 'servers' section in config.yml is not initialised");
         return servers;
-    }
-
-    private JMXMonitorTask createTask(Map server, TasksExecutionServiceProvider taskExecutor) throws IOException {
-        // TODO change all these to (String)
-        String serviceUrl = convertToString(server.get(SERVICEURL), EMPTY_STRING);
-        String host = convertToString(server.get(HOST), EMPTY_STRING);
-        String portStr = convertToString(server.get(PORT), EMPTY_STRING);
-
-        int port = org.apache.commons.lang3.math.NumberUtils.toInt(portStr, -1);
-        String username = convertToString(server.get(USERNAME), EMPTY_STRING);
-        String password = getPassword(server);
-        // TODO what if both serviceURL and host are null
-        JMXConnectionAdapter adapter = JMXConnectionAdapter.create(serviceUrl, host, port, username, password);
-        return new JMXMonitorTask.Builder().
-                metricPrefix(getContextConfiguration().getMetricPrefix()).
-                metricWriter(taskExecutor.getMetricWriteHelper()).
-                jmxConnectionAdapter(adapter).server(server).
-                mbeans((List<Map>) getContextConfiguration().getConfigYml().get(MBEANS)).
-                monitorConfiguration(getContextConfiguration()).build();
-    }
-
-    private String getPassword(Map server) {
-        if (getContextConfiguration().getConfigYml().get(ENCRYPTION_KEY) != null) {
-            String encryptionKey = getContextConfiguration().getConfigYml().get(ENCRYPTION_KEY).toString();
-            server.put(ENCRYPTION_KEY, encryptionKey);
-        }
-        return CryptoUtils.getPassword(server);
     }
 }

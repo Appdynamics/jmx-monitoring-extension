@@ -21,10 +21,25 @@ import static com.appdynamics.extensions.jmx.utils.Constants.PERIOD;
 /**
  * Created by bhuvnesh.kumar on 3/11/19.
  */
-class MapMetricsProcessor {
+class MapMetricsProcessor implements JMXMetricProcessor{
 
     // TODO should not use raw types, please change wherever applicable
-    static List<Metric> setMetricDetailsForMapMetrics(MetricDetails metricDetails, Attribute attribute) {
+//    static List<Metric> setMetricDetailsForMapMetrics(MetricDetails metricDetails, Attribute attribute) {
+//        List<Metric> metricList = new ArrayList<Metric>();
+//
+//        String attributeName = attribute.getName();
+//        Map attributesFound = (Map) attribute.getValue();
+//        for (Object metricNameKey : attributesFound.keySet()) {
+//            String key = attributeName + PERIOD + metricNameKey.toString();
+//            Object attributeValue = attributesFound.get(metricNameKey);
+//            Attribute attribute1 = new Attribute(key, attributeValue);
+//            metricList.addAll(JMXMetricsDataFilter.checkAttributeTypeAndSetDetails(metricDetails, attribute1));
+//        }
+//        return metricList;
+//    }
+
+    @Override
+    public List<Metric> populateMetricsFromEntity(MetricDetails metricDetails, Attribute attribute) {
         List<Metric> metricList = new ArrayList<Metric>();
 
         String attributeName = attribute.getName();
@@ -33,9 +48,8 @@ class MapMetricsProcessor {
             String key = attributeName + PERIOD + metricNameKey.toString();
             Object attributeValue = attributesFound.get(metricNameKey);
             Attribute attribute1 = new Attribute(key, attributeValue);
-            metricList.addAll(JMXMetricsDataFilter.checkAttributeTypeAndSetDetails(metricDetails, attribute1));
+            metricList.addAll(JMXMetricProcessor.checkTypeAndReturnMetrics(metricDetails, attribute1));
         }
         return metricList;
     }
-
 }

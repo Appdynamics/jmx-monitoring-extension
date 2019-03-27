@@ -20,9 +20,34 @@ import static com.appdynamics.extensions.jmx.utils.Constants.PERIOD;
 /**
  * Created by bhuvnesh.kumar on 3/11/19.
  */
-class ListMetricsProcessor {
+class ListMetricsProcessor implements JMXMetricProcessor {
 
-    static List<Metric> setMetricDetailsForListMetrics(MetricDetails metricDetails, Attribute attribute) {
+//    static List<Metric> setMetricDetailsForListMetrics(MetricDetails metricDetails, Attribute attribute) {
+//        List<Metric> metricList = new ArrayList<Metric>();
+//
+//        String attributeName = attribute.getName();
+//        List attributeValuesFromList = (List) attribute.getValue();
+//        for (Object metricNameKey : attributeValuesFromList) {
+//            // TODO something is not right here, you are creating an attribute whose value is already of type String,
+//            //  then you are checking the attribute type. Please check this, something is definitely wrong
+//            Attribute listMetric = getListMetric(metricNameKey, metricDetails);
+//            String key = attributeName + PERIOD + listMetric.getName();
+//            Object attributeValue = listMetric.getValue();
+//            Attribute attribute1 = new Attribute(key, attributeValue);
+//            metricList.addAll(JMXMetricsDataFilter.checkAttributeTypeAndSetDetails(metricDetails, attribute1));
+//        }
+//        return metricList;
+//    }
+
+    private static Attribute getListMetric(Object metricKey, MetricDetails metricDetails) {
+        String[] arr = metricKey.toString().split(metricDetails.getSeparator());
+        String key = arr[0].trim();
+        String value = arr[1].trim();
+        return new Attribute(key, value);
+    }
+
+    @Override
+    public List<Metric> populateMetricsFromEntity(MetricDetails metricDetails, Attribute attribute) {
         List<Metric> metricList = new ArrayList<Metric>();
 
         String attributeName = attribute.getName();
@@ -34,16 +59,8 @@ class ListMetricsProcessor {
             String key = attributeName + PERIOD + listMetric.getName();
             Object attributeValue = listMetric.getValue();
             Attribute attribute1 = new Attribute(key, attributeValue);
-            metricList.addAll(JMXMetricsDataFilter.checkAttributeTypeAndSetDetails(metricDetails, attribute1));
+            metricList.addAll(JMXMetricProcessor.checkTypeAndReturnMetrics(metricDetails, attribute1));
         }
         return metricList;
     }
-
-    private static Attribute getListMetric(Object metricKey, MetricDetails metricDetails) {
-        String[] arr = metricKey.toString().split(metricDetails.getSeparator());
-        String key = arr[0].trim();
-        String value = arr[1].trim();
-        return new Attribute(key, value);
-    }
-
 }

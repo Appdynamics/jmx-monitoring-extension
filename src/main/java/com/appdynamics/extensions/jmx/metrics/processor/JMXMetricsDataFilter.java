@@ -30,26 +30,28 @@ public class JMXMetricsDataFilter {
          which should be extended by BaseMetricsProcessor, ListMetricsProcessor, MapMetricsProcessor, CompositeMetricsProcessor
      */
 
+    // TODO create a metrics processor interface with a setMetricDetails method that needs to be implemented by all classes.
+
     // TODO can be improved, create a create an interface, don't use static methods for setmetricdetails...
     //  depending upon the type assign proper reference to interface instance call one method in the end.
     // TODO there is no logging here or in the methods called, some logging will be useful for debugging
-    public static List<Metric> checkAttributeTypeAndSetDetails(MetricDetails metricDetails, Attribute attribute) {
-        List<Metric> metricList = new ArrayList<Metric>();
-        if (isCurrentAttributeComposite(attribute)) {
-            // TODO the method name setMetricDetails.. should be changed it also collects the metrics
-            metricList.addAll(CompositeMetricsProcessor.setMetricDetailsForCompositeMetrics(metricDetails, attribute));
-        } else if (isCurrentAttributeMap(attribute)) {
-            metricList.addAll(MapMetricsProcessor.setMetricDetailsForMapMetrics(metricDetails, attribute));
-        } else if (isCurrentAttributeList(attribute)) {
-            metricList.addAll(ListMetricsProcessor.setMetricDetailsForListMetrics(metricDetails, attribute));
-        } else {
-            // TODO why is this check required? attributes have been filtered already if above cases are not satisfied then it should be base case
-            if (metricDetails.getMetricPropsPerMetricName().containsKey(attribute.getName())) {
-                metricList.add(BaseMetricsProcessor.setMetricDetailsForBaseMetrics(metricDetails, attribute));
-            }
-        }
-        return metricList;
-    }
+//    public static List<Metric> checkAttributeTypeAndSetDetails(MetricDetails metricDetails, Attribute attribute) {
+//        List<Metric> metricList = new ArrayList<Metric>();
+//        if (isCurrentAttributeComposite(attribute)) {
+//            // TODO the method name setMetricDetails.. should be changed it also collects the metrics
+//            metricList.addAll(CompositeMetricsProcessor.setMetricDetailsForCompositeMetrics(metricDetails, attribute));
+//        } else if (isCurrentAttributeMap(attribute)) {
+//            metricList.addAll(MapMetricsProcessor.setMetricDetailsForMapMetrics(metricDetails, attribute));
+//        } else if (isCurrentAttributeList(attribute)) {
+//            metricList.addAll(ListMetricsProcessor.setMetricDetailsForListMetrics(metricDetails, attribute));
+//        } else {
+//            // TODO why is this check required? attributes have been filtered already if above cases are not satisfied then it should be base case
+//            if (metricDetails.getMetricPropsPerMetricName().containsKey(attribute.getName())) {
+//                metricList.add(BaseMetricsProcessor.setMetricDetailsForBaseMetrics(metricDetails, attribute));
+//            }
+//        }
+//        return metricList;
+//    }
 
     // TODO all this can be done in one method which returns proper reference
     private static boolean isCurrentAttributeComposite(Attribute attribute) {

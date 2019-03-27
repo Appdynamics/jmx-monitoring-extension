@@ -15,15 +15,6 @@ package com.appdynamics.extensions.jmx.utils;
  */
 public class JMXUtil {
 
-    // TODO remove this method altogether
-    public static String convertToString(final Object field, final String defaultStr) {
-//        TODO: can we use isNullOrEmpty on field.toString()?
-        if (field == null) {
-            return defaultStr;
-        }
-        return field.toString();
-    }
-
     public static boolean isCompositeObject(String objectName) {
         return (objectName.indexOf('.') != -1);
     }

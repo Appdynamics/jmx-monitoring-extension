@@ -11,6 +11,7 @@ package com.appdynamics.extensions.jmx.metrics;
 import com.appdynamics.extensions.conf.MonitorContextConfiguration;
 import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.jmx.filters.IncludeFilter;
+import com.appdynamics.extensions.jmx.metrics.processor.JMXMetricProcessor;
 import com.appdynamics.extensions.jmx.metrics.processor.JMXMetricsDataFilter;
 import com.appdynamics.extensions.jmx.utils.JMXUtil;
 import com.appdynamics.extensions.logging.ExtensionsLoggerFactory;
@@ -54,7 +55,7 @@ public class JMXMetricsProcessor {
             MalformedObjectNameException, IOException, IntrospectionException, InstanceNotFoundException,
             ReflectionException {
         List<Metric> jmxMetrics = Lists.newArrayList();
-        String configObjectName = JMXUtil.convertToString(mBean.get(OBJECT_NAME), EMPTY_STRING);
+        String configObjectName = (String )mBean.get(OBJECT_NAME);
         AssertUtils.assertNotNull(configObjectName, "Metric Object Name can not be Empty");
         Set<ObjectInstance> objectInstances = jmxConnectionAdapter.queryMBeans(jmxConnector, ObjectName.getInstance
                 (configObjectName));
@@ -102,7 +103,8 @@ public class JMXMetricsProcessor {
         for (Attribute attribute : attributes) {
             try {
 //                TODO: Add logger debug
-                jmxMetrics.addAll(JMXMetricsDataFilter.checkAttributeTypeAndSetDetails(metricDetails, attribute));
+                // TODO plan on sending separator as a field to checkAttribute
+                jmxMetrics.addAll(JMXMetricProcessor.checkTypeAndReturnMetrics(metricDetails, attribute));
             } catch (Exception e) {
                 logger.error("Error collecting value for {} {}", metricDetails.getInstance().getObjectName(), attribute.getName(), e);
             }

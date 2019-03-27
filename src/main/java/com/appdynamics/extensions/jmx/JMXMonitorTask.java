@@ -16,6 +16,9 @@ import com.appdynamics.extensions.jmx.metrics.JMXMetricsProcessor;
 import com.appdynamics.extensions.jmx.utils.JMXUtil;
 import com.appdynamics.extensions.logging.ExtensionsLoggerFactory;
 import com.appdynamics.extensions.metrics.Metric;
+import com.appdynamics.extensions.util.CryptoUtils;
+import com.google.common.base.Strings;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 
 import javax.management.InstanceNotFoundException;
@@ -24,6 +27,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ReflectionException;
 import javax.management.remote.JMXConnector;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 
@@ -33,29 +37,59 @@ import static com.appdynamics.extensions.jmx.utils.Constants.*;
  * Created by bhuvnesh.kumar on 2/23/18.
  */
 public class JMXMonitorTask implements AMonitorTaskRunnable {
-    // TODO use ExtensionsLoggerFactory
     private static final Logger logger = ExtensionsLoggerFactory.getLogger(JMXMonitorTask.class);
     private Boolean status = true;
-    private String metricPrefix;
+    private String metricPrefix; // take from context
     private MetricWriteHelper metricWriter;
-    private Map server;
-    private JMXConnectionAdapter jmxConnectionAdapter;
-    private List<Map> configMBeans;
+    private Map<String, ?> server;
+    private JMXConnectionAdapter jmxConnectionAdapter; // build here instead of
+    private List<Map<String, ?>> configMBeans;
     private MonitorContextConfiguration monitorContextConfiguration;
 
     private String serverName;
 
+    public JMXMonitorTask(MetricWriteHelper metricWriter, Map<String, ?> server, MonitorContextConfiguration monitorContextConfiguration) {
+        this.metricWriter = metricWriter;
+        this.server = server;
+        this.monitorContextConfiguration = monitorContextConfiguration;
+        metricPrefix = monitorContextConfiguration.getMetricPrefix();
+        configMBeans = (List<Map<String, ?>>) monitorContextConfiguration.getConfigYml().get(MBEANS);
+    }
 
-    // TODO if you are using a Builder then constructor should be private,
-    // TODO remove builder and use parameterized constructor
-    //  if it is used directly object state will be inconsistent
+    private void getJMXConnectionAdapter() throws MalformedURLException {
+        String serviceUrl = (String) server.get(SERVICEURL);
+        String host = (String) server.get(HOST);
+        String portStr = (String) server.get(PORT);
+        int port = NumberUtils.toInt(portStr, -1);
+        String username = (String) server.get(USERNAME);
+        String password = getPassword(server);
+
+        if (!Strings.isNullOrEmpty(serviceUrl) || !Strings.isNullOrEmpty(host)) {
+            jmxConnectionAdapter = JMXConnectionAdapter.create(serviceUrl, host, port, username, password);
+        } else {
+            throw new MalformedURLException();
+        }
+
+    }
+
+    private String getPassword(Map server) {
+        if (monitorContextConfiguration.getConfigYml().get(ENCRYPTION_KEY) != null) {
+            String encryptionKey = monitorContextConfiguration.getConfigYml().get(ENCRYPTION_KEY).toString();
+            server.put(ENCRYPTION_KEY, encryptionKey);
+        }
+        return CryptoUtils.getPassword(server);
+    }
+
 
     public void run() {
         serverName = (String) server.get(DISPLAY_NAME);
 
         try {
+            getJMXConnectionAdapter();
             logger.debug("JMX monitoring task initiated for server {}", serverName);
             populateAndPrintStats();
+        } catch (MalformedURLException e) {
+            logger.error("Cannot construct JMX uri for " + server.get(DISPLAY_NAME).toString(), e);
         } catch (Exception e) {
             logger.error("Error in JMX Monitoring Task for Server {}", serverName, e);
             status = false;
@@ -70,13 +104,12 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
         long currentTimestamp = 0;
         try {
             previousTimestamp = System.currentTimeMillis();
-            // TODO why are you throwing IOException here, you have surrounded this in try you can catch it here itself
             jmxConnector = jmxConnectionAdapter.open();
             currentTimestamp = System.currentTimeMillis();
             logger.debug("Time to open connection for " + serverName + " in milliseconds: " + (currentTimestamp - previousTimestamp));
 
             for (Map mBean : configMBeans) {
-                String configObjName = JMXUtil.convertToString(mBean.get(OBJECT_NAME), EMPTY_STRING);
+                String configObjName = (String)mBean.get(OBJECT_NAME);
                 logger.debug("Processing mBean {} from the config file", configObjName);
                 try {
                     JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration,
@@ -88,8 +121,6 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                     } else {
                         logger.debug("No metrics being sent from : " + serverName);
                     }
-// TODO: Apply a more generic catch to cover other JMX exceptions ... JMXExcepetion
-                    // TODO CATCH the following MalformedObjectNameException, IOException, IntrospectionException, InstanceNotFoundException,ReflectionException
                 } catch (MalformedObjectNameException e) {
                     logger.error("Illegal Object Name {} " + configObjName, e);
                     status = false;
@@ -100,11 +131,6 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                 } catch (InstanceNotFoundException e) {
                     e.printStackTrace();
                 }
-                // TODO why does status has to be set to false for any kind of exception, looking at the java doc
-                //  comments of the method I think this should happen only in the case of IOException. Also I think that
-                //  in case of IOException it will keep repeating for all the mbeans, I am not sure please confirm.
-                //  If that is the case then IOException can be moved out to outer try and the inner try can catch other
-                //  exception individually. lmk
             }
         } catch (IOException e) {
             logger.error("Unable to close the JMX connection for Server : " + serverName, e);
@@ -128,51 +154,6 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
         logger.debug("Task Complete");
         String metricValue = status ? "1" : "0";
 
-            metricWriter.printMetric(metricPrefix + METRICS_SEPARATOR + server.get(DISPLAY_NAME).toString() + METRICS_SEPARATOR + AVAILABILITY, metricValue, "AVERAGE", "AVERAGE", "INDIVIDUAL");
-    }
-
-     static class Builder {
-        // TODO when using Builder it is better to use parametrized constructor with required fields as parameters to
-        //  the constructor for the class that is being built. Also you should not be creating an object before the builder.build() is called.
-        //  The build method should check if all required fields are initialized and then call the constructor,
-        //  I think for JMXMonitor tasks all fields are required, if I use this builder I can easily create inconsistent
-        //  objects example I can forget to initialize MetricWriteHelper or the server, there is nothing stopping me from doing that,
-        //  please correct this design
-
-        private JMXMonitorTask task = new JMXMonitorTask();
-
-        Builder metricPrefix(String metricPrefix) {
-            task.metricPrefix = metricPrefix;
-            return this;
-        }
-
-        Builder metricWriter(MetricWriteHelper metricWriter) {
-            task.metricWriter = metricWriter;
-            return this;
-        }
-
-        Builder server(Map server) {
-            task.server = server;
-            return this;
-        }
-
-        Builder jmxConnectionAdapter(JMXConnectionAdapter adapter) {
-            task.jmxConnectionAdapter = adapter;
-            return this;
-        }
-
-        Builder mbeans(List<Map> mBeans) {
-            task.configMBeans = mBeans;
-            return this;
-        }
-
-        Builder monitorConfiguration(MonitorContextConfiguration monitorContextConfiguration) {
-            task.monitorContextConfiguration = monitorContextConfiguration;
-            return this;
-        }
-
-        JMXMonitorTask build() {
-            return task;
-        }
+        metricWriter.printMetric(metricPrefix + METRICS_SEPARATOR + server.get(DISPLAY_NAME).toString() + METRICS_SEPARATOR + AVAILABILITY, metricValue, "AVERAGE", "AVERAGE", "INDIVIDUAL");
     }
 }

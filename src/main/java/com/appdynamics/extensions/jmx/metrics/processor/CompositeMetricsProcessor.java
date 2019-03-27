@@ -22,9 +22,31 @@ import static com.appdynamics.extensions.jmx.utils.Constants.PERIOD;
 /**
  * Created by bhuvnesh.kumar on 3/11/19.
  */
-class CompositeMetricsProcessor {
+class CompositeMetricsProcessor implements JMXMetricProcessor {
 
-    static List<Metric> setMetricDetailsForCompositeMetrics(MetricDetails metricDetails, Attribute attribute) {
+    public CompositeMetricsProcessor() {
+    }
+
+//    static List<Metric> setMetricDetailsForCompositeMetrics(MetricDetails metricDetails, Attribute attribute) {
+//        String attributeName = attribute.getName();
+//        CompositeData metricValue = (CompositeData) attribute.getValue();
+//        Set<String> attributesFound = metricValue.getCompositeType().keySet();
+//        List<Metric> metricList = new ArrayList<Metric>();
+//
+//        for (String str : attributesFound) {
+//            String key = attributeName + PERIOD + str;
+//            if (metricDetails.getMetricPropsPerMetricName().containsKey(key)) {
+//                Object attributeValue = metricValue.get(str);
+//                Attribute attribute1 = new Attribute(key, attributeValue);
+//                // TODO please check this if attributeValue can be of any other type. If not sure then I think it would be better to check the type again. We can discuss this
+//                metricList.add(BaseMetricsProcessor.setMetricDetailsForBaseMetrics(metricDetails, attribute1));
+//            }
+//        }
+//        return metricList;
+//    }
+
+    @Override
+    public List<Metric> populateMetricsFromEntity(MetricDetails metricDetails, Attribute attribute) {
         String attributeName = attribute.getName();
         CompositeData metricValue = (CompositeData) attribute.getValue();
         Set<String> attributesFound = metricValue.getCompositeType().keySet();
@@ -35,8 +57,9 @@ class CompositeMetricsProcessor {
             if (metricDetails.getMetricPropsPerMetricName().containsKey(key)) {
                 Object attributeValue = metricValue.get(str);
                 Attribute attribute1 = new Attribute(key, attributeValue);
+                BaseMetricsProcessor baseMetricsProcessor = new BaseMetricsProcessor();
                 // TODO please check this if attributeValue can be of any other type. If not sure then I think it would be better to check the type again. We can discuss this
-                metricList.add(BaseMetricsProcessor.setMetricDetailsForBaseMetrics(metricDetails, attribute1));
+                metricList.addAll(baseMetricsProcessor.populateMetricsFromEntity(metricDetails, attribute1));
             }
         }
         return metricList;
