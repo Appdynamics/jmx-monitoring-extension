@@ -10,7 +10,6 @@ package com.appdynamics.extensions.jmx.utils;
 
 public class Constants {
 
-    // TODO you can remove unused constants.
     public static final String OBJECT_NAME = "objectName";
     public static final String METRICS = "metrics";
     public static final String INCLUDE = "include";
@@ -20,13 +19,8 @@ public class Constants {
     public static final String MBEANS = "mbeans";
 
     public static final String SERVERS = "servers";
-    public static final String NAME = "name";
     public static final String SERVICEURL = "serviceUrl";
-    public static final String ENCRYPTEDPASSWORD = "encryptedPassword";
-    public static final String PASSWORD = "password";
-    public static final String PASSWORD_ENCRYPTED = "password-encrypted";
-    // TODO encryption_key is incorrectly configured
-    public static final String ENCRYPTION_KEY = "encryption-key";
+    public static final String ENCRYPTION_KEY = "encryptionKey";
     public static final String MONITORNAME = "JMX Monitor";
     public static final String HOST = "host";
     public static final String PORT = "port";
@@ -41,7 +35,6 @@ public class Constants {
     public static final String AGGREGATIONTYPE = "aggregationType";
     public static final String AVERAGE = "AVERAGE";
     public static final String INDIVIDUAL = "INDIVIDUAL";
-    public static final String SUM = "SUM";
     public static final String FALSE = "false";
 
     public static final String AVAILABILITY = "Availability";
@@ -49,9 +42,6 @@ public class Constants {
     public static final String COLON = ":";
     public static final String CUSTOMMETRICS = "Custom Metrics";
     public static final String EMPTY_STRING = "";
-
-    public static final String REPLACE = "replace";
-    public static final String REPLACE_WITH = "replaceWith";
     public static final String METRIC_CHARACTER_REPLACER = "metricCharacterReplacer";
     public static final String SEPARATOR_FOR_METRIC_LISTS = "separatorForMetricLists";
 

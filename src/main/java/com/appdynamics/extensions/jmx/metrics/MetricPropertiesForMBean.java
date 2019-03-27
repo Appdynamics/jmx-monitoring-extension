@@ -37,6 +37,7 @@ public class MetricPropertiesForMBean {
 
         if (includeMetrics != null) {
             for (Object metad : includeMetrics) {
+                // TODO Change this to take alias as a separate field
                 Map localMetaData = (Map) metad;
                 Map.Entry entry = (Map.Entry) localMetaData.entrySet().iterator().next();
                 String metricName = entry.getKey().toString();

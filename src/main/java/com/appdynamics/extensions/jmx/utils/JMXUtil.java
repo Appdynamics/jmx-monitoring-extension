@@ -9,17 +9,13 @@
 package com.appdynamics.extensions.jmx.utils;
 
 // TODO remove unused imports
-import java.util.List;
-import java.util.Map;
-
-import static com.appdynamics.extensions.jmx.utils.Constants.REPLACE;
-import static com.appdynamics.extensions.jmx.utils.Constants.REPLACE_WITH;
 
 /**
  * Created by bhuvnesh.kumar on 2/26/18.
  */
 public class JMXUtil {
 
+    // TODO remove this method altogether
     public static String convertToString(final Object field, final String defaultStr) {
 //        TODO: can we use isNullOrEmpty on field.toString()?
         if (field == null) {

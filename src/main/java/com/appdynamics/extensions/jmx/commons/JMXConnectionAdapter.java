@@ -29,9 +29,7 @@ public class JMXConnectionAdapter {
     private final String password;
 
     private JMXConnectionAdapter(String host, int port, String username, String password) throws MalformedURLException {
-        this.serviceUrl = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + host + ":" + port + "/jmxrmi");
-        this.username = username;
-        this.password = password;
+        this("service:jmx:rmi:///jndi/rmi://" + host + ":" + port + "/jmxrmi", username, password);
     }
 
     private JMXConnectionAdapter(String serviceUrl, String username, String password) throws MalformedURLException {
@@ -70,13 +68,16 @@ public class JMXConnectionAdapter {
     }
 
     public Set<ObjectInstance> queryMBeans(JMXConnector jmxConnection, ObjectName objectName) throws IOException {
-        // TODO getMBeanServerConnection can be extracted out to a method
-        MBeanServerConnection connection = jmxConnection.getMBeanServerConnection();
+        MBeanServerConnection connection = getmBeanServerConnection(jmxConnection);
         return connection.queryMBeans(objectName, null);
     }
 
+    private MBeanServerConnection getmBeanServerConnection(JMXConnector jmxConnection) throws IOException {
+        return jmxConnection.getMBeanServerConnection();
+    }
+
     public List<String> getReadableAttributeNames(JMXConnector jmxConnection, ObjectInstance instance) throws IntrospectionException, ReflectionException, InstanceNotFoundException, IOException {
-        MBeanServerConnection connection = jmxConnection.getMBeanServerConnection();
+        MBeanServerConnection connection = getmBeanServerConnection(jmxConnection);
         List<String> attrNames = Lists.newArrayList();
         MBeanAttributeInfo[] attributes = connection.getMBeanInfo(instance.getObjectName()).getAttributes();
         for (MBeanAttributeInfo attr : attributes) {
@@ -88,7 +89,7 @@ public class JMXConnectionAdapter {
     }
 
     public List<Attribute> getAttributes(JMXConnector jmxConnection, ObjectName objectName, String[] strings) throws IOException, ReflectionException, InstanceNotFoundException {
-        MBeanServerConnection connection = jmxConnection.getMBeanServerConnection();
+        MBeanServerConnection connection = getmBeanServerConnection(jmxConnection);
         AttributeList list = connection.getAttributes(objectName, strings);
         if (list != null) {
             return list.asList();
@@ -96,9 +97,4 @@ public class JMXConnectionAdapter {
         return Lists.newArrayList();
     }
 
-
-    // TODO if this is never used can you please remove it?
-    boolean matchAttributeName(Attribute attribute, String matchedWith) {
-        return attribute.getName().equalsIgnoreCase(matchedWith);
-    }
 }

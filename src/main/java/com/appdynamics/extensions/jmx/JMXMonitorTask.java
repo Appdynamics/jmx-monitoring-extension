@@ -14,12 +14,14 @@ import com.appdynamics.extensions.conf.MonitorContextConfiguration;
 import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.jmx.metrics.JMXMetricsProcessor;
 import com.appdynamics.extensions.jmx.utils.JMXUtil;
+import com.appdynamics.extensions.logging.ExtensionsLoggerFactory;
 import com.appdynamics.extensions.metrics.Metric;
-import com.appdynamics.extensions.util.AssertUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import javax.management.InstanceNotFoundException;
+import javax.management.IntrospectionException;
 import javax.management.MalformedObjectNameException;
+import javax.management.ReflectionException;
 import javax.management.remote.JMXConnector;
 import java.io.IOException;
 import java.util.List;
@@ -32,7 +34,7 @@ import static com.appdynamics.extensions.jmx.utils.Constants.*;
  */
 public class JMXMonitorTask implements AMonitorTaskRunnable {
     // TODO use ExtensionsLoggerFactory
-    private static final Logger logger = LoggerFactory.getLogger(JMXMonitorTask.class);
+    private static final Logger logger = ExtensionsLoggerFactory.getLogger(JMXMonitorTask.class);
     private Boolean status = true;
     private String metricPrefix;
     private MetricWriteHelper metricWriter;
@@ -43,12 +45,13 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
 
     private String serverName;
 
+
     // TODO if you are using a Builder then constructor should be private,
+    // TODO remove builder and use parameterized constructor
     //  if it is used directly object state will be inconsistent
 
     public void run() {
-        // TODO avoid code redundancy, this has already been checked and you have Builder can be passed to the builder
-        serverName = JMXUtil.convertToString(server.get(DISPLAY_NAME), EMPTY_STRING);
+        serverName = (String) server.get(DISPLAY_NAME);
 
         try {
             logger.debug("JMX monitoring task initiated for server {}", serverName);
@@ -61,7 +64,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
         }
     }
 
-    private void populateAndPrintStats() throws IOException {
+    private void populateAndPrintStats() {
         JMXConnector jmxConnector = null;
         long previousTimestamp = 0;
         long currentTimestamp = 0;
@@ -78,22 +81,24 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                 try {
                     JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration,
                             jmxConnectionAdapter, jmxConnector);
-                    // TODO check this before any connections are created before the task itself is created
-                    AssertUtils.assertNotNull(server.get(DISPLAY_NAME), DISPLAY_NAME+" can not be null in the config.yml");
-//                TODO:    better to cast a String than to call .toString. (casting to a String is cheaper)
                     List<Metric> nodeMetrics = jmxMetricsProcessor.getJMXMetrics(mBean,
-                            metricPrefix, server.get(DISPLAY_NAME).toString());
+                            metricPrefix, serverName);
                     if (nodeMetrics.size() > 0) {
-                        // TODO can you add DEBUG stmts here and in else part, it will be easier to debug
                         metricWriter.transformAndPrintMetrics(nodeMetrics);
+                    } else {
+                        logger.debug("No metrics being sent from : " + serverName);
                     }
 // TODO: Apply a more generic catch to cover other JMX exceptions ... JMXExcepetion
+                    // TODO CATCH the following MalformedObjectNameException, IOException, IntrospectionException, InstanceNotFoundException,ReflectionException
                 } catch (MalformedObjectNameException e) {
                     logger.error("Illegal Object Name {} " + configObjName, e);
                     status = false;
-                } catch (Exception e) {
-                    logger.error("Error fetching JMX metrics for {} and mBean = {}", serverName, configObjName, e);
-                    status = false;
+                } catch (ReflectionException e) {
+                    e.printStackTrace();
+                } catch (IntrospectionException e) {
+                    e.printStackTrace();
+                } catch (InstanceNotFoundException e) {
+                    e.printStackTrace();
                 }
                 // TODO why does status has to be set to false for any kind of exception, looking at the java doc
                 //  comments of the method I think this should happen only in the case of IOException. Also I think that
@@ -101,15 +106,19 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                 //  If that is the case then IOException can be moved out to outer try and the inner try can catch other
                 //  exception individually. lmk
             }
-            //TODO: Missing catch May be some IOExcpetion
+        } catch (IOException e) {
+            logger.error("Unable to close the JMX connection for Server : " + serverName, e);
+            status = false;
+        } catch (Exception e) {
+            logger.error("Unable to close the JMX connection for Server : " + serverName, e);
         } finally {
             //TODO: Missing Heartbeat metrics
             try {
                 jmxConnectionAdapter.close(jmxConnector);
                 logger.debug("JMX connection is closed for " + serverName);
             } catch (IOException e) {
-                // TODO exception should be logged
-                logger.error("Unable to close the JMX connection.");
+                logger.error("Unable to close the JMX connection.", e);
+
             }
         }
     }
@@ -117,19 +126,12 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
 
     public void onTaskComplete() {
         logger.debug("Task Complete");
-//        TODO: use a ternary operator on status to set metric value and we can get rid of if else and extra line
-        if (status ) {
-            // TODO if you want metric replacement in HEART_BEAT as well then use new Metric constructor, otherwise leave it as is
+        String metricValue = status ? "1" : "0";
 
-            metricWriter.printMetric(metricPrefix + METRICS_SEPARATOR + server.get(DISPLAY_NAME).toString() + METRICS_SEPARATOR + AVAILABILITY, "1", "AVERAGE", "AVERAGE", "INDIVIDUAL");
-        } else {
-            metricWriter.printMetric(metricPrefix + METRICS_SEPARATOR + server.get(DISPLAY_NAME).toString() + METRICS_SEPARATOR + AVAILABILITY, "0", "AVERAGE", "AVERAGE", "INDIVIDUAL");
-        }
+            metricWriter.printMetric(metricPrefix + METRICS_SEPARATOR + server.get(DISPLAY_NAME).toString() + METRICS_SEPARATOR + AVAILABILITY, metricValue, "AVERAGE", "AVERAGE", "INDIVIDUAL");
     }
 
-    // TODO visibility can be reduced to package-private if you think that Builder has no use outside this package,
-    //  then reduce the visibility
-    public static class Builder {
+     static class Builder {
         // TODO when using Builder it is better to use parametrized constructor with required fields as parameters to
         //  the constructor for the class that is being built. Also you should not be creating an object before the builder.build() is called.
         //  The build method should check if all required fields are initialized and then call the constructor,

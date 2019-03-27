@@ -15,10 +15,9 @@ import java.util.Map;
 import java.util.Set;
 
 public class IncludeFilter {
-    // TODO should not use Raw Types, can you change wherever applicable
-    private List dictionary;
+    private List<Map<String, ?>> dictionary;
 
-    public IncludeFilter(List dictionary) {
+    public IncludeFilter(List<Map<String, ?>> dictionary) {
         this.dictionary = dictionary;
     }
 
@@ -27,18 +26,27 @@ public class IncludeFilter {
             return;
         }
 
-        for (Object obj : dictionary) {
-            Map metric = (Map) obj;
-            Map.Entry firstEntry = (Map.Entry) metric.entrySet().iterator().next();
-            String metricName = firstEntry.getKey().toString();
+        for (Map<String, ?> mapVal : dictionary) {
+            String metricName = (String) mapVal.get("name");
             if (JMXUtil.isCompositeObject(metricName)) {
                 metricName = JMXUtil.getMetricNameFromCompositeObject(metricName);
             }
-
             if (allMetrics.contains(metricName)) {
                 filteredSet.add(metricName);
             }
         }
+//        for (Object obj : dictionary) {
+//            Map metric = (Map) obj;
+//            Map.Entry firstEntry = (Map.Entry) metric.entrySet().iterator().next();
+//            String metricName = firstEntry.getKey().toString();
+//            if (JMXUtil.isCompositeObject(metricName)) {
+//                metricName = JMXUtil.getMetricNameFromCompositeObject(metricName);
+//            }
+//
+//            if (allMetrics.contains(metricName)) {
+//                filteredSet.add(metricName);
+//            }
+//        }
     }
 }
 

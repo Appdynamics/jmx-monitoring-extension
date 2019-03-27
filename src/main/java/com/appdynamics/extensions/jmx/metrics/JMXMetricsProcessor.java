@@ -13,11 +13,13 @@ import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.jmx.filters.IncludeFilter;
 import com.appdynamics.extensions.jmx.metrics.processor.JMXMetricsDataFilter;
 import com.appdynamics.extensions.jmx.utils.JMXUtil;
+import com.appdynamics.extensions.logging.ExtensionsLoggerFactory;
 import com.appdynamics.extensions.metrics.Metric;
+import com.appdynamics.extensions.util.AssertUtils;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.management.*;
 import javax.management.remote.JMXConnector;
@@ -37,8 +39,7 @@ import static com.appdynamics.extensions.jmx.utils.Constants.*;
 public class JMXMetricsProcessor {
     // TODO should not use Raw Types, can you change wherever applicable
 
-    // TODO use ExtensionsLoggerFactory
-    private static final Logger logger = LoggerFactory.getLogger(JMXMetricsProcessor.class);
+    private static final Logger logger = ExtensionsLoggerFactory.getLogger(JMXMetricsProcessor.class);
     private JMXConnectionAdapter jmxConnectionAdapter;
     private JMXConnector jmxConnector;
     private MonitorContextConfiguration monitorContextConfiguration;
@@ -49,27 +50,27 @@ public class JMXMetricsProcessor {
         this.jmxConnector = jmxConnector;
     }
 
-    //TODO: can throw a common exception for all JMX (JMException) and catch it separately instead of just MalformedObjectNameException
     public List<Metric> getJMXMetrics(Map mBean, String metricPrefix, String displayName) throws
             MalformedObjectNameException, IOException, IntrospectionException, InstanceNotFoundException,
             ReflectionException {
         List<Metric> jmxMetrics = Lists.newArrayList();
         String configObjectName = JMXUtil.convertToString(mBean.get(OBJECT_NAME), EMPTY_STRING);
-        // TODO chances of NPE here, please check configObjectName for null references before calling getInstance
-        // TODO if configObjectName is resolved to empty why would you proceed with the below steps? should'nt it be a config error?
+        AssertUtils.assertNotNull(configObjectName, "Metric Object Name can not be Empty");
         Set<ObjectInstance> objectInstances = jmxConnectionAdapter.queryMBeans(jmxConnector, ObjectName.getInstance
                 (configObjectName));
         for (ObjectInstance instance : objectInstances) {
-//            TODO: add logger debug for instances
-            // TODO can you change the name? dictionary is misleading for list of String
-            List<String> metricNamesDictionary = jmxConnectionAdapter.getReadableAttributeNames(jmxConnector, instance);
-            List<String> metricNamesToBeExtracted = applyFilters(mBean, metricNamesDictionary);
-            // TODO the getAttributes method returns empty list if list returned from the mbean server is null so you
-            //  should check that and log it will be useful for debugging. YOu can also skip collectMetrics in such case since no work will be done
+            logger.debug("Processing for Object : {} ", configObjectName);
+            List<String> metricNameListFromMbean = jmxConnectionAdapter.getReadableAttributeNames(jmxConnector, instance);
+            Set<String> metricNamesToBeExtracted = applyFilters(mBean, metricNameListFromMbean);
             List<Attribute> attributes = jmxConnectionAdapter.getAttributes(jmxConnector, instance.getObjectName(),
                     metricNamesToBeExtracted.toArray(new String[metricNamesToBeExtracted.size()]));
-            MetricDetails metricDetails = getMetricDetails(mBean, metricPrefix, displayName, instance);
-            jmxMetrics.addAll(collectMetrics(metricDetails, attributes));
+            if (!attributes.isEmpty()) {
+
+                MetricDetails metricDetails = getMetricDetails(mBean, metricPrefix, displayName, instance);
+                jmxMetrics.addAll(collectMetrics(metricDetails, attributes));
+            } else {
+                logger.debug("No attributes found for Object : {} ", configObjectName);
+            }
         }
         return jmxMetrics;
     }
@@ -82,19 +83,16 @@ public class JMXMetricsProcessor {
                 .metricPropsPerMetricName(getMapOfProperties(mBean))
                 .mBeanKeys(getMBeanKeys(mBean))
                 .displayName(displayName)
-                .metricCharacterReplacer(getMetricReplacer())
                 .separator(getSeparator()) //TODO: Separator is not an ObjectInstance level configuration. Should be passed to the processor. Check the feasibility, as it may need lot of refactoring
                 .build();
     }
 
-    // TODO can you change the name? dictionary is misleading for list of String
-    private List<String> applyFilters(Map aConfigMBean, List<String> metricNamesDictionary) {
+    private Set<String> applyFilters(Map aConfigMBean, List<String> metricNamesList) {
         Set<String> filteredSet = Sets.newHashSet();
         Map configMetrics = (Map) aConfigMBean.get(METRICS);
-        List includeDictionary = (List) configMetrics.get(INCLUDE);
-//        TODO: why pass filteredSet set into applyFilter() and convert to a list again, when you can simply create and return it from applyFilter method itself
-        new IncludeFilter(includeDictionary).applyFilter(filteredSet, metricNamesDictionary);
-        return Lists.newArrayList(filteredSet);
+        List<Map<String, ?>> includeDictionary = (List<Map<String, ?>>) configMetrics.get(INCLUDE);
+        new IncludeFilter(includeDictionary).applyFilter(filteredSet, metricNamesList);
+        return filteredSet;
     }
 
 
@@ -113,16 +111,11 @@ public class JMXMetricsProcessor {
     }
 
 
-// TODO not required
-    private List<Map<String, String>> getMetricReplacer() {
-        return (List<Map<String, String>>) monitorContextConfiguration.getConfigYml().get(METRIC_CHARACTER_REPLACER);
-    }
 
     private String getSeparator() {
-        // TODO first get the separator and check if it null or empty and then use default, in the current logic an empty separator will break things
-        String separator = COLON;
-        if (monitorContextConfiguration.getConfigYml().get(SEPARATOR_FOR_METRIC_LISTS) != null) {
-            separator = monitorContextConfiguration.getConfigYml().get(SEPARATOR_FOR_METRIC_LISTS).toString();
+        String separator = (String) monitorContextConfiguration.getConfigYml().get(SEPARATOR_FOR_METRIC_LISTS);
+        if (Strings.isNullOrEmpty(separator)) {
+            separator = COLON;
         }
         return separator;
     }

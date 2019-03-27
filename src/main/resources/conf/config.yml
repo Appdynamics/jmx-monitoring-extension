@@ -32,9 +32,6 @@ servers:
 # TODO please change the comment, from what I figure out it should be 1 thread per server
 # This doesn't need to be changed unless many servers are configured
 numberOfThreads: 10
-# TODO: threadTimeout is not being used anywhere
-#timeout for the thread
-threadTimeout: 30
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                                      List of metrics
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

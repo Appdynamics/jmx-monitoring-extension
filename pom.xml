@@ -18,10 +18,6 @@
     <packaging>jar</packaging>
 
     <name>jmx-monitoring-extension</name>
-    <!-- TODO URL is misleading this is not where project is hosted, can you remove this?-->
-    <url>http://maven.apache.org</url>
-
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>

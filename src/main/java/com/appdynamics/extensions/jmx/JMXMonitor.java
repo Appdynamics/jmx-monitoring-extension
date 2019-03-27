@@ -44,22 +44,16 @@ public class JMXMonitor extends ABaseMonitor {
     protected void doRun(TasksExecutionServiceProvider taskExecutor) {
         Map<String, ?> config = getContextConfiguration().getConfigYml();
         if (config != null) {
-            // TODO should not use Raw Types, can you change wherever applicable
-            //TODO: use getServers() method (handles asserNotNull) with a try-catch here
-            List<Map> servers = (List) config.get(SERVERS);
-            AssertUtils.assertNotNull(servers, "The 'servers' section in config.yml is not initialised");
-            // TODO servers will never be null at this point, you can remove servers != null also ISEmpty check is not needed. Can we remove if-else here?
-            if (servers != null && !servers.isEmpty()) {
+            List<Map<String, ?>> servers = getServers();
+            if (!servers.isEmpty()) {
                 for (Map server : servers) {
-                    // TODO if displayName is required field, it should be checked here against null and empty value
+                    AssertUtils.assertNotNull(server.get(DISPLAY_NAME), DISPLAY_NAME + " can not be null in the config.yml");
                     try {
-                        //TODO: need an assertNotNull for each of the server with a ValidationException catch
                         JMXMonitorTask task = createTask(server, taskExecutor);
                         taskExecutor.submit((String) server.get(DISPLAY_NAME), task);
 
                     } catch (IOException e) {
-                        // TODO exception should be logged
-                        logger.error("Cannot construct JMX uri for {}", convertToString(server.get(DISPLAY_NAME), ""));
+                        logger.error("Cannot construct JMX uri for " + server.get(DISPLAY_NAME).toString(), e);
                     }
                 }
             } else {
@@ -77,17 +71,12 @@ public class JMXMonitor extends ABaseMonitor {
     }
 
     private JMXMonitorTask createTask(Map server, TasksExecutionServiceProvider taskExecutor) throws IOException {
-        // TODO I think a simple typecast to String should be more readable
+        // TODO change all these to (String)
         String serviceUrl = convertToString(server.get(SERVICEURL), EMPTY_STRING);
         String host = convertToString(server.get(HOST), EMPTY_STRING);
         String portStr = convertToString(server.get(PORT), EMPTY_STRING);
-        // TODO
-        //  1. portStr == EMPTY_STRING == for string equality should not be used, but since you are comparing with the same string literal
-        //  should be fine, update to use equals on your call, otherwise ignore. my suggestion would be to use equals
-        //  2. Since you are using Integer.parseInt there is a possibility if NumberFormatException, even though
-        //  you are not required to handle rt I think it is better to handle it and return default value -1 in this case
-        //  or better yet you can use NumberUtils form commons-lang3
-        int port = (portStr == null || portStr == EMPTY_STRING) ? -1 : Integer.parseInt(portStr);
+
+        int port = org.apache.commons.lang3.math.NumberUtils.toInt(portStr, -1);
         String username = convertToString(server.get(USERNAME), EMPTY_STRING);
         String password = getPassword(server);
         // TODO what if both serviceURL and host are null

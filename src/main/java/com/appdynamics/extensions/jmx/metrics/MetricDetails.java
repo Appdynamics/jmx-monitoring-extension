@@ -20,20 +20,10 @@ public class MetricDetails {
     private String metricPrefix;
     private ObjectInstance instance;
     private Map<String, ?> metricPropsPerMetricName;
-    // TODO why fully qualified name, there are no conflicts here
-    private java.util.List<String> mBeanKeys;
+    private List<String> mBeanKeys;
     private String displayName;
-    // TODO not required in 2.2.0
-    private List<Map<String, String>> metricCharacterReplacer;
     private String separator;
 
-    public List<Map<String, String>> getMetricCharacterReplacer() {
-        return metricCharacterReplacer;
-    }
-
-    public void setMetricCharacterReplacer(List<Map<String, String>> metricCharacterReplacer) {
-        this.metricCharacterReplacer = metricCharacterReplacer;
-    }
 
     public String getSeparator() {
         return separator;
@@ -112,10 +102,6 @@ public class MetricDetails {
             return this;
         }
 
-        Builder metricCharacterReplacer(List<Map<String, String>> metricCharacterReplacer) {
-            task.metricCharacterReplacer = metricCharacterReplacer;
-            return this;
-        }
 
         Builder separator(String separator) {
             task.separator = separator;
