@@ -4,5 +4,7 @@ mbeans:
     mbeanKeys: ["type"]
     metrics:
       include:
-        - ObjectPendingFinalizationCount : "ObjectPendingFinalizationCount"
-        - HeapMemoryUsage.used : "Heap Memory Usage|Heap Memory Used"
+        - name: "ObjectPendingFinalizationCount"
+          alias: "ObjectPendingFinalizationCount"
+        - name: "HeapMemoryUsage.used"
+          alias: "Heap Memory Usage|Heap Memory Used"

@@ -47,8 +47,10 @@ mbeans:
     mbeanKeys: ["type", "brokerName"]
     metrics:
       include:
-        - StorePercentUsage: "Store Percent Usage"
-        - TransportConnectors.openwire: "openwire"
+        - name: "StorePercentUsage"
+          alias: "Store Percent Usage"
+        - name: "TransportConnectors.openwire"
+          alias: "openwire"
 
 
   # This Mbean will extract out Queue metrics

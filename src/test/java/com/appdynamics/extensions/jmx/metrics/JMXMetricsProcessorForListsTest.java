@@ -88,8 +88,11 @@ public class JMXMetricsProcessorForListsTest {
         attributes.add(new Attribute("HeapMemoryUsage", createCompositeDataSupportObject()));
 
         List<String> metricNames = Lists.newArrayList();
-        metricNames.add("metric1");
-        metricNames.add("metric2");
+        metricNames.add("listOfString.metric one");
+        metricNames.add("listOfString.metric two");
+        metricNames.add("listOfString.metric three");
+        metricNames.add("Max");
+        metricNames.add("HeapMemoryUsage.max");
         when(jmxConnectionAdapter.queryMBeans(eq(jmxConnector), Mockito.any(ObjectName.class))).thenReturn(objectInstances);
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);

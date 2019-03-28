@@ -114,8 +114,8 @@ public class JMXMetricsProcessorTest {
         List<Attribute> attributes = Lists.newArrayList();
         attributes.add(new Attribute("HeapMemoryUsage", createCompositeDataSupportObject()));
         List<String> metricNames = Lists.newArrayList();
-        metricNames.add("metric1");
-        metricNames.add("metric2");
+        metricNames.add("HeapMemoryUsage.max");
+        metricNames.add("HeapMemoryUsage.used");
         when(jmxConnectionAdapter.queryMBeans(eq(jmxConnector), Mockito.any(ObjectName.class))).thenReturn(objectInstances);
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
@@ -153,8 +153,8 @@ public class JMXMetricsProcessorTest {
         attributes.add(new Attribute("ObjectPendingFinalizationCount", 0));
         attributes.add(new Attribute("HeapMemoryUsage", createCompositeDataSupportObject()));
         List<String> metricNames = Lists.newArrayList();
-        metricNames.add("metric1");
-        metricNames.add("metric2");
+        metricNames.add("ObjectPendingFinalizationCount");
+        metricNames.add("HeapMemoryUsage.used");
 
         when(jmxConnectionAdapter.queryMBeans(eq(jmxConnector), Mockito.any(ObjectName.class))).thenReturn(objectInstances);
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
@@ -193,8 +193,8 @@ public class JMXMetricsProcessorTest {
         attributes.add(new Attribute("Max", new BigDecimal(200)));
         attributes.add(new Attribute("Min", new BigDecimal(100)));
         List<String> metricNames = Lists.newArrayList();
-        metricNames.add("metric1");
-        metricNames.add("metric2");
+        metricNames.add("Max");
+        metricNames.add("Min");
 
         when(jmxConnectionAdapter.queryMBeans(eq(jmxConnector), Mockito.any(ObjectName.class))).thenReturn(objectInstances);
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
@@ -235,8 +235,8 @@ public class JMXMetricsProcessorTest {
         attributes.add(new Attribute("Min", new BigDecimal(100)));
 
         List<String> metricNames = Lists.newArrayList();
-        metricNames.add("metric1");
-        metricNames.add("metric2");
+        metricNames.add("Max");
+        metricNames.add("Min");
 
         when(jmxConnectionAdapter.queryMBeans(eq(jmxConnector), Mockito.any(ObjectName.class))).thenReturn(objectInstances);
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
@@ -274,7 +274,7 @@ public class JMXMetricsProcessorTest {
         List<Attribute> attributes = Lists.newArrayList();
         attributes.add(new Attribute("Max", new BigDecimal(200)));
         List<String> metricNames = Lists.newArrayList();
-        metricNames.add("metric1");
+        metricNames.add("Max");
 
         when(jmxConnectionAdapter.queryMBeans(eq(jmxConnector), Mockito.any(ObjectName.class))).thenReturn(objectInstances);
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
@@ -380,8 +380,12 @@ public class JMXMetricsProcessorTest {
         attributes.add(new Attribute("Max", new BigDecimal(200)));
         attributes.add(new Attribute("HeapMemoryUsage", createCompositeDataSupportObject()));
         List<String> metricNames = Lists.newArrayList();
-        metricNames.add("metric1");
-        metricNames.add("metric2");
+        metricNames.add("MapOfString.key1");
+        metricNames.add("MapOfString.key2");
+        metricNames.add("MapOfString.map2.key2");
+        metricNames.add("MapOfString.map2.map3.key32");
+        metricNames.add("Max");
+        metricNames.add("HeapMemoryUsage.max");
         when(jmxConnectionAdapter.queryMBeans(eq(jmxConnector), Mockito.any(ObjectName.class))).thenReturn(objectInstances);
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);

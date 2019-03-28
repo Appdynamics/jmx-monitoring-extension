@@ -13,7 +13,6 @@ import com.appdynamics.extensions.logging.ExtensionsLoggerFactory;
 import com.appdynamics.extensions.metrics.Metric;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.management.Attribute;
 import javax.management.ObjectInstance;
@@ -28,10 +27,14 @@ import static com.appdynamics.extensions.jmx.utils.Constants.EMPTY_STRING;
 /**
  * Created by bhuvnesh.kumar on 3/11/19.
  */
-public class BaseMetricsProcessor{
+public class BaseMetricsProcessor {
 
     private static final Logger logger = ExtensionsLoggerFactory.getLogger(BaseMetricsProcessor.class);
     protected List<Metric> metrics;
+
+    public BaseMetricsProcessor() {
+        this.metrics = new ArrayList<>();
+    }
 
     public List<Metric> getMetrics() {
         return metrics;
@@ -47,12 +50,12 @@ public class BaseMetricsProcessor{
     }
 
     private static LinkedList<String> generateMetricPathTokens(String attributeName, String displayName, LinkedList<String> metricTokens) {
-            if (Strings.isNullOrEmpty(displayName)) {
-                metricTokens.add(attributeName);
-            } else {
-                metricTokens.add(displayName);
-                metricTokens.add(attributeName);
-            }
+        if (Strings.isNullOrEmpty(displayName)) {
+            metricTokens.add(attributeName);
+        } else {
+            metricTokens.add(displayName);
+            metricTokens.add(attributeName);
+        }
         return metricTokens;
     }
 
@@ -69,20 +72,19 @@ public class BaseMetricsProcessor{
 
     public void populateMetricsFromEntity(MetricDetails metricDetails, Attribute attribute) {
         String attributeName = attribute.getName();
-        Map<String, ?> props = (Map) metricDetails.getMetricPropsPerMetricName().get(attributeName);
+        Map<String, ?> props = (Map<String,?>) metricDetails.getMetricPropsPerMetricName().get(attributeName);
         if (props == null) {
-//            TODO: do we need to log it as an error?
             logger.error("Could not find metric properties for {} ", attributeName);
+        } else {
+            LinkedList<String> metricTokens = new LinkedList<>();
+            metricTokens = getInstanceKey(metricDetails.getInstance(), metricDetails.getmBeanKeys(), metricTokens);
+            metricTokens = generateMetricPathTokens(attributeName, metricDetails.getDisplayName(), metricTokens);
+            String attrVal = attribute.getValue().toString();
+            attrVal = attrVal.replaceAll("[^0-9.]", "");
+            String[] tokens = new String[metricTokens.size()];
+            tokens = metricTokens.toArray(tokens);
+            metrics.add(new Metric(attributeName, attrVal, props, metricDetails.getMetricPrefix(), tokens));
         }
-        LinkedList<String> metricTokens = new LinkedList<>();
-        metricTokens = getInstanceKey(metricDetails.getInstance(), metricDetails.getmBeanKeys(), metricTokens);
-        metricTokens = generateMetricPathTokens(attributeName, metricDetails.getDisplayName(), metricTokens);
-        String attrVal = attribute.getValue().toString();
-        attrVal = attrVal.replaceAll("[^0-9.]", "");
-        String[] tokens = new String[metricTokens.size()];
-        tokens = metricTokens.toArray(tokens);
-
-        metrics.add(new Metric(attributeName, attrVal, props, metricDetails.getMetricPrefix(), tokens));
     }
 
 }

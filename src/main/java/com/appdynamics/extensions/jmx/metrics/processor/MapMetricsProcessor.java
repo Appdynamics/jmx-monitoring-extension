@@ -23,33 +23,19 @@ import static com.appdynamics.extensions.jmx.utils.Constants.PERIOD;
  */
 public class MapMetricsProcessor extends BaseMetricsProcessor {
 
-    // TODO should not use raw types, please change wherever applicable
-//    static List<Metric> setMetricDetailsForMapMetrics(MetricDetails metricDetails, Attribute attribute) {
-//        List<Metric> metricList = new ArrayList<Metric>();
-//
-//        String attributeName = attribute.getName();
-//        Map attributesFound = (Map) attribute.getValue();
-//        for (Object metricNameKey : attributesFound.keySet()) {
-//            String key = attributeName + PERIOD + metricNameKey.toString();
-//            Object attributeValue = attributesFound.get(metricNameKey);
-//            Attribute attribute1 = new Attribute(key, attributeValue);
-//            metricList.addAll(JMXMetricsDataFilter.checkAttributeTypeAndSetDetails(metricDetails, attribute1));
-//        }
-//        return metricList;
-//    }
-
     @Override
-    public List<Metric> populateMetricsFromEntity(MetricDetails metricDetails, Attribute attribute) {
-        List<Metric> metricList = new ArrayList<Metric>();
-
+    public void populateMetricsFromEntity(MetricDetails metricDetails, Attribute attribute) {
         String attributeName = attribute.getName();
         Map attributesFound = (Map) attribute.getValue();
         for (Object metricNameKey : attributesFound.keySet()) {
             String key = attributeName + PERIOD + metricNameKey.toString();
             Object attributeValue = attributesFound.get(metricNameKey);
-            Attribute attribute1 = new Attribute(key, attributeValue);
-            metricList.addAll(populateMetricsFromEntity(metricDetails, attribute1));
+            Attribute mapMetric = new Attribute(key, attributeValue);
+            if(attributeValue  instanceof Map){
+                populateMetricsFromEntity(metricDetails, mapMetric);
+            } else {
+                super.populateMetricsFromEntity(metricDetails,mapMetric);
+            }
         }
-        return metricList;
     }
 }

@@ -104,7 +104,6 @@ public class JMXMetricsProcessor {
             try {
 //                TODO: Add logger debug
                 // TODO plan on sending separator as a field to checkAttribute
-                BaseMetricsProcessor baseMetricsProcessor =
                 jmxMetrics.addAll(checkTypeAndReturnMetrics(metricDetails, attribute));
             } catch (Exception e) {
                 logger.error("Error collecting value for {} {}", metricDetails.getInstance().getObjectName(), attribute.getName(), e);
@@ -131,17 +130,16 @@ public class JMXMetricsProcessor {
     }
 
     public static BaseMetricsProcessor getReference(Attribute attribute) {
-//        Object object = attribute.getValue();
-//
-//        if (object instanceof CompositeData) {
-//            return new CompositeMetricsProcessor();
-//        } else if (object instanceof List) {
-//            return new ListMetricsProcessor();
-//        } else if (object instanceof Map) {
-//            return new MapMetricsProcessor();
-//        } else {
-//            return new BaseMetricsProcessor();
-//        }
-        return new BaseMetricsProcessor();
+        Object object = attribute.getValue();
+
+        if (object instanceof CompositeData) {
+            return new CompositeMetricsProcessor();
+        } else if (object instanceof List) {
+            return new ListMetricsProcessor();
+        } else if (object instanceof Map) {
+            return new MapMetricsProcessor();
+        } else {
+            return new BaseMetricsProcessor();
+        }
     }
 }

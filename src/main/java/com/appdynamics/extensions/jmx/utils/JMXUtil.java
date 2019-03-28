@@ -31,16 +31,4 @@ public class JMXUtil {
     public static String getMetricNameFromCompositeObject(String objectName) {
         return objectName.split("\\.")[0];
     }
-
-//    public static List<Metric> checkTypeAndReturnMetrics(MetricDetails metricDetails, Attribute attribute){
-//
-//        JMXMetricProcessor jmxMetricProcessor = getReference(attribute);
-//        List<Metric> metricList = new ArrayList<>();
-//        metricList.addAll(jmxMetricProcessor.populateMetricsFromEntity(metricDetails, attribute));
-//        return metricList;
-//
-//    }
-
-
-
 }

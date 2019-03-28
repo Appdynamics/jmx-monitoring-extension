@@ -19,16 +19,20 @@ public class DictionaryGenerator {
     public static List<Map> createIncludeDictionary() {
         List<Map> dictionary = Lists.newArrayList();
         Map metric1 = Maps.newLinkedHashMap();
-        metric1.put("Capacity", "CapacityAlias");
+        metric1.put("name","Capacity");
+        metric1.put("alias", "CapacityAlias");
         dictionary.add(metric1);
         Map metric2 = Maps.newLinkedHashMap();
-        metric2.put("Size", "SizeAlias");
+        metric2.put("name","Size");
+        metric2.put("alias", "SizeAlias");
         dictionary.add(metric2);
         Map metric3 = Maps.newLinkedHashMap();
-        metric3.put("Hits", "HitsAlias");
+        metric3.put("name","Hits");
+        metric3.put("alias", "HitsAlias");
         dictionary.add(metric3);
         Map metric4 = Maps.newLinkedHashMap();
-        metric4.put("Requests", "RequestsAlias");
+        metric4.put("name","Requests");
+        metric4.put("alias", "RequestsAlias");
         dictionary.add(metric4);
         return dictionary;
     }
@@ -36,10 +40,12 @@ public class DictionaryGenerator {
     public static List<Map> createIncludeDictionaryWithCompositeObject() {
         List<Map> dictionary = Lists.newArrayList();
         Map metric1 = Maps.newLinkedHashMap();
-        metric1.put("HeapMemoryUsage.max", "maxAlias");
+        metric1.put("name","HeapMemoryUsage.max");
+        metric1.put("alias", "maxAlias");
         dictionary.add(metric1);
         Map metric2 = Maps.newLinkedHashMap();
-        metric2.put("HeapMemoryUsage.used", "usedAlias");
+        metric2.put("name","HeapMemoryUsage.used");
+        metric2.put("alias", "usedAlias");
         dictionary.add(metric2);
         return dictionary;
     }
