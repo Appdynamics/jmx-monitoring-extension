@@ -13,7 +13,6 @@ import com.appdynamics.extensions.MetricWriteHelper;
 import com.appdynamics.extensions.conf.MonitorContextConfiguration;
 import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.jmx.metrics.JMXMetricsProcessor;
-import com.appdynamics.extensions.jmx.utils.JMXUtil;
 import com.appdynamics.extensions.logging.ExtensionsLoggerFactory;
 import com.appdynamics.extensions.metrics.Metric;
 import com.appdynamics.extensions.util.CryptoUtils;
@@ -69,7 +68,6 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
         } else {
             throw new MalformedURLException();
         }
-
     }
 
     private String getPassword(Map server) {
@@ -109,7 +107,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
             logger.debug("Time to open connection for " + serverName + " in milliseconds: " + (currentTimestamp - previousTimestamp));
 
             for (Map mBean : configMBeans) {
-                String configObjName = (String)mBean.get(OBJECT_NAME);
+                String configObjName = (String) mBean.get(OBJECT_NAME);
                 logger.debug("Processing mBean {} from the config file", configObjName);
                 try {
                     JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration,
@@ -125,9 +123,9 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                     logger.error("Illegal Object Name {} " + configObjName, e);
                     status = false;
                 } catch (ReflectionException e) {
-                    e.printStackTrace();
+                    logger.error("(ReflectionException) Error while processing metrics for " + serverName, e);
                 } catch (IntrospectionException e) {
-                    e.printStackTrace();
+                    logger.error("(IntrospectionException) Error while processing metrics for " + serverName, e);
                 } catch (InstanceNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -148,7 +146,6 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
             }
         }
     }
-
 
     public void onTaskComplete() {
         logger.debug("Task Complete");

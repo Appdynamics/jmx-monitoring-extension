@@ -9,10 +9,8 @@
 package com.appdynamics.extensions.jmx.metrics.processor;
 
 import com.appdynamics.extensions.jmx.metrics.MetricDetails;
-import com.appdynamics.extensions.metrics.Metric;
 
 import javax.management.Attribute;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.appdynamics.extensions.jmx.utils.Constants.PERIOD;

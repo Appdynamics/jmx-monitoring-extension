@@ -40,7 +40,6 @@ public class BaseMetricsProcessor {
         return metrics;
     }
 
-
     private static LinkedList<String> getInstanceKey(ObjectInstance instance, List<String> mBeanKeys, LinkedList<String> metricTokens) {
         for (String key : mBeanKeys) {
             String value = getKeyProperty(instance, key);
@@ -72,7 +71,7 @@ public class BaseMetricsProcessor {
 
     public void populateMetricsFromEntity(MetricDetails metricDetails, Attribute attribute) {
         String attributeName = attribute.getName();
-        Map<String, ?> props = (Map<String,?>) metricDetails.getMetricPropsPerMetricName().get(attributeName);
+        Map<String, ?> props = (Map<String, ?>) metricDetails.getMetricPropsPerMetricName().get(attributeName);
         if (props == null) {
             logger.error("Could not find metric properties for {} ", attributeName);
         } else {

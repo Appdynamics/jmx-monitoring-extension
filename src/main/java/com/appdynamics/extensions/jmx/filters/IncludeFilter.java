@@ -35,18 +35,6 @@ public class IncludeFilter {
                 filteredSet.add(metricName);
             }
         }
-//        for (Object obj : dictionary) {
-//            Map metric = (Map) obj;
-//            Map.Entry firstEntry = (Map.Entry) metric.entrySet().iterator().next();
-//            String metricName = firstEntry.getKey().toString();
-//            if (JMXUtil.isCompositeObject(metricName)) {
-//                metricName = JMXUtil.getMetricNameFromCompositeObject(metricName);
-//            }
-//
-//            if (allMetrics.contains(metricName)) {
-//                filteredSet.add(metricName);
-//            }
-//        }
     }
 }
 

@@ -9,11 +9,8 @@
 package com.appdynamics.extensions.jmx.metrics.processor;
 
 import com.appdynamics.extensions.jmx.metrics.MetricDetails;
-import com.appdynamics.extensions.metrics.Metric;
 
 import javax.management.Attribute;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import static com.appdynamics.extensions.jmx.utils.Constants.PERIOD;
@@ -31,10 +28,10 @@ public class MapMetricsProcessor extends BaseMetricsProcessor {
             String key = attributeName + PERIOD + metricNameKey.toString();
             Object attributeValue = attributesFound.get(metricNameKey);
             Attribute mapMetric = new Attribute(key, attributeValue);
-            if(attributeValue  instanceof Map){
+            if (attributeValue instanceof Map) {
                 populateMetricsFromEntity(metricDetails, mapMetric);
             } else {
-                super.populateMetricsFromEntity(metricDetails,mapMetric);
+                super.populateMetricsFromEntity(metricDetails, mapMetric);
             }
         }
     }
