@@ -11,8 +11,7 @@ package com.appdynamics.extensions.jmx.metrics;
 import com.appdynamics.extensions.conf.MonitorContextConfiguration;
 import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.jmx.filters.IncludeFilter;
-import com.appdynamics.extensions.jmx.metrics.processor.JMXMetricProcessor;
-import com.appdynamics.extensions.jmx.metrics.processor.JMXMetricsDataFilter;
+import com.appdynamics.extensions.jmx.metrics.processor.*;
 import com.appdynamics.extensions.jmx.utils.JMXUtil;
 import com.appdynamics.extensions.logging.ExtensionsLoggerFactory;
 import com.appdynamics.extensions.metrics.Metric;
@@ -23,6 +22,7 @@ import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 
 import javax.management.*;
+import javax.management.openmbean.CompositeData;
 import javax.management.remote.JMXConnector;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -104,7 +104,8 @@ public class JMXMetricsProcessor {
             try {
 //                TODO: Add logger debug
                 // TODO plan on sending separator as a field to checkAttribute
-                jmxMetrics.addAll(JMXMetricProcessor.checkTypeAndReturnMetrics(metricDetails, attribute));
+                BaseMetricsProcessor baseMetricsProcessor =
+                jmxMetrics.addAll(checkTypeAndReturnMetrics(metricDetails, attribute));
             } catch (Exception e) {
                 logger.error("Error collecting value for {} {}", metricDetails.getInstance().getObjectName(), attribute.getName(), e);
             }
@@ -122,5 +123,25 @@ public class JMXMetricsProcessor {
         return separator;
     }
 
+    private List<Metric> checkTypeAndReturnMetrics(MetricDetails metricDetails, Attribute attribute){
 
+        BaseMetricsProcessor jmxMetricProcessor = getReference(attribute);
+        jmxMetricProcessor.populateMetricsFromEntity(metricDetails, attribute);
+        return jmxMetricProcessor.getMetrics();
+    }
+
+    public static BaseMetricsProcessor getReference(Attribute attribute) {
+//        Object object = attribute.getValue();
+//
+//        if (object instanceof CompositeData) {
+//            return new CompositeMetricsProcessor();
+//        } else if (object instanceof List) {
+//            return new ListMetricsProcessor();
+//        } else if (object instanceof Map) {
+//            return new MapMetricsProcessor();
+//        } else {
+//            return new BaseMetricsProcessor();
+//        }
+        return new BaseMetricsProcessor();
+    }
 }

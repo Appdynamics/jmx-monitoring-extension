@@ -37,14 +37,11 @@ public class MetricPropertiesForMBean {
 
         if (includeMetrics != null) {
             for (Object metad : includeMetrics) {
-                // TODO Change this to take alias as a separate field
                 Map localMetaData = (Map) metad;
-                Map.Entry entry = (Map.Entry) localMetaData.entrySet().iterator().next();
-                String metricName = entry.getKey().toString();
-                String alias = entry.getValue().toString();
+                String metricName = (String) localMetaData.get("name");
+                String alias = (String) localMetaData.get("alias");
 
                 Map<String, ? super Object> metricProperties = new HashMap<String, Object>();
-                // TODO you don't have to do this taken care of in commons
                 metricProperties.put(ALIAS, Strings.isNullOrEmpty(alias) ? metricName : alias);
 
                 setProps(mBean, metricProperties, metricName, alias); //global level

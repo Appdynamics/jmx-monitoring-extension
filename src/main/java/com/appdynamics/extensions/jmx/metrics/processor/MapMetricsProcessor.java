@@ -21,7 +21,7 @@ import static com.appdynamics.extensions.jmx.utils.Constants.PERIOD;
 /**
  * Created by bhuvnesh.kumar on 3/11/19.
  */
-class MapMetricsProcessor implements JMXMetricProcessor{
+public class MapMetricsProcessor extends BaseMetricsProcessor {
 
     // TODO should not use raw types, please change wherever applicable
 //    static List<Metric> setMetricDetailsForMapMetrics(MetricDetails metricDetails, Attribute attribute) {
@@ -48,7 +48,7 @@ class MapMetricsProcessor implements JMXMetricProcessor{
             String key = attributeName + PERIOD + metricNameKey.toString();
             Object attributeValue = attributesFound.get(metricNameKey);
             Attribute attribute1 = new Attribute(key, attributeValue);
-            metricList.addAll(JMXMetricProcessor.checkTypeAndReturnMetrics(metricDetails, attribute1));
+            metricList.addAll(populateMetricsFromEntity(metricDetails, attribute1));
         }
         return metricList;
     }

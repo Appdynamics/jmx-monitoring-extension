@@ -20,7 +20,7 @@ import static com.appdynamics.extensions.jmx.utils.Constants.PERIOD;
 /**
  * Created by bhuvnesh.kumar on 3/11/19.
  */
-class ListMetricsProcessor implements JMXMetricProcessor {
+public class ListMetricsProcessor extends BaseMetricsProcessor {
 
 //    static List<Metric> setMetricDetailsForListMetrics(MetricDetails metricDetails, Attribute attribute) {
 //        List<Metric> metricList = new ArrayList<Metric>();
@@ -39,28 +39,22 @@ class ListMetricsProcessor implements JMXMetricProcessor {
 //        return metricList;
 //    }
 
-    private static Attribute getListMetric(Object metricKey, MetricDetails metricDetails) {
+    private Attribute getListMetric(Object metricKey, MetricDetails metricDetails, String attributeName) {
         String[] arr = metricKey.toString().split(metricDetails.getSeparator());
-        String key = arr[0].trim();
+        String key = attributeName + PERIOD + arr[0].trim();
+
         String value = arr[1].trim();
         return new Attribute(key, value);
     }
 
     @Override
-    public List<Metric> populateMetricsFromEntity(MetricDetails metricDetails, Attribute attribute) {
-        List<Metric> metricList = new ArrayList<Metric>();
-
+    public void populateMetricsFromEntity(MetricDetails metricDetails, Attribute attribute) {
         String attributeName = attribute.getName();
         List attributeValuesFromList = (List) attribute.getValue();
         for (Object metricNameKey : attributeValuesFromList) {
-            // TODO something is not right here, you are creating an attribute whose value is already of type String,
-            //  then you are checking the attribute type. Please check this, something is definitely wrong
-            Attribute listMetric = getListMetric(metricNameKey, metricDetails);
-            String key = attributeName + PERIOD + listMetric.getName();
-            Object attributeValue = listMetric.getValue();
-            Attribute attribute1 = new Attribute(key, attributeValue);
-            metricList.addAll(JMXMetricProcessor.checkTypeAndReturnMetrics(metricDetails, attribute1));
+            Attribute listMetric = getListMetric(metricNameKey, metricDetails, attributeName);
+            // Value of the list metrics have to be of type base metric, can not be a list, map, composite
+            super.populateMetricsFromEntity(metricDetails, listMetric);
         }
-        return metricList;
     }
 }

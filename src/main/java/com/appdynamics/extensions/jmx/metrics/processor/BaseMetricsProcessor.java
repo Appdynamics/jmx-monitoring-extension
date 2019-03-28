@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import javax.management.Attribute;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -27,29 +28,15 @@ import static com.appdynamics.extensions.jmx.utils.Constants.EMPTY_STRING;
 /**
  * Created by bhuvnesh.kumar on 3/11/19.
  */
-class BaseMetricsProcessor implements JMXMetricProcessor{
-    private static final Logger logger = ExtensionsLoggerFactory.getLogger(BaseMetricsProcessor.class);
+public class BaseMetricsProcessor{
 
-    public BaseMetricsProcessor() {
+    private static final Logger logger = ExtensionsLoggerFactory.getLogger(BaseMetricsProcessor.class);
+    protected List<Metric> metrics;
+
+    public List<Metric> getMetrics() {
+        return metrics;
     }
 
-//    Metric setMetricDetailsForBaseMetrics(MetricDetails metricDetails, Attribute attribute) {
-//        String attributeName = attribute.getName();
-//        Map<String, ?> props = (Map) metricDetails.getMetricPropsPerMetricName().get(attributeName);
-//        if (props == null) {
-////            TODO: do we need to log it as an error?
-//            logger.error("Could not find metric properties for {} ", attributeName);
-//        }
-//        LinkedList<String> metricTokens = new LinkedList<>();
-//        metricTokens = getInstanceKey(metricDetails.getInstance(), metricDetails.getmBeanKeys(), metricTokens);
-//        metricTokens = generateMetricPathTokens(attributeName, metricDetails.getDisplayName(), metricTokens);
-//        String attrVal = attribute.getValue().toString();
-//        attrVal = attrVal.replaceAll("[^0-9.]", "");
-//        String[] tokens = new String[metricTokens.size()];
-//        tokens = metricTokens.toArray(tokens);
-//
-//        return new Metric(attributeName, attrVal, props, metricDetails.getMetricPrefix(), tokens);
-//    }
 
     private static LinkedList<String> getInstanceKey(ObjectInstance instance, List<String> mBeanKeys, LinkedList<String> metricTokens) {
         for (String key : mBeanKeys) {
@@ -80,8 +67,7 @@ class BaseMetricsProcessor implements JMXMetricProcessor{
         return getObjectName(instance).getKeyProperty(property);
     }
 
-    @Override
-    public List<Metric> populateMetricsFromEntity(MetricDetails metricDetails, Attribute attribute) {
+    public void populateMetricsFromEntity(MetricDetails metricDetails, Attribute attribute) {
         String attributeName = attribute.getName();
         Map<String, ?> props = (Map) metricDetails.getMetricPropsPerMetricName().get(attributeName);
         if (props == null) {
@@ -96,7 +82,7 @@ class BaseMetricsProcessor implements JMXMetricProcessor{
         String[] tokens = new String[metricTokens.size()];
         tokens = metricTokens.toArray(tokens);
 
-        return (List<Metric>) new Metric(attributeName, attrVal, props, metricDetails.getMetricPrefix(), tokens);
+        metrics.add(new Metric(attributeName, attrVal, props, metricDetails.getMetricPrefix(), tokens));
     }
 
 }

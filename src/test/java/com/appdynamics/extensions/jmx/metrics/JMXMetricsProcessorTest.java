@@ -77,8 +77,8 @@ public class JMXMetricsProcessorTest {
         attributes.add(new Attribute("Min", new BigDecimal(100)));
 
         List<String> metricNames = Lists.newArrayList();
-        metricNames.add("metric1");
-        metricNames.add("metric2");
+        metricNames.add("Max");
+        metricNames.add("Min");
         when(jmxConnectionAdapter.queryMBeans(eq(jmxConnector), Mockito.any(ObjectName.class))).thenReturn(objectInstances);
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
