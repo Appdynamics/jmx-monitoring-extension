@@ -29,9 +29,8 @@ servers:
 #encryptionKey: ""
 
 # number of concurrent tasks.
-# TODO please change the comment, from what I figure out it should be 1 thread per server
-# This doesn't need to be changed unless many servers are configured
-numberOfThreads: 10
+# Each server would require its own thread to process. Please provide adequate threads accordingly.
+numberOfThreads: 5
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                                      List of metrics
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -39,7 +38,7 @@ numberOfThreads: 10
 #   alias
 #   aggregationType
 #   timeRollUpType
-#   clusterRollUpType                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+#   clusterRollUpType
 #   multiplier -->not for derived metrics
 #   convert --> not for derived metrics
 #   delta --> not for derived metrics
@@ -55,7 +54,8 @@ mbeans:
     mbeanKeys: ["type", "brokerName"]
     metrics:
       include:
-        - StorePercentUsage: "Store Percent Usage"
+        - name: "StorePercentUsage"
+          alias: "Store Percent Usage"
 
   # This Mbean will extract out Queue metrics
   # This example also shows how you can change the default properties of a metric.
@@ -63,12 +63,13 @@ mbeans:
     mbeanKeys: ["type", "brokerName","destinationType","destinationName"]
     metrics:
       include:
-        - AverageEnqueueTime: "Average Enqueue Time"
+        - name: "AverageEnqueueTime"
+          alias: "Average Enqueue Time"
           clusterRollUpType: "INDIVIDUAL"
           timeRollUpType: "AVERAGE"
           aggregationType: "AVERAGE"
-
-        - ConsumerCount: "Consumer Count"
+        - name: "ConsumerCount"
+          alias: "Consumer Count"
           clusterRollUpType: "COLLECTIVE"
           timeRollUpType: "SUM"
           aggregationType: "SUM"
@@ -79,36 +80,42 @@ mbeans:
     mbeanKeys: ["type"]
     metrics:
       include:
-        - HeapMemoryUsage.committed : "Heap Memory Usage|Committed"
+        - name: "HeapMemoryUsage.committed"
+          alias: "Heap Memory Usage|Committed"
 
   - objectName: "org.apache.activemq.metrics:type=ClientRequest,scope=Read,name=Latency"
     mbeanKeys: ["type", "scope","name"]
     metrics:
       include:
         # Normal Metric
-        # TODO if you are not using name and alias separately then <name: alias> has to be enforced as the first entry in the map and documented.
-        - Max: "Max"
+        - name: "Max"
+          alias: "Max"
           aggregationType: "OBSERVATION"
           timeRollUpType: "AVERAGE"
           clusterRollUpType: "INDIVIDUAL"
 
         # Composite Metric
-        - HeapMemoryUsage.max : "Heap Memory Usage|Max"
+        - name: "HeapMemoryUsage.max"
+          alias: "Heap Memory Usage|Max"
           multiplier: "10"
           delta: false
 
         # Map Metric Level 1
-        - MapOfString.key1: "Map 1|Key 1"
-        - MapOfString.key2: "Map 1|Key 2"
+        - name: "MapOfString.key1"
+          alias: "Map 1|Key 1"
+        - name: "MapOfString.key2"
+          alias: "Map 1|Key 2"
           aggregationType: "OBSERVATION"
           timeRollUpType: "AVERAGE"
           clusterRollUpType: "INDIVIDUAL"
 
         # Map Metric Level 2
-        - MapOfString.map2.key2: "Map 1|Map 2|Key 2"
+        - name: "MapOfString.map2.key2"
+          alias: "Map 1|Map 2|Key 2"
 
         # Map Metric Level 3
-        - MapOfString.map2.map3.key32: "Map 1|Map 2|Map 3|Key 32"
+        - name: "MapOfString.map2.map3.key32"
+          alias: "Map 1|Map 2|Map 3|Key 32"
           multiplier: "20"
           delta: false
           aggregationType: "OBSERVATION"
@@ -121,9 +128,12 @@ mbeans:
           }
 
         # List Metrics
-        - listOfString.metric one: "listOfString|metric one"
-        - listOfString.metric two: "listOfString|metric two"
-        - listOfString.metric three: "listOfString|metric three"
+        - name: "listOfString.metric one"
+          alias: "List Of String|metric one"
+        - name: "listOfString.metric two"
+          alias: "List Of String|metric two"
+        - name: "listOfString.metric three"
+          alias: "List Of String|metric three"
 
 
 # Note: If the current "metricCharacterReplacer" is not working on your current machine,

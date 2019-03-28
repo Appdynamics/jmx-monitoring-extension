@@ -124,10 +124,13 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                     status = false;
                 } catch (ReflectionException e) {
                     logger.error("(ReflectionException) Error while processing metrics for " + serverName, e);
+                    status = false;
                 } catch (IntrospectionException e) {
                     logger.error("(IntrospectionException) Error while processing metrics for " + serverName, e);
+                    status = false;
                 } catch (InstanceNotFoundException e) {
-                    e.printStackTrace();
+                    logger.error("(InstanceNotFoundException) Error while processing metrics for " + serverName, e);
+                    status = false;
                 }
             }
         } catch (IOException e) {
@@ -136,7 +139,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
         } catch (Exception e) {
             logger.error("Unable to close the JMX connection for Server : " + serverName, e);
         } finally {
-            //TODO: Missing Heartbeat metrics
+            //TODO: Missing Heartbeat metrics :  this is added using the status flag in the onTaskComplete method
             try {
                 jmxConnectionAdapter.close(jmxConnector);
                 logger.debug("JMX connection is closed for " + serverName);
