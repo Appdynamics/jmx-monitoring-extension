@@ -73,6 +73,7 @@ public class MetricDetails {
     }
 
     public static class Builder {
+        // use builder like this : PostgresConnectionConfig
         // TODO same comments as in JMXMonitorTask.Builder
         private MetricDetails task = new MetricDetails();
 
