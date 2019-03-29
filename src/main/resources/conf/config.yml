@@ -82,6 +82,8 @@ mbeans:
       include:
         - name: "HeapMemoryUsage.committed"
           alias: "Heap Memory Usage|Committed"
+        - name: "HeapMemoryUsage.used"
+          alias: "Heap Memory Usage|Used"
 
   - objectName: "org.apache.activemq.metrics:type=ClientRequest,scope=Read,name=Latency"
     mbeanKeys: ["type", "scope","name"]

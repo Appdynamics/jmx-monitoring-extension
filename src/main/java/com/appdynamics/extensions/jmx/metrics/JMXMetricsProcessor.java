@@ -63,6 +63,8 @@ public class JMXMetricsProcessor {
                 (configObjectName));
         for (ObjectInstance instance : objectInstances) {
             logger.debug("Processing for Object : {} ", configObjectName);
+
+// TODO check how the attribute is returned and based on their, build the filter
             List<String> metricNameListFromMbean = jmxConnectionAdapter.getReadableAttributeNames(jmxConnector, instance);
             Set<String> metricNamesToBeExtracted = applyFilters(mBean, metricNameListFromMbean);
             List<Attribute> attributes = jmxConnectionAdapter.getAttributes(jmxConnector, instance.getObjectName(),
@@ -105,7 +107,6 @@ public class JMXMetricsProcessor {
         for (Attribute attribute : attributes) {
             try {
 //                TODO: Add logger debug
-                // TODO plan on sending separator as a field to checkAttribute
                 jmxMetrics.addAll(checkTypeAndReturnMetrics(metricDetails, attribute));
             } catch (Exception e) {
                 logger.error("Error collecting value for {} {}", metricDetails.getInstance().getObjectName(), attribute.getName(), e);

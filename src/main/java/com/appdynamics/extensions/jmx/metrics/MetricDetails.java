@@ -16,7 +16,6 @@ import java.util.Map;
  * Created by bhuvnesh.kumar on 3/7/19.
  */
 public class MetricDetails {
-    // TODO metricPrefix is not something unique to each metric, this can be avoided in this class
     private String metricPrefix;
     private ObjectInstance instance;
     private Map<String, ?> metricPropsPerMetricName;
@@ -101,7 +100,6 @@ public class MetricDetails {
             task.displayName = displayName;
             return this;
         }
-
 
         Builder separator(String separator) {
             task.separator = separator;
