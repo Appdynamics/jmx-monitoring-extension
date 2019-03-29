@@ -40,8 +40,6 @@ import static com.appdynamics.extensions.jmx.utils.Constants.*;
  * Created by bhuvnesh.kumar on 12/19/18.
  */
 public class JMXMetricsProcessor {
-    // TODO should not use Raw Types, can you change wherever applicable
-
     private static final Logger logger = ExtensionsLoggerFactory.getLogger(JMXMetricsProcessor.class);
     private JMXConnectionAdapter jmxConnectionAdapter;
     private JMXConnector jmxConnector;
@@ -53,7 +51,7 @@ public class JMXMetricsProcessor {
         this.jmxConnector = jmxConnector;
     }
 
-    public List<Metric> getJMXMetrics(Map mBean, String metricPrefix, String displayName) throws
+    public List<Metric> getJMXMetrics(Map<String, ?> mBean, String metricPrefix, String displayName) throws
             JMException, IOException {
         List<Metric> jmxMetrics = Lists.newArrayList();
         String configObjectName = (String )mBean.get(OBJECT_NAME);
@@ -77,7 +75,7 @@ public class JMXMetricsProcessor {
         return jmxMetrics;
     }
 
-    private MetricDetails getMetricDetails(Map mBean, String metricPrefix, String displayName, ObjectInstance instance) {
+    private MetricDetails getMetricDetails(Map<String, ?> mBean, String metricPrefix, String displayName, ObjectInstance instance) {
 
         return new MetricDetails.Builder()
                 .metricPrefix(metricPrefix)
@@ -89,9 +87,9 @@ public class JMXMetricsProcessor {
                 .build();
     }
 
-    private Set<String> applyFilters(Map aConfigMBean, List<String> readableAttributes) {
+    private Set<String> applyFilters(Map<String, ?> aConfigMBean, List<String> readableAttributes) {
         Set<String> filteredSet = Sets.newHashSet();
-        Map configMetrics = (Map) aConfigMBean.get(METRICS);
+        Map<String, ?> configMetrics = (Map<String, ?>) aConfigMBean.get(METRICS);
         List<Map<String, ?>> includeDictionary = (List<Map<String, ?>>) configMetrics.get(INCLUDE);
         new IncludeFilter(includeDictionary).applyFilter(filteredSet, readableAttributes);
         return filteredSet;

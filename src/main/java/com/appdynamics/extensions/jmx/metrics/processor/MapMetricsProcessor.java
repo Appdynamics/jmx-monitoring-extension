@@ -23,11 +23,11 @@ public class MapMetricsProcessor extends BaseMetricsProcessor {
     @Override
     public void populateMetricsFromEntity(MetricDetails metricDetails, Attribute attribute) {
         String attributeName = attribute.getName();
-        Map attributesFound = (Map) attribute.getValue();
+        Map<String, ?> attributesFound = (Map) attribute.getValue();
         processAttributeValue(metricDetails, attributeName, attributesFound);
     }
 
-    private void processAttributeValue(MetricDetails metricDetails, String attributeName, Map attributesFound) {
+    private void processAttributeValue(MetricDetails metricDetails, String attributeName, Map<String, ?> attributesFound) {
         for (Object metricNameKey : attributesFound.keySet()) {
             String key = attributeName + PERIOD + metricNameKey.toString();
             Object attributeValue = attributesFound.get(metricNameKey);

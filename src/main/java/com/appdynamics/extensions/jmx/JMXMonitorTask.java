@@ -69,7 +69,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
 
     private String getPassword(Map server) {
         if (monitorContextConfiguration.getConfigYml().get(ENCRYPTION_KEY) != null) {
-            String encryptionKey = monitorContextConfiguration.getConfigYml().get(ENCRYPTION_KEY).toString();
+            String encryptionKey = (String) monitorContextConfiguration.getConfigYml().get(ENCRYPTION_KEY);
             server.put(ENCRYPTION_KEY, encryptionKey);
         }
         return CryptoUtils.getPassword(server);
@@ -103,7 +103,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
             currentTimestamp = System.currentTimeMillis();
             logger.debug("Time to open connection for " + serverName + " in milliseconds: " + (currentTimestamp - previousTimestamp));
 
-            for (Map mBean : configMBeans) {
+            for (Map<String, ?> mBean : configMBeans) {
                 String configObjName = (String) mBean.get(OBJECT_NAME);
                 logger.debug("Processing mBean {} from the config file", configObjName);
                 try {

@@ -26,18 +26,18 @@ import static com.appdynamics.extensions.jmx.utils.Constants.*;
 //  are not needed imo, every metric should have own properties. we can discuss this lmk
 public class MetricPropertiesForMBean {
 
-    public static Map<String, ?> getMapOfProperties(Map mBean) {
+    public static Map<String, ?> getMapOfProperties(Map<String, ?> mBean) {
 
         Map<String, ? super Object> metricPropsMap = Maps.newHashMap();
         if (mBean == null || mBean.isEmpty()) {
             return metricPropsMap;
         }
-        Map configMetrics = (Map) mBean.get(METRICS);
+        Map<String, ?> configMetrics = (Map<String, ?>) mBean.get(METRICS);
         List includeMetrics = (List) configMetrics.get(INCLUDE);
 
         if (includeMetrics != null) {
             for (Object metad : includeMetrics) {
-                Map localMetaData = (Map) metad;
+                Map<String, ?> localMetaData = (Map<String, ?>) metad;
                 String metricName = (String) localMetaData.get("name");
                 String alias = (String) localMetaData.get("alias");
 
@@ -52,7 +52,7 @@ public class MetricPropertiesForMBean {
         return metricPropsMap;
     }
 
-    private static void setProps(Map metadata, Map props, String metricName, String alias) {
+    private static void setProps(Map<String, ?> metadata, Map props, String metricName, String alias) {
         if (metadata.get(ALIAS) != null) {
             props.put(ALIAS, metadata.get(ALIAS).toString());
         } else if (!Strings.isNullOrEmpty(alias)) {
