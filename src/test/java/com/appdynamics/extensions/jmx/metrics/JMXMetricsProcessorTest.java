@@ -65,8 +65,7 @@ public class JMXMetricsProcessorTest {
     }
 
     @Test
-    public void getNodeMetrics_NonCompositeObject() throws MalformedObjectNameException, IntrospectionException, ReflectionException,
-            InstanceNotFoundException, IOException {
+    public void getNodeMetrics_NonCompositeObject() throws JMException, IOException {
         Map config = YmlReader.readFromFileAsMap(new File(this.getClass().getResource("/conf/config_without_composite_object.yml").getFile()));
         List<Map> mBeans = (List) config.get("mbeans");
         Set<ObjectInstance> objectInstances = Sets.newHashSet();
@@ -104,8 +103,7 @@ public class JMXMetricsProcessorTest {
     }
 
     @Test
-    public void getNodeMetrics_CompositeObject() throws MalformedObjectNameException, IntrospectionException,
-            ReflectionException, InstanceNotFoundException, IOException, OpenDataException {
+    public void getNodeMetrics_CompositeObject() throws JMException, IOException {
         Map config = YmlReader.readFromFileAsMap(new File(this.getClass().getResource
                 ("/conf/config_with_composite_object.yml").getFile()));
         List<Map> mBeans = (List) config.get("mbeans");
@@ -143,8 +141,7 @@ public class JMXMetricsProcessorTest {
     }
 
     @Test
-    public void getNodeMetrics_compositeAndNonCompositeObjects() throws MalformedObjectNameException, IntrospectionException,
-            ReflectionException, InstanceNotFoundException, IOException, OpenDataException {
+    public void getNodeMetrics_compositeAndNonCompositeObjects() throws JMException, IOException {
         Map config = YmlReader.readFromFileAsMap(new File(this.getClass().getResource("/conf/config_with_composite_and_noncomposite_objects.yml").getFile()));
         List<Map> mBeans = (List) config.get("mbeans");
         Set<ObjectInstance> objectInstances = Sets.newHashSet();
@@ -183,8 +180,7 @@ public class JMXMetricsProcessorTest {
 
 
     @Test
-    public void testGlobalProperties() throws MalformedObjectNameException, IntrospectionException,
-            ReflectionException, InstanceNotFoundException, IOException, OpenDataException {
+    public void testGlobalProperties() throws JMException, IOException {
         Map config = YmlReader.readFromFileAsMap(new File(this.getClass().getResource("/conf/config_for_global_metadata.yml").getFile()));
         List<Map> mBeans = (List) config.get("mbeans");
         Set<ObjectInstance> objectInstances = Sets.newHashSet();
@@ -223,8 +219,7 @@ public class JMXMetricsProcessorTest {
     }
 
     @Test
-    public void testlocalProperties() throws MalformedObjectNameException, IntrospectionException,
-            ReflectionException, InstanceNotFoundException, IOException, OpenDataException {
+    public void testlocalProperties() throws JMException, IOException {
         Map config = YmlReader.readFromFileAsMap(new File(this.getClass().getResource("/conf/config_for_local_metadata.yml").getFile()));
         List<Map> mBeans = (List) config.get("mbeans");
         Set<ObjectInstance> objectInstances = Sets.newHashSet();
@@ -265,8 +260,7 @@ public class JMXMetricsProcessorTest {
     }
 
     @Test
-    public void checkMetricPropertiesFromConfig() throws MalformedObjectNameException, IntrospectionException, ReflectionException,
-            InstanceNotFoundException, IOException {
+    public void checkMetricPropertiesFromConfig() throws JMException, IOException {
         Map config = YmlReader.readFromFileAsMap(new File(this.getClass().getResource("/conf/config_with_props.yml").getFile()));
         List<Map> mBeans = (List) config.get("mbeans");
         Set<ObjectInstance> objectInstances = Sets.newHashSet();
@@ -300,7 +294,7 @@ public class JMXMetricsProcessorTest {
     }
 
 
-    private CompositeDataSupport createCompositeDataSupportObject() throws OpenDataException {
+    private CompositeDataSupport createCompositeDataSupportObject() throws JMException {
         String typeName = "type";
         String description = "description";
         String[] itemNames = {"max", "used"};
@@ -356,8 +350,7 @@ public class JMXMetricsProcessorTest {
     }
 
     @Test
-    public void getSingleAndMultiLevelMapMetricsThroughJMX() throws MalformedObjectNameException, IntrospectionException, ReflectionException,
-            InstanceNotFoundException, IOException, OpenDataException {
+    public void getSingleAndMultiLevelMapMetricsThroughJMX() throws JMException, IOException {
         Map config = YmlReader.readFromFileAsMap(new File(this.getClass().getResource("/conf/config_with_map.yml").getFile()));
         List<Map> mBeans = (List) config.get("mbeans");
         Set<ObjectInstance> objectInstances = Sets.newHashSet();

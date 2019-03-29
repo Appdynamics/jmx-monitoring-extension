@@ -21,8 +21,8 @@ public class IncludeFilter {
         this.dictionary = dictionary;
     }
 
-    public void applyFilter(Set<String> filteredSet, List<String> allMetrics) {
-        if (allMetrics == null || dictionary == null) {
+    public void applyFilter(Set<String> filteredSet, List<String> readableAttributes) {
+        if (readableAttributes == null || dictionary == null) {
             return;
         }
 
@@ -31,7 +31,7 @@ public class IncludeFilter {
             if (JMXUtil.isCompositeObject(metricName)) {
                 metricName = JMXUtil.getMetricNameFromCompositeObject(metricName);
             }
-            if (allMetrics.contains(metricName)) {
+            if (readableAttributes.contains(metricName)) {
                 filteredSet.add(metricName);
             }
         }

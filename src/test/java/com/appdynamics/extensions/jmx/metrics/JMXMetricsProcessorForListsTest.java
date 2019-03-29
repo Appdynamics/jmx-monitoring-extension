@@ -69,8 +69,7 @@ public class JMXMetricsProcessorForListsTest {
 
 
     @Test
-    public void getListMetricsThroughJMX() throws MalformedObjectNameException, IntrospectionException, ReflectionException,
-            InstanceNotFoundException, IOException, OpenDataException {
+    public void getListMetricsThroughJMX() throws JMException, IOException {
         Map config = YmlReader.readFromFileAsMap(new File(this.getClass().getResource("/conf/config_with_list.yml").getFile()));
         List<Map> mBeans = (List) config.get("mbeans");
         Set<ObjectInstance> objectInstances = Sets.newHashSet();
@@ -140,7 +139,7 @@ public class JMXMetricsProcessorForListsTest {
     }
 
 
-    private CompositeDataSupport createCompositeDataSupportObject() throws OpenDataException {
+    private CompositeDataSupport createCompositeDataSupportObject() throws JMException {
         String typeName = "type";
         String description = "description";
         String[] itemNames = {"max", "used"};

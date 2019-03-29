@@ -41,21 +41,25 @@ public class JMXMonitor extends ABaseMonitor {
 
     @Override
     protected void doRun(TasksExecutionServiceProvider taskExecutor) {
-        Map<String, ?> config = getContextConfiguration().getConfigYml();
-        if (config != null) {
-            List<Map<String, ?>> servers = getServers();
-            if (!servers.isEmpty()) {
-                for (Map server : servers) {
-                    AssertUtils.assertNotNull(server.get(DISPLAY_NAME), DISPLAY_NAME + " can not be null in the config.yml");
+        try {
+            Map<String, ?> config = getContextConfiguration().getConfigYml();
+            if (config != null) {
+                List<Map<String, ?>> servers = getServers();
+                if (!servers.isEmpty()) {
+                    for (Map server : servers) {
+                        AssertUtils.assertNotNull(server.get(DISPLAY_NAME), DISPLAY_NAME + " can not be null in the config.yml");
 
-                    JMXMonitorTask task = new JMXMonitorTask(taskExecutor.getMetricWriteHelper(), server, getContextConfiguration());
-                    taskExecutor.submit((String) server.get(DISPLAY_NAME), task);
+                        JMXMonitorTask task = new JMXMonitorTask(taskExecutor.getMetricWriteHelper(), server, getContextConfiguration());
+                        taskExecutor.submit((String) server.get(DISPLAY_NAME), task);
+                    }
+                } else {
+                    logger.error("There are no servers configured");
                 }
             } else {
-                logger.error("There are no servers configured");
+                logger.error("The config.yml is not loaded due to previous errors.The task will not run");
             }
-        } else {
-            logger.error("The config.yml is not loaded due to previous errors.The task will not run");
+        } catch (Exception e) {
+            logger.error("JMX Extension can not proceed due to errors in the config.", e);
         }
     }
 

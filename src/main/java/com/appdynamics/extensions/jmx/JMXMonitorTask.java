@@ -20,10 +20,7 @@ import com.google.common.base.Strings;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 
-import javax.management.InstanceNotFoundException;
-import javax.management.IntrospectionException;
-import javax.management.MalformedObjectNameException;
-import javax.management.ReflectionException;
+import javax.management.*;
 import javax.management.remote.JMXConnector;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -37,7 +34,7 @@ import static com.appdynamics.extensions.jmx.utils.Constants.*;
  */
 public class JMXMonitorTask implements AMonitorTaskRunnable {
     private static final Logger logger = ExtensionsLoggerFactory.getLogger(JMXMonitorTask.class);
-    private Boolean status = true;
+    private Boolean heartBeatStatus = true;
     private String metricPrefix; // take from context
     private MetricWriteHelper metricWriter;
     private Map<String, ?> server;
@@ -90,9 +87,9 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
             logger.error("Cannot construct JMX uri for " + server.get(DISPLAY_NAME).toString(), e);
         } catch (Exception e) {
             logger.error("Error in JMX Monitoring Task for Server {}", serverName, e);
-            status = false;
+            heartBeatStatus = false;
         } finally {
-            logger.debug("JMX Monitoring Task Complete.");
+            logger.debug("JMX Monitoring Task Complete for Server {}", serverName);
         }
     }
 
@@ -119,27 +116,17 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                     } else {
                         logger.debug("No metrics being sent from : " + serverName);
                     }
-                } catch (MalformedObjectNameException e) {
-                    logger.error("Illegal Object Name {} " + configObjName, e);
-                    status = false;
-                } catch (ReflectionException e) {
-                    logger.error("(ReflectionException) Error while processing metrics for " + serverName, e);
-                    status = false;
-                } catch (IntrospectionException e) {
-                    logger.error("(IntrospectionException) Error while processing metrics for " + serverName, e);
-                    status = false;
-                } catch (InstanceNotFoundException e) {
-                    logger.error("(InstanceNotFoundException) Error while processing metrics for " + serverName, e);
-                    status = false;
+                } catch (JMException e) {
+                    logger.error("JMException Occurred for {} " + configObjName, e);
+                    heartBeatStatus = false;
                 }
             }
         } catch (IOException e) {
             logger.error("Unable to close the JMX connection for Server : " + serverName, e);
-            status = false;
+            heartBeatStatus = false;
         } catch (Exception e) {
             logger.error("Unable to close the JMX connection for Server : " + serverName, e);
         } finally {
-            //TODO: Missing Heartbeat metrics :  this is added using the status flag in the onTaskComplete method
             try {
                 jmxConnectionAdapter.close(jmxConnector);
                 logger.debug("JMX connection is closed for " + serverName);
@@ -152,8 +139,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
 
     public void onTaskComplete() {
         logger.debug("Task Complete");
-        String metricValue = status ? "1" : "0";
-
+        String metricValue = heartBeatStatus ? "1" : "0";
         metricWriter.printMetric(metricPrefix + METRICS_SEPARATOR + server.get(DISPLAY_NAME).toString() + METRICS_SEPARATOR + AVAILABILITY, metricValue, "AVERAGE", "AVERAGE", "INDIVIDUAL");
     }
 }

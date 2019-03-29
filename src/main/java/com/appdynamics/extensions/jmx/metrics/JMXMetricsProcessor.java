@@ -54,19 +54,16 @@ public class JMXMetricsProcessor {
     }
 
     public List<Metric> getJMXMetrics(Map mBean, String metricPrefix, String displayName) throws
-            MalformedObjectNameException, IOException, IntrospectionException, InstanceNotFoundException,
-            ReflectionException {
+            JMException, IOException {
         List<Metric> jmxMetrics = Lists.newArrayList();
         String configObjectName = (String )mBean.get(OBJECT_NAME);
         AssertUtils.assertNotNull(configObjectName, "Metric Object Name can not be Empty");
         Set<ObjectInstance> objectInstances = jmxConnectionAdapter.queryMBeans(jmxConnector, ObjectName.getInstance
                 (configObjectName));
+        logger.debug("Processing for Object : {} ", configObjectName);
         for (ObjectInstance instance : objectInstances) {
-            logger.debug("Processing for Object : {} ", configObjectName);
-
-// TODO check how the attribute is returned and based on their, build the filter
-            List<String> metricNameListFromMbean = jmxConnectionAdapter.getReadableAttributeNames(jmxConnector, instance);
-            Set<String> metricNamesToBeExtracted = applyFilters(mBean, metricNameListFromMbean);
+            List<String> readableAttributes = jmxConnectionAdapter.getReadableAttributeNames(jmxConnector, instance);
+            Set<String> metricNamesToBeExtracted = applyFilters(mBean, readableAttributes);
             List<Attribute> attributes = jmxConnectionAdapter.getAttributes(jmxConnector, instance.getObjectName(),
                     metricNamesToBeExtracted.toArray(new String[metricNamesToBeExtracted.size()]));
             if (!attributes.isEmpty()) {
@@ -88,25 +85,23 @@ public class JMXMetricsProcessor {
                 .metricPropsPerMetricName(getMapOfProperties(mBean))
                 .mBeanKeys(getMBeanKeys(mBean))
                 .displayName(displayName)
-                .separator(getSeparator()) //TODO: Separator is not an ObjectInstance level configuration. Should be passed to the processor. Check the feasibility, as it may need lot of refactoring
+                .separator(getSeparator())
                 .build();
     }
 
-    private Set<String> applyFilters(Map aConfigMBean, List<String> metricNamesList) {
+    private Set<String> applyFilters(Map aConfigMBean, List<String> readableAttributes) {
         Set<String> filteredSet = Sets.newHashSet();
         Map configMetrics = (Map) aConfigMBean.get(METRICS);
         List<Map<String, ?>> includeDictionary = (List<Map<String, ?>>) configMetrics.get(INCLUDE);
-        new IncludeFilter(includeDictionary).applyFilter(filteredSet, metricNamesList);
+        new IncludeFilter(includeDictionary).applyFilter(filteredSet, readableAttributes);
         return filteredSet;
     }
 
-
     private List<Metric> collectMetrics(MetricDetails metricDetails, List<Attribute> attributes) {
         List<Metric> jmxMetrics = new ArrayList<Metric>();
-
+        logger.debug("Working to get values from attributes for {}", metricDetails.getInstance().toString());
         for (Attribute attribute : attributes) {
             try {
-//                TODO: Add logger debug
                 jmxMetrics.addAll(checkTypeAndReturnMetrics(metricDetails, attribute));
             } catch (Exception e) {
                 logger.error("Error collecting value for {} {}", metricDetails.getInstance().getObjectName(), attribute.getName(), e);
@@ -114,8 +109,6 @@ public class JMXMetricsProcessor {
         }
         return jmxMetrics;
     }
-
-
 
     private String getSeparator() {
         String separator = (String) monitorContextConfiguration.getConfigYml().get(SEPARATOR_FOR_METRIC_LISTS);
@@ -132,7 +125,7 @@ public class JMXMetricsProcessor {
         return jmxMetricProcessor.getMetrics();
     }
 
-    public static BaseMetricsProcessor getReference(Attribute attribute) {
+    private static BaseMetricsProcessor getReference(Attribute attribute) {
         Object object = attribute.getValue();
 
         if (object instanceof CompositeData) {
