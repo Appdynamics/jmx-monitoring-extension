@@ -23,7 +23,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 
-import javax.management.*;
+import javax.management.Attribute;
+import javax.management.JMException;
+import javax.management.ObjectInstance;
+import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 import javax.management.remote.JMXConnector;
 import java.io.IOException;
@@ -54,7 +57,7 @@ public class JMXMetricsProcessor {
     public List<Metric> getJMXMetrics(Map<String, ?> mBean, String metricPrefix, String displayName) throws
             JMException, IOException {
         List<Metric> jmxMetrics = Lists.newArrayList();
-        String configObjectName = (String )mBean.get(OBJECT_NAME);
+        String configObjectName = (String) mBean.get(OBJECT_NAME);
         AssertUtils.assertNotNull(configObjectName, "Metric Object Name can not be Empty");
         Set<ObjectInstance> objectInstances = jmxConnectionAdapter.queryMBeans(jmxConnector, ObjectName.getInstance
                 (configObjectName));
@@ -116,7 +119,7 @@ public class JMXMetricsProcessor {
         return separator;
     }
 
-    private List<Metric> checkTypeAndReturnMetrics(MetricDetails metricDetails, Attribute attribute){
+    private List<Metric> checkTypeAndReturnMetrics(MetricDetails metricDetails, Attribute attribute) {
 
         BaseMetricsProcessor jmxMetricProcessor = getReference(attribute);
         jmxMetricProcessor.populateMetricsFromEntity(metricDetails, attribute);

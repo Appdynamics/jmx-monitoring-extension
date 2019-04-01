@@ -23,7 +23,6 @@ public class MetricDetails {
     private String displayName;
     private String separator;
 
-
     public String getSeparator() {
         return separator;
     }
@@ -73,8 +72,6 @@ public class MetricDetails {
     }
 
     public static class Builder {
-        // use builder like this : PostgresConnectionConfig
-        // TODO same comments as in JMXMonitorTask.Builder
         private MetricDetails task = new MetricDetails();
 
         Builder metricPrefix(String metricPrefix) {
