@@ -24,10 +24,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import javax.management.*;
+import javax.management.Attribute;
+import javax.management.JMException;
+import javax.management.ObjectInstance;
+import javax.management.ObjectName;
 import javax.management.openmbean.CompositeDataSupport;
 import javax.management.openmbean.CompositeType;
-import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.OpenType;
 import javax.management.remote.JMXConnector;
 import java.io.File;
@@ -82,23 +84,20 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
         JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration, jmxConnectionAdapter, jmxConnector);
-        Map<String, ?> metricPropertiesMap = MetricPropertiesForMBean.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPrefix, "");
         Assert.assertTrue(metrics.get(0).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|Max"));
         Assert.assertTrue(metrics.get(0).getMetricName().equals("Max"));
         Assert.assertTrue(metrics.get(0).getMetricValue().equals("200"));
-        Map<String, ?> metricProps = (Map<String, ?>) metricPropertiesMap.get("Max");
-        Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
-        Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
-        Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals("AVERAGE"));
 
         Assert.assertTrue(metrics.get(1).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|Min"));
         Assert.assertTrue(metrics.get(1).getMetricName().equals("Min"));
         Assert.assertTrue(metrics.get(1).getMetricValue().equals("100"));
-        metricProps = (Map<String, ?>) metricPropertiesMap.get("Min");
-        Assert.assertTrue(metrics.get(1).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
-        Assert.assertTrue(metrics.get(1).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
-        Assert.assertTrue(metrics.get(1).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
+        Assert.assertTrue(metrics.get(1).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
+        Assert.assertTrue(metrics.get(1).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
+        Assert.assertTrue(metrics.get(1).getMetricProperties().getAggregationType().equals("AVERAGE"));
 
     }
 
@@ -118,25 +117,22 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.getReadableAttributeNames(eq(jmxConnector), Mockito.any(ObjectInstance.class))).thenReturn(metricNames);
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
         JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration, jmxConnectionAdapter, jmxConnector);
-        Map<String, ?> metricPropertiesMap = MetricPropertiesForMBean.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPrefix, "");
 
         Assert.assertTrue(metrics.get(0).getMetricPath().equals("Custom Metrics|JMX Monitor|Memory|HeapMemoryUsage.max"));
         Assert.assertTrue(metrics.get(0).getMetricName().equals("HeapMemoryUsage.max"));
         Assert.assertTrue(metrics.get(0).getMetricValue().equals("100"));
-        Map<String, ?> metricProps = (Map<String, ?>) metricPropertiesMap.get("HeapMemoryUsage.max");
 
-        Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
-        Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
-        Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals("AVERAGE"));
 
         Assert.assertTrue(metrics.get(1).getMetricPath().equals("Custom Metrics|JMX Monitor|Memory|HeapMemoryUsage.used"));
         Assert.assertTrue(metrics.get(1).getMetricName().equals("HeapMemoryUsage.used"));
         Assert.assertTrue(metrics.get(1).getMetricValue().equals("50"));
-        metricProps = (Map<String, ?>) metricPropertiesMap.get("HeapMemoryUsage.used");
-        Assert.assertTrue(metrics.get(1).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
-        Assert.assertTrue(metrics.get(1).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
-        Assert.assertTrue(metrics.get(1).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
+        Assert.assertTrue(metrics.get(1).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
+        Assert.assertTrue(metrics.get(1).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
+        Assert.assertTrue(metrics.get(1).getMetricProperties().getAggregationType().equals("AVERAGE"));
 
     }
 
@@ -158,24 +154,21 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
 
         JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration, jmxConnectionAdapter, jmxConnector);
-        Map<String, ?> metricPropertiesMap = MetricPropertiesForMBean.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPrefix, "");
 
-        Map<String, ?> metricProps = (Map<String, ?>) metricPropertiesMap.get("ObjectPendingFinalizationCount");
         Assert.assertTrue(metrics.get(0).getMetricPath().equals("Custom Metrics|JMX Monitor|Memory|ObjectPendingFinalizationCount"));
         Assert.assertTrue(metrics.get(0).getMetricName().equals("ObjectPendingFinalizationCount"));
         Assert.assertTrue(metrics.get(0).getMetricValue().equals("0"));
-        Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
-        Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
-        Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals("AVERAGE"));
 
-        metricProps = (Map<String, ?>) metricPropertiesMap.get("HeapMemoryUsage.used");
         Assert.assertTrue(metrics.get(1).getMetricPath().equals("Custom Metrics|JMX Monitor|Memory|HeapMemoryUsage.used"));
         Assert.assertTrue(metrics.get(1).getMetricName().equals("HeapMemoryUsage.used"));
         Assert.assertTrue(metrics.get(1).getMetricValue().equals("50"));
-        Assert.assertTrue(metrics.get(1).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
-        Assert.assertTrue(metrics.get(1).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
-        Assert.assertTrue(metrics.get(1).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
+        Assert.assertTrue(metrics.get(1).getMetricProperties().getTimeRollUpType().equals("AVERAGE"));
+        Assert.assertTrue(metrics.get(1).getMetricProperties().getClusterRollUpType().equals("INDIVIDUAL"));
+        Assert.assertTrue(metrics.get(1).getMetricProperties().getAggregationType().equals("AVERAGE"));
     }
 
 
@@ -197,24 +190,21 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
 
         JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration, jmxConnectionAdapter, jmxConnector);
-        Map<String, ?> metricPropertiesMap = MetricPropertiesForMBean.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPrefix, "");
 
         Assert.assertTrue(metrics.get(0).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|Max"));
         Assert.assertTrue(metrics.get(0).getMetricName().equals("Max"));
         Assert.assertTrue(metrics.get(0).getMetricValue().equals("200"));
-        Map<String, ?> metricProps = (Map<String, ?>) metricPropertiesMap.get("Max");
-        Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
-        Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
-        Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals("SUM"));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals("COLLECTIVE"));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals("SUM"));
 
         Assert.assertTrue(metrics.get(1).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|Min"));
         Assert.assertTrue(metrics.get(1).getMetricName().equals("Min"));
         Assert.assertTrue(metrics.get(1).getMetricValue().equals("100"));
-        metricProps = (Map<String, ?>) metricPropertiesMap.get("Min");
-        Assert.assertTrue(metrics.get(1).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
-        Assert.assertTrue(metrics.get(1).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
-        Assert.assertTrue(metrics.get(1).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
+        Assert.assertTrue(metrics.get(1).getMetricProperties().getTimeRollUpType().equals("SUM"));
+        Assert.assertTrue(metrics.get(1).getMetricProperties().getClusterRollUpType().equals("COLLECTIVE"));
+        Assert.assertTrue(metrics.get(1).getMetricProperties().getAggregationType().equals("SUM"));
 
     }
 
@@ -238,24 +228,21 @@ public class JMXMetricsProcessorTest {
         when(jmxConnectionAdapter.getAttributes(eq(jmxConnector), Mockito.any(ObjectName.class), Mockito.any(String[].class))).thenReturn(attributes);
 
         JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration, jmxConnectionAdapter, jmxConnector);
-        Map<String, ?> metricPropertiesMap = MetricPropertiesForMBean.getMapOfProperties(mBeans.get(0));
         List<Metric> metrics = jmxMetricsProcessor.getJMXMetrics(mBeans.get(0), metricPrefix, "");
 
         Assert.assertTrue(metrics.get(0).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|Max"));
         Assert.assertTrue(metrics.get(0).getMetricName().equals("Max"));
         Assert.assertTrue(metrics.get(0).getMetricValue().equals("200"));
-        Map<String, ?> metricProps = (Map<String, ?>) metricPropertiesMap.get("Max");
-        Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
-        Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
-        Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getTimeRollUpType().equals("SUM"));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getClusterRollUpType().equals("COLLECTIVE"));
+        Assert.assertTrue(metrics.get(0).getMetricProperties().getAggregationType().equals("SUM"));
 
         Assert.assertTrue(metrics.get(1).getMetricPath().equals("Custom Metrics|JMX Monitor|ClientRequest|Read|Latency|Min"));
         Assert.assertTrue(metrics.get(1).getMetricName().equals("Min"));
         Assert.assertTrue(metrics.get(1).getMetricValue().equals("100"));
-        metricProps = (Map<String, ?>) metricPropertiesMap.get("Min");
-        Assert.assertTrue(metrics.get(1).getMetricProperties().getAggregationType().equals(metricProps.get("aggregationType")));
-        Assert.assertTrue(metrics.get(1).getMetricProperties().getClusterRollUpType().equals(metricProps.get("clusterRollUpType")));
-        Assert.assertTrue(metrics.get(1).getMetricProperties().getTimeRollUpType().equals(metricProps.get("timeRollUpType")));
+        Assert.assertTrue(metrics.get(1).getMetricProperties().getTimeRollUpType().equals("SUM"));
+        Assert.assertTrue(metrics.get(1).getMetricProperties().getClusterRollUpType().equals("COLLECTIVE"));
+        Assert.assertTrue(metrics.get(1).getMetricProperties().getAggregationType().equals("SUM"));
 
     }
 
