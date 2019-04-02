@@ -148,5 +148,7 @@ metricPathReplacements:
      replaceWith: "-"
    - replace: "."
      replaceWith: "-"
+   - replace: "ms"
+     replaceWith: ""
 
 separatorForMetricLists: ":"

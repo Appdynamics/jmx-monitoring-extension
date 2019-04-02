@@ -12,11 +12,8 @@ import com.appdynamics.extensions.ABaseMonitor;
 import com.appdynamics.extensions.TasksExecutionServiceProvider;
 import com.appdynamics.extensions.logging.ExtensionsLoggerFactory;
 import com.appdynamics.extensions.util.AssertUtils;
-import com.singularity.ee.agent.systemagent.api.exception.TaskExecutionException;
 import org.slf4j.Logger;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -68,13 +65,4 @@ public class JMXMonitor extends ABaseMonitor {
         AssertUtils.assertNotNull(servers, "The 'servers' section in config.yml is not initialised");
         return servers;
     }
-
-    public static void main(String[] args) throws TaskExecutionException, IOException {
-
-        JMXMonitor jmxMonitor = new JMXMonitor();
-        Map<String, String> argsMap = new HashMap<String, String>();
-        argsMap.put("config-file", "/Users/bhuvnesh.kumar/repos/appdynamics/extensions/jmx-monitoring-extension/src/test/resources/conf/config.yml");
-        jmxMonitor.execute(argsMap, null);
-    }
-
 }

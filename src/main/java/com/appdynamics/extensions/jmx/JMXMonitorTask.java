@@ -78,7 +78,6 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
 
     public void run() {
         serverName = (String) server.get(DISPLAY_NAME);
-
         try {
             getJMXConnectionAdapter();
             logger.debug("JMX monitoring task initiated for server {}", serverName);
