@@ -33,7 +33,7 @@ public class Constants {
     public static final String CLUSTERROLLUPTYPE = "clusterRollUpType";
     public static final String TIMEROLLUPTYPE = "timeRollUpType";
     public static final String AGGREGATIONTYPE = "aggregationType";
-    public static final String AVERAGE = "AVERAGE";
+    public static final String AVERAGE = "AVERAGE"; //TODO: remove unused constants
     public static final String INDIVIDUAL = "INDIVIDUAL";
     public static final String FALSE = "false";
 

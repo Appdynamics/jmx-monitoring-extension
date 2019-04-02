@@ -114,17 +114,21 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                     if (nodeMetrics.size() > 0) {
                         metricWriter.transformAndPrintMetrics(nodeMetrics);
                     } else {
+//                        TODO: change it to ("No metrics being sent from : {} {} ",serverName,configObjName)
                         logger.debug("No metrics being sent from : " + serverName);
                     }
                 } catch (JMException e) {
                     logger.error("JMException Occurred for {} " + configObjName, e);
                     heartBeatStatus = false;
                 }
+//                TODO: better to have the IOException(from getJMXMetrics) catch in the for loop here. If only one of the configMBeans has the connection issue and throws IOException, it will be caught instead of breaking the for loop itself.
             }
         } catch (IOException e) {
+//            TODO: change the error msg. `Unable to connect to Mbean server`
             logger.error("Unable to close the JMX connection for Server : " + serverName, e);
             heartBeatStatus = false;
         } catch (Exception e) {
+//            TODO: change the error msg. This is not a catch for JMX connection error
             logger.error("Unable to close the JMX connection for Server : " + serverName, e);
         } finally {
             try {
@@ -132,7 +136,6 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                 logger.debug("JMX connection is closed for " + serverName);
             } catch (IOException e) {
                 logger.error("Unable to close the JMX connection.", e);
-
             }
         }
     }
@@ -140,6 +143,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
     public void onTaskComplete() {
         logger.debug("Task Complete");
         String metricValue = heartBeatStatus ? "1" : "0";
+//        TODO: can we change the metric name from AVAILABILITY to HEARTBEAT?
         metricWriter.printMetric(metricPrefix + METRICS_SEPARATOR + server.get(DISPLAY_NAME).toString() + METRICS_SEPARATOR + AVAILABILITY, metricValue, "AVERAGE", "AVERAGE", "INDIVIDUAL");
     }
 }
