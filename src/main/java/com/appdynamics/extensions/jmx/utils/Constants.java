@@ -17,6 +17,7 @@ public class Constants {
     public static final String METRICS_SEPARATOR = "|";
     public static final String MBEANKEYS = "mbeanKeys";
     public static final String MBEANS = "mbeans";
+    public static final String HEARTBEAT = "Heart Beat";
 
     public static final String SERVERS = "servers";
     public static final String SERVICEURL = "serviceUrl";
@@ -33,16 +34,12 @@ public class Constants {
     public static final String CLUSTERROLLUPTYPE = "clusterRollUpType";
     public static final String TIMEROLLUPTYPE = "timeRollUpType";
     public static final String AGGREGATIONTYPE = "aggregationType";
-    public static final String AVERAGE = "AVERAGE"; //TODO: remove unused constants
-    public static final String INDIVIDUAL = "INDIVIDUAL";
-    public static final String FALSE = "false";
 
     public static final String AVAILABILITY = "Availability";
     public static final String PERIOD = ".";
     public static final String COLON = ":";
     public static final String CUSTOMMETRICS = "Custom Metrics";
     public static final String EMPTY_STRING = "";
-    public static final String METRIC_CHARACTER_REPLACER = "metricCharacterReplacer";
     public static final String SEPARATOR_FOR_METRIC_LISTS = "separatorForMetricLists";
 
 }
