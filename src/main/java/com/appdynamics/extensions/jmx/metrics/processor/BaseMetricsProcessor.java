@@ -76,9 +76,11 @@ public class BaseMetricsProcessor {
             logger.error("Could not find metric properties for {} ", attributeName);
         } else {
             LinkedList<String> metricTokens = new LinkedList<>();
+            // TODO if you are passing metricTokens you need not return it
             metricTokens = getInstanceKey(metricDetails.getInstance(), metricDetails.getmBeanKeys(), metricTokens);
             metricTokens = generateMetricPathTokens(attributeName, metricDetails.getDisplayName(), metricTokens);
             String attrVal = attribute.getValue().toString();
+            // TODO -ve values will be converted to positive, sign values of number should be preserved only trailing non numeric data should be removed. Everything else should be invalid metric value
             attrVal = attrVal.replaceAll("[^0-9.]", "");
             String[] tokens = new String[metricTokens.size()];
             tokens = metricTokens.toArray(tokens);

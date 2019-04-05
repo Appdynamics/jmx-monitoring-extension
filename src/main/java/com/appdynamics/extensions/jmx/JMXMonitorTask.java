@@ -84,6 +84,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
             populateAndPrintStats();
         } catch (MalformedURLException e) {
             logger.error("Cannot construct JMX uri for " + server.get(DISPLAY_NAME).toString(), e);
+            // TODO add heartBeatStatus = false here
         } catch (Exception e) {
             logger.error("Error in JMX Monitoring Task for Server {}", serverName, e);
             heartBeatStatus = false;
@@ -94,12 +95,10 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
 
     private void populateAndPrintStats() {
         JMXConnector jmxConnector = null;
-        long previousTimestamp = 0;
-        long currentTimestamp = 0;
         try {
-            previousTimestamp = System.currentTimeMillis();
+            long previousTimestamp = System.currentTimeMillis();
             jmxConnector = jmxConnectionAdapter.open();
-            currentTimestamp = System.currentTimeMillis();
+            long currentTimestamp = System.currentTimeMillis();
             logger.debug("Time to open connection for " + serverName + " in milliseconds: " + (currentTimestamp - previousTimestamp));
 
             for (Map<String, ?> mBean : configMBeans) {
@@ -124,6 +123,7 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                 }
             }
         }  catch (Exception e) {
+            // TODO if JMXConnectionAdapter#open() throws IOException then heartbeat = false
             logger.error("Error occurred while fetching metrics from Server : " + serverName, e);
         } finally {
             try {
