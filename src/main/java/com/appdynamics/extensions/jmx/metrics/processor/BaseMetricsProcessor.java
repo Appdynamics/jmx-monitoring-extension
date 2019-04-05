@@ -40,22 +40,20 @@ public class BaseMetricsProcessor {
         return metrics;
     }
 
-    private static LinkedList<String> getInstanceKey(ObjectInstance instance, List<String> mBeanKeys, LinkedList<String> metricTokens) {
+    private static void getInstanceKey(ObjectInstance instance, List<String> mBeanKeys, LinkedList<String> metricTokens) {
         for (String key : mBeanKeys) {
             String value = getKeyProperty(instance, key);
             metricTokens.add(Strings.isNullOrEmpty(value) ? EMPTY_STRING : value);
         }
-        return metricTokens;
     }
 
-    private static LinkedList<String> generateMetricPathTokens(String attributeName, String displayName, LinkedList<String> metricTokens) {
+    private static void generateMetricPathTokens(String attributeName, String displayName, LinkedList<String> metricTokens) {
         if (Strings.isNullOrEmpty(displayName)) {
             metricTokens.add(attributeName);
         } else {
             metricTokens.add(displayName);
             metricTokens.add(attributeName);
         }
-        return metricTokens;
     }
 
     private static ObjectName getObjectName(ObjectInstance instance) {
@@ -76,9 +74,8 @@ public class BaseMetricsProcessor {
             logger.error("Could not find metric properties for {} ", attributeName);
         } else {
             LinkedList<String> metricTokens = new LinkedList<>();
-            // TODO if you are passing metricTokens you need not return it
-            metricTokens = getInstanceKey(metricDetails.getInstance(), metricDetails.getmBeanKeys(), metricTokens);
-            metricTokens = generateMetricPathTokens(attributeName, metricDetails.getDisplayName(), metricTokens);
+             getInstanceKey(metricDetails.getInstance(), metricDetails.getmBeanKeys(), metricTokens);
+             generateMetricPathTokens(attributeName, metricDetails.getDisplayName(), metricTokens);
             String attrVal = attribute.getValue().toString();
             // TODO -ve values will be converted to positive, sign values of number should be preserved only trailing non numeric data should be removed. Everything else should be invalid metric value
             attrVal = attrVal.replaceAll("[^0-9.]", "");
