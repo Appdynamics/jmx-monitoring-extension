@@ -74,15 +74,34 @@ public class BaseMetricsProcessor {
             logger.error("Could not find metric properties for {} ", attributeName);
         } else {
             LinkedList<String> metricTokens = new LinkedList<>();
-             getInstanceKey(metricDetails.getInstance(), metricDetails.getmBeanKeys(), metricTokens);
-             generateMetricPathTokens(attributeName, metricDetails.getDisplayName(), metricTokens);
-            String attrVal = attribute.getValue().toString();
-            // TODO -ve values will be converted to positive, sign values of number should be preserved only trailing non numeric data should be removed. Everything else should be invalid metric value
-            attrVal = attrVal.replaceAll("[^0-9.]", "");
-            String[] tokens = new String[metricTokens.size()];
-            tokens = metricTokens.toArray(tokens);
-            metrics.add(new Metric(attributeName, attrVal, props, metricDetails.getMetricPrefix(), tokens));
+            getInstanceKey(metricDetails.getInstance(), metricDetails.getmBeanKeys(), metricTokens);
+            generateMetricPathTokens(attributeName, metricDetails.getDisplayName(), metricTokens);
+            String attrVal = getAttrValue(attribute);
+            if (!attrVal.equals("")) {
+                String[] tokens = new String[metricTokens.size()];
+                tokens = metricTokens.toArray(tokens);
+                metrics.add(new Metric(attributeName, attrVal, props, metricDetails.getMetricPrefix(), tokens));
+            }
         }
+    }
+
+    private String getAttrValue(Attribute attribute) {
+        String attrVal = attribute.getValue().toString();
+        char[] chars = attrVal.toCharArray();
+        StringBuilder stringBuilder = new StringBuilder();
+        if (chars[0] != '-') {
+            for (int i = 0; i < attrVal.length(); i++) {
+                if (Character.toString(attrVal.charAt(i)).matches("[0-9]")) {
+                    stringBuilder.append(attrVal.charAt(i));
+                } else {
+                    return stringBuilder.toString();
+                }
+            }
+        } else {
+            logger.error("Negative value reported for : {} with value : {}", attribute.getName(), attribute.getValue());
+            return "";
+        }
+        return stringBuilder.toString();
     }
 
 }
