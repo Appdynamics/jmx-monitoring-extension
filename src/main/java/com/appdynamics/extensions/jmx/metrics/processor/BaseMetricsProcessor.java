@@ -97,9 +97,8 @@ public class BaseMetricsProcessor {
                     return stringBuilder.toString();
                 }
             }
-        } else {
-            logger.error("Negative value reported for : {} with value : {}", attribute.getName(), attribute.getValue());
-            return "";
+        } else{
+            return attrVal;
         }
         return stringBuilder.toString();
     }
