@@ -138,7 +138,7 @@ mbeans:
           alias: "List Of String|metric three"
 
 
-# Note: If the current "metricCharacterReplacer" is not working on your current machine,
+# Note: If the current "metricPathReplacements" is not working on your current machine,
 # please add escape charaters "\\" before your value. It changes from OS to OS, some need it, some don't
 # For Example, replace: "%" -> Becomes -> replace: "\\%"
 metricPathReplacements:
