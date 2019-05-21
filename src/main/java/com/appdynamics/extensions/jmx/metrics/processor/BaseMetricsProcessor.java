@@ -40,20 +40,19 @@ public class BaseMetricsProcessor {
         return metrics;
     }
 
-    private static void getInstanceKey(ObjectInstance instance, List<String> mBeanKeys, LinkedList<String> metricTokens) {
+    private static void getInstanceKey(ObjectInstance instance, List<String> mBeanKeys, LinkedList<String> metricTokens, String displayName) {
+        if (!Strings.isNullOrEmpty(displayName)) {
+            metricTokens.add(displayName);
+        }
+
         for (String key : mBeanKeys) {
             String value = getKeyProperty(instance, key);
             metricTokens.add(Strings.isNullOrEmpty(value) ? EMPTY_STRING : value);
         }
     }
 
-    private static void generateMetricPathTokens(String attributeName, String displayName, LinkedList<String> metricTokens) {
-        if (Strings.isNullOrEmpty(displayName)) {
+    private static void addAttributeNameToMetricPathTokens(String attributeName, LinkedList<String> metricTokens) {
             metricTokens.add(attributeName);
-        } else {
-            metricTokens.add(displayName);
-            metricTokens.add(attributeName);
-        }
     }
 
     private static ObjectName getObjectName(ObjectInstance instance) {
@@ -74,8 +73,8 @@ public class BaseMetricsProcessor {
             logger.error("Could not find metric properties for {} ", attributeName);
         } else {
             LinkedList<String> metricTokens = new LinkedList<>();
-            getInstanceKey(metricDetails.getInstance(), metricDetails.getmBeanKeys(), metricTokens);
-            generateMetricPathTokens(attributeName, metricDetails.getDisplayName(), metricTokens);
+            getInstanceKey(metricDetails.getInstance(), metricDetails.getmBeanKeys(), metricTokens, metricDetails.getDisplayName());
+            addAttributeNameToMetricPathTokens(attributeName, metricTokens);
             String attrVal = getAttrValue(attribute);
             if (!attrVal.equals("")) {
                 String[] tokens = new String[metricTokens.size()];
