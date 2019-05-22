@@ -95,7 +95,8 @@ mbeans:
     mbeanKeys: ["type", "brokerName"]
     metrics:
       include:
-        - StorePercentUsage: "Store Percent Usage"
+        - name: "StorePercentUsage"
+          alias: "Store Percent Usage"
 
 ```
 2. There are several properties that are associated with each metric. They are: 
@@ -115,7 +116,8 @@ mbeans:
     mbeanKeys: ["type", "brokerName","destinationType","destinationName"]
     metrics:
       include:
-        - AverageEnqueueTime: "Average Enqueue Time"
+        - name: "AverageEnqueueTime"
+          alias: "Average Enqueue Time"
           clusterRollUpType: "AVERAGE"
           timeRollUpType: "SUM"
           aggregationType: "SUM"
@@ -131,10 +133,10 @@ Now in order to monitor them, you list the property and then in the alias name, 
     mbeanKeys: ["type"]
     metrics:
       include:
-        - HeapMemoryUsage.committed : "Heap Memory Usage|Committed"
-        - HeapMemoryUsage.init : "Heap Memory Usage|Initialized"
-        - HeapMemoryUsage.max : "Heap Memory Usage|Max"
-        - HeapMemoryUsage.used : "Heap Memory Usage|Sum"
+        - name: "HeapMemoryUsage.committed"
+          alias: "Heap Memory Usage|Committed"
+        - name: "HeapMemoryUsage.used"
+          alias: "Heap Memory Usage|Used"
 ```
 
 4. This extension can be used to get values from Map Objects as well. 
@@ -145,14 +147,18 @@ To do so, list the metrics you would like to retrieve from the map in the follow
     metrics:
       include:
          # Map Metric Level 1
-         - MapOfString.key1: "Map 1|Key 1"
-         - MapOfString.key2: "Map 1|Key 2"
+         - name: "MapOfString.key1"
+           alias: "Map 1|Key 1"
+         - name: "MapOfString.key2"
+           alias: "Map 1|Key 2"
  
          # Map Metric Level 2
-         - MapOfString.map2.key2: "Map 1|Map 2|Key 2"
+         - name: "MapOfString.map2.key2"
+           alias: "Map 1|Map 2|Key 2"
  
          # Map Metric Level 3
-         - MapOfString.map2.map3.key32: "Map 1|Map 2|Map 3|Key 32"
+         - name: "MapOfString.map2.map3.key32"
+           alias: "Map 1|Map 2|Map 3|Key 32"
            multiplier: "20"
            delta: false
            aggregationType: "OBSERVATION"
@@ -175,11 +181,17 @@ To do so, list the metrics you would like to retrieve from the map in the follow
     metrics:
       include:
         # List Metrics Can be set in the following ways:
-        - listOfString.metric one: "listOfString|metric one"
-        - listOfString.metric two: "listOfString|metric two"
-        - listOfString.metric three: "listOfString|metric three"
-
+        - name: "listOfString.metric one"
+          alias: "listOfString|metric one"
+        - name: "listOfString.metric two"
+          alias: "listOfString|metric two"
+        - name: "listOfString.metric three" 
+          alias: "listOfString|metric three"
 ```    
+
+## metricPathReplacements
+Please visit [this](https://community.appdynamics.com/t5/Knowledge-Base/Metric-Path-CharSequence-Replacements-in-Extensions/ta-p/35412) page to get detailed instructions on configuring Metric Path Character sequence replacements in Extensions.
+
     
 ## Contributing
 Always feel free to fork and contribute any changes directly here on [GitHub].
@@ -205,9 +217,9 @@ Workbench is an inbuilt feature provided with each extension in order to assist 
 ## Version 
 |Product | Version | 
 | ----- | ----- | 
-| Extension Version|  1.0.0 | 
+| Extension Version|  1.1 | 
 | Controller Compatability | 3.7+ |
-| Last Updated | March 3, 2018 | 
+| Last Updated | May 22, 2019 | 
 
 **List of Changes can be found in the [Changelog.md]**
 
