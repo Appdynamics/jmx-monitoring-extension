@@ -4,5 +4,7 @@ mbeans:
     mbeanKeys: ["type","scope","name"]
     metrics:
       include:
-        - Min : "Max Latency"
-        - Max : "Min Latency"
+        - name: "Min"
+          alias: "Min Latency"
+        - name: "Max"
+          alias: "Max Latency"

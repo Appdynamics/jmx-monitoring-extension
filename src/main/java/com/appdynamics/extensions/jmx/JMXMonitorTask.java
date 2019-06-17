@@ -1,5 +1,5 @@
 /*
- *   Copyright 2018. AppDynamics LLC and its affiliates.
+ *   Copyright 2019 . AppDynamics LLC and its affiliates.
  *   All Rights Reserved.
  *   This is unpublished proprietary source code of AppDynamics LLC and its affiliates.
  *   The copyright notice above does not evidence any actual or intended publication of such source code.
@@ -10,235 +10,134 @@ package com.appdynamics.extensions.jmx;
 
 import com.appdynamics.extensions.AMonitorTaskRunnable;
 import com.appdynamics.extensions.MetricWriteHelper;
+import com.appdynamics.extensions.conf.MonitorContextConfiguration;
 import com.appdynamics.extensions.jmx.commons.JMXConnectionAdapter;
 import com.appdynamics.extensions.jmx.metrics.JMXMetricsProcessor;
+import com.appdynamics.extensions.logging.ExtensionsLoggerFactory;
 import com.appdynamics.extensions.metrics.Metric;
+import com.appdynamics.extensions.util.CryptoUtils;
 import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.management.MalformedObjectNameException;
+import javax.management.*;
 import javax.management.remote.JMXConnector;
 import java.io.IOException;
-import java.util.HashMap;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 
-import static com.appdynamics.extensions.jmx.metrics.Constants.*;
+import static com.appdynamics.extensions.jmx.utils.Constants.*;
 
 /**
  * Created by bhuvnesh.kumar on 2/23/18.
  */
 public class JMXMonitorTask implements AMonitorTaskRunnable {
-    private Boolean status = true;
-
-    private static final Logger logger = LoggerFactory.getLogger(JMXMonitorTask.class);
-    private String metricPrefix;
+    private static final Logger logger = ExtensionsLoggerFactory.getLogger(JMXMonitorTask.class);
+    private Boolean heartBeatStatus = true;
+    private String metricPrefix; // take from context
     private MetricWriteHelper metricWriter;
-    private Map server;
-    private JMXConnectionAdapter jmxConnectionAdapter;
-    private List<Map> configMBeans;
+    private Map<String, ?> server;
+    private JMXConnectionAdapter jmxConnectionAdapter; // build here instead of
+    private List<Map<String, ?>> configMBeans;
+    private MonitorContextConfiguration monitorContextConfiguration;
 
     private String serverName;
-    private long previousTimestamp = 0;
-    private long currentTimestamp = 0;
 
-    public void run() {
-        serverName = JMXUtil.convertToString(server.get(DISPLAY_NAME), "");
+    public JMXMonitorTask(MetricWriteHelper metricWriter, Map<String, ?> server, MonitorContextConfiguration monitorContextConfiguration) {
+        this.metricWriter = metricWriter;
+        this.server = server;
+        this.monitorContextConfiguration = monitorContextConfiguration;
+        metricPrefix = monitorContextConfiguration.getMetricPrefix();
+        configMBeans = (List<Map<String, ?>>) monitorContextConfiguration.getConfigYml().get(MBEANS);
+    }
 
-        try {
-            logger.debug("JMX monitoring task initiated for server {}", serverName);
-            populateAndPrintStats();
+    private void getJMXConnectionAdapter() throws MalformedURLException {
+        String serviceUrl = (String) server.get(SERVICEURL);
+        String host = (String) server.get(HOST);
+        String portStr = (String) server.get(PORT);
+        int port = NumberUtils.toInt(portStr, -1);
+        String username = (String) server.get(USERNAME);
+        String password = getPassword(server);
 
-        } catch (Exception e) {
-            logger.error("Error in JMX Monitoring Task for Server {}", serverName, e);
-            status = false;
-
-        } finally {
-            logger.debug("JMX Monitoring Task Complete.");
+        if (!Strings.isNullOrEmpty(serviceUrl) || !Strings.isNullOrEmpty(host)) {
+            jmxConnectionAdapter = JMXConnectionAdapter.create(serviceUrl, host, port, username, password);
+        } else {
+            throw new MalformedURLException();
         }
     }
 
+    private String getPassword(Map server) {
+        if (monitorContextConfiguration.getConfigYml().get(ENCRYPTION_KEY) != null) {
+            String encryptionKey = (String) monitorContextConfiguration.getConfigYml().get(ENCRYPTION_KEY);
+            server.put(ENCRYPTION_KEY, encryptionKey);
+        }
+        return CryptoUtils.getPassword(server);
+    }
 
-    private void populateAndPrintStats() throws IOException {
-        JMXConnector jmxConnector = null;
 
+    public void run() {
+        serverName = (String) server.get(DISPLAY_NAME);
         try {
-            previousTimestamp = System.currentTimeMillis();
+            getJMXConnectionAdapter();
+            logger.debug("JMX monitoring task initiated for server {}", serverName);
+            populateAndPrintStats();
+        } catch (MalformedURLException e) {
+            logger.error("Cannot construct JMX uri for " + server.get(DISPLAY_NAME).toString(), e);
+            heartBeatStatus = false;
+        } catch (Exception e) {
+            logger.error("Error in JMX Monitoring Task for Server {}", serverName, e);
+            heartBeatStatus = false;
+        } finally {
+            logger.debug("JMX Monitoring Task Complete for Server {}", serverName);
+        }
+    }
+
+    private void populateAndPrintStats() {
+        JMXConnector jmxConnector = null;
+        try {
+            long previousTimestamp = System.currentTimeMillis();
             jmxConnector = jmxConnectionAdapter.open();
-            currentTimestamp = System.currentTimeMillis();
-            logger.debug("Time to open connection in milliseconds: "+ (currentTimestamp-previousTimestamp));
-            logger.debug("JMX Connection is now open");
+            long currentTimestamp = System.currentTimeMillis();
+            logger.debug("Time to open connection for " + serverName + " in milliseconds: " + (currentTimestamp - previousTimestamp));
 
-            for (Map mBean : configMBeans) {
-                String configObjName = JMXUtil.convertToString(mBean.get(OBJECT_NAME), "");
+            for (Map<String, ?> mBean : configMBeans) {
+                String configObjName = (String) mBean.get(OBJECT_NAME);
                 logger.debug("Processing mBean {} from the config file", configObjName);
-
                 try {
-                    Map<String, ?> metricProperties = getMapOfProperties(mBean);
-
-                    previousTimestamp = System.currentTimeMillis();
-                    JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(jmxConnectionAdapter, jmxConnector);
-                    currentTimestamp = System.currentTimeMillis();
-                    logger.debug("Time to create object of JMXMetricsProcessor in milliseconds: "+ (currentTimestamp-previousTimestamp));
-
-                    previousTimestamp = System.currentTimeMillis();
-                    List<Metric> nodeMetrics = jmxMetricsProcessor.getJMXMetrics(mBean, metricProperties, metricPrefix, server.get(DISPLAY_NAME).toString());
-                    currentTimestamp = System.currentTimeMillis();
-                    logger.debug("Time to get data back from JMXMetricsProcessor in milliseconds: "+ (currentTimestamp-previousTimestamp));
-
-
+                    JMXMetricsProcessor jmxMetricsProcessor = new JMXMetricsProcessor(monitorContextConfiguration,
+                            jmxConnectionAdapter, jmxConnector);
+                    List<Metric> nodeMetrics = jmxMetricsProcessor.getJMXMetrics(mBean,
+                            metricPrefix, serverName);
                     if (nodeMetrics.size() > 0) {
                         metricWriter.transformAndPrintMetrics(nodeMetrics);
+                    } else {
+                        logger.debug("No metrics being sent from mBean : {} and server: {}",configObjName, serverName);
                     }
-                } catch (MalformedObjectNameException e) {
-                    logger.error("Illegal Object Name {} " + configObjName, e);
-                    status = false;
-
-                } catch (Exception e) {
-                    logger.error("Error fetching JMX metrics for {} and mBean = {}", serverName, configObjName, e);
-                    status = false;
+                } catch (JMException e) {
+                    logger.error("JMException Occurred for {} " + configObjName, e);
+                    heartBeatStatus = false;
+                }catch (IOException e) {
+                    logger.error("IOException occurred while getting metrics for mBean : {} and server: {} ", configObjName,serverName, e);
+                    heartBeatStatus = false;
                 }
             }
+        }  catch (Exception e) {
+            logger.error("Error occurred while fetching metrics from Server : " + serverName, e);
+            heartBeatStatus = false;
         } finally {
             try {
                 jmxConnectionAdapter.close(jmxConnector);
-                logger.debug("JMX connection is closed.");
+                logger.debug("JMX connection is closed for " + serverName);
             } catch (IOException e) {
-                logger.error("Unable to close the JMX connection.");
-            }
-        }
-    }
-
-    public Map<String, ?> getMapOfProperties(Map mBean) {
-
-        Map<String, ? super Object> metricPropsMap = Maps.newHashMap();
-        if (mBean == null || mBean.isEmpty()) {
-            return metricPropsMap;
-        }
-
-        Map configMetrics = (Map) mBean.get(METRICS);
-        List includeMetrics = (List) configMetrics.get(INCLUDE);
-
-        if (includeMetrics != null) {
-            for (Object metad : includeMetrics) {
-                Map localMetaData = (Map) metad;
-                Map.Entry entry = (Map.Entry) localMetaData.entrySet().iterator().next();
-                String metricName = entry.getKey().toString();
-                String alias = entry.getValue().toString();
-
-                Map<String, ? super Object> metricProperties = new HashMap<String, Object>();
-                metricProperties.put(ALIAS, Strings.isNullOrEmpty(alias) ? metricName : alias);
-
-                setProps(mBean, metricProperties, metricName, alias); //global level
-                setProps(localMetaData, metricProperties, metricName, alias); //local level
-                metricPropsMap.put(metricName, metricProperties);
-            }
-        }
-        return metricPropsMap;
-    }
-
-    private void setProps(Map metadata, Map props, String metricName, String alias) {
-        if (metadata.get(ALIAS) != null) {
-            props.put(ALIAS, metadata.get(ALIAS).toString());
-        }else if(!Strings.isNullOrEmpty(alias)){
-            props.put(ALIAS, alias);
-        }
-        else {
-            if(props.get(ALIAS) == null) {
-                props.put(ALIAS, metricName);
-            }
-        }
-        if (metadata.get(MULTIPLIER) != null) {
-            props.put(MULTIPLIER, metadata.get(MULTIPLIER).toString());
-        } else {
-            if(props.get(MULTIPLIER) == null)
-            {
-                props.put(MULTIPLIER, "1");
-            }
-        }
-        if (metadata.get(CONVERT) != null) {
-            props.put(CONVERT, metadata.get(CONVERT));
-        } else {
-            if(props.get(CONVERT) == null) {
-                props.put(CONVERT, (Map) null);
-            }
-        }
-        if (metadata.get(DELTA) != null) {
-            props.put(DELTA, metadata.get(DELTA).toString());
-
-        } else {
-            if(props.get(DELTA) == null) {
-                props.put(DELTA, FALSE);
-            }
-
-        }
-        if (metadata.get(CLUSTERROLLUPTYPE) != null) {
-            props.put(CLUSTERROLLUPTYPE, metadata.get(CLUSTERROLLUPTYPE).toString());
-
-        } else {
-            if(props.get(CLUSTERROLLUPTYPE) == null) {
-                props.put(CLUSTERROLLUPTYPE, INDIVIDUAL);
-            }
-        }
-        if (metadata.get(TIMEROLLUPTYPE) != null) {
-            props.put(TIMEROLLUPTYPE, metadata.get(TIMEROLLUPTYPE).toString());
-
-        } else {
-            if(props.get(TIMEROLLUPTYPE) == null) {
-                props.put(TIMEROLLUPTYPE, AVERAGE);
-            }
-        }
-        if (metadata.get(AGGREGATIONTYPE) != null) {
-            props.put(AGGREGATIONTYPE, metadata.get(AGGREGATIONTYPE).toString());
-
-        } else {
-            if(props.get(AGGREGATIONTYPE) == null) {
-                props.put(AGGREGATIONTYPE, AVERAGE);
+                logger.error("Unable to close the JMX connection.", e);
             }
         }
     }
 
     public void onTaskComplete() {
         logger.debug("Task Complete");
-        if (status == true) {
-            metricWriter.printMetric(metricPrefix + METRICS_SEPARATOR + server.get(DISPLAY_NAME).toString() + METRICS_SEPARATOR + AVAILABILITY, "1", "AVERAGE", "AVERAGE", "INDIVIDUAL");
-        } else {
-            metricWriter.printMetric(metricPrefix + METRICS_SEPARATOR + server.get(DISPLAY_NAME).toString() + METRICS_SEPARATOR + AVAILABILITY, "0", "AVERAGE", "AVERAGE", "INDIVIDUAL");
-        }
-    }
-
-    public static class Builder {
-        private JMXMonitorTask task = new JMXMonitorTask();
-
-        Builder metricPrefix(String metricPrefix) {
-            task.metricPrefix = metricPrefix;
-            return this;
-        }
-
-        Builder metricWriter(MetricWriteHelper metricWriter) {
-            task.metricWriter = metricWriter;
-            return this;
-        }
-
-        Builder server(Map server) {
-            task.server = server;
-            return this;
-        }
-
-        Builder jmxConnectionAdapter(JMXConnectionAdapter adapter) {
-            task.jmxConnectionAdapter = adapter;
-            return this;
-        }
-
-        Builder mbeans(List<Map> mBeans) {
-            task.configMBeans = mBeans;
-            return this;
-        }
-
-        JMXMonitorTask build() {
-            return task;
-        }
+        String metricValue = heartBeatStatus ? "1" : "0";
+        metricWriter.printMetric(metricPrefix + METRICS_SEPARATOR + server.get(DISPLAY_NAME).toString() + METRICS_SEPARATOR + HEARTBEAT, metricValue, "AVERAGE", "AVERAGE", "INDIVIDUAL");
     }
 }

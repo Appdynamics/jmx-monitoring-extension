@@ -23,16 +23,14 @@ servers:
 
 #     You can either use the normal password or encrypt your password and provide the encrypted Password and encryptionKey.
 #     Do not provide both, only provide one and comment out the other.
-
 #      encryptedPassword: ""
-#      encryptionKey: ""
+
+# The encryptionKey is global and the same key is used for all the servers listed in the extension
+#encryptionKey: ""
 
 # number of concurrent tasks.
-# This doesn't need to be changed unless many servers are configured
-numberOfThreads: 10
-
-#timeout for the thread
-threadTimeout: 30
+# Each server would require its own thread to process. Please provide adequate threads accordingly.
+numberOfThreads: 5
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                                      List of metrics
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -40,7 +38,7 @@ threadTimeout: 30
 #   alias
 #   aggregationType
 #   timeRollUpType
-#   clusterRollUpType                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+#   clusterRollUpType
 #   multiplier -->not for derived metrics
 #   convert --> not for derived metrics
 #   delta --> not for derived metrics
@@ -56,7 +54,8 @@ mbeans:
     mbeanKeys: ["type", "brokerName"]
     metrics:
       include:
-        - StorePercentUsage: "Store Percent Usage"
+        - name: "StorePercentUsage"
+          alias: "Store Percent Usage"
 
   # This Mbean will extract out Queue metrics
   # This example also shows how you can change the default properties of a metric.
@@ -64,12 +63,13 @@ mbeans:
     mbeanKeys: ["type", "brokerName","destinationType","destinationName"]
     metrics:
       include:
-        - AverageEnqueueTime: "Average Enqueue Time"
+        - name: "AverageEnqueueTime"
+          alias: "Average Enqueue Time"
           clusterRollUpType: "INDIVIDUAL"
           timeRollUpType: "AVERAGE"
           aggregationType: "AVERAGE"
-
-        - ConsumerCount: "Consumer Count"
+        - name: "ConsumerCount"
+          alias: "Consumer Count"
           clusterRollUpType: "COLLECTIVE"
           timeRollUpType: "SUM"
           aggregationType: "SUM"
@@ -80,5 +80,73 @@ mbeans:
     mbeanKeys: ["type"]
     metrics:
       include:
-        - HeapMemoryUsage.committed : "Heap Memory Usage|Committed"
+        - name: "HeapMemoryUsage.committed"
+          alias: "Heap Memory Usage|Committed"
+        - name: "HeapMemoryUsage.used"
+          alias: "Heap Memory Usage|Used"
 
+  - objectName: "org.apache.activemq.metrics:type=ClientRequest,scope=Read,name=Latency"
+    mbeanKeys: ["type", "scope","name"]
+    metrics:
+      include:
+        # Normal Metric
+        - name: "Max"
+          alias: "Max"
+          aggregationType: "OBSERVATION"
+          timeRollUpType: "AVERAGE"
+          clusterRollUpType: "INDIVIDUAL"
+
+        # Composite Metric
+        - name: "HeapMemoryUsage.max"
+          alias: "Heap Memory Usage|Max"
+          multiplier: "10"
+          delta: false
+
+        # Map Metric Level 1
+        - name: "MapOfString.key1"
+          alias: "Map 1|Key 1"
+        - name: "MapOfString.key2"
+          alias: "Map 1|Key 2"
+          aggregationType: "OBSERVATION"
+          timeRollUpType: "AVERAGE"
+          clusterRollUpType: "INDIVIDUAL"
+
+        # Map Metric Level 2
+        - name: "MapOfString.map2.key2"
+          alias: "Map 1|Map 2|Key 2"
+
+        # Map Metric Level 3
+        - name: "MapOfString.map2.map3.key32"
+          alias: "Map 1|Map 2|Map 3|Key 32"
+          multiplier: "20"
+          delta: false
+          aggregationType: "OBSERVATION"
+          timeRollUpType: "AVERAGE"
+          clusterRollUpType: "INDIVIDUAL"
+          convert : {
+            "ENDANGERED" : "1",
+            "NODE-SAFE" : "2",
+            "MACHINE-SAFE" : "3"
+          }
+
+        # List Metrics
+        - name: "listOfString.metric one"
+          alias: "List Of String|metric one"
+        - name: "listOfString.metric two"
+          alias: "List Of String|metric two"
+        - name: "listOfString.metric three"
+          alias: "List Of String|metric three"
+
+
+
+metricPathReplacements:
+   - replace: "%"
+     replaceWith: ""
+   - replace: ","
+     replaceWith: "-"
+   - replace: "."
+     replaceWith: "-"
+   - replace: "ms"
+     replaceWith: ""
+
+separatorForMetricLists: ":"

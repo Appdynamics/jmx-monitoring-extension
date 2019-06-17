@@ -5,8 +5,9 @@
 The JMX Monitoring extension collects metrics from a JMX based messaging server and uploads them to the AppDynamics Metric Browser. 
 
 ## Prerequisites 
+1. Before the extension is installed, the prerequisites mentioned [here](https://community.appdynamics.com/t5/Knowledge-Base/Extensions-Prerequisites-Guide/ta-p/35213) need to be met. Please do not proceed with the extension installation if the specified prerequisites are not met.
 
-JMX must be enabled in your JMX based server for this extension to gather metrics. Please make sure you have all the permissions before deploying the extension.
+2. JMX must be enabled in your JMX based server for this extension to gather metrics. Please make sure you have all the permissions before deploying the extension.
 In order to use this extension, you do need a [Standalone JAVA Machine Agent](https://docs.appdynamics.com/display/PRO44/Java+Agent) or [SIM Agent](https://docs.appdynamics.com/display/PRO44/Server+Visibility). 
 For more details on downloading these products, please  visit [download.appdynamics.com](https://download.appdynamics.com/).
 
@@ -30,93 +31,7 @@ Alternatively, download the latest release archive from [Github](https://github.
 Note : Please make sure to not use tab (\t) while editing yaml files. You may want to validate the yaml file using a [yaml validator](http://yamllint.com/)
 
 1. Configure the JMX connection parameters by editing the config.yml file in `<MACHINE_AGENT_HOME>/monitors/JMXMonitor/`. 
-Here is a sample config.yml file
 
-```
-### ANY CHANGES TO THIS FILE DOES NOT REQUIRE A RESTART ###
-#This will create this metric in all the tiers, under this path
-#metricPrefix: Custom Metrics|JMXMonitor
-
-#This will create it in specific Tier. Replace <TIER_NAME>
-metricPrefix: "Server|Component:<TIER_NAME or ID>|Custom Metrics|JMXMonitor"
-
-
-# List of JMX Servers
-servers:
-  -   displayName: ""
-#     displayName is a required field. This will be your server name that will show up in metric path.
-
-#     You can either use just a host and port to connect or use your full serviceURL to make the connection
-#     Do not choose both, comment one out and only use the other.
-      host: ""
-      port:
-
-#      serviceUrl: ""
-
-      username: ""
-      password: ""
-
-#     You can either use the normal password or encrypt your password and provide the encrypted Password and encryptionKey.
-#     Do not provide both, only provide one and comment out the other.
-
-#      encryptedPassword: ""
-#      encryptionKey: ""
-
-# number of concurrent tasks.
-# This doesn't need to be changed unless many servers are configured
-numberOfThreads: 10
-
-#timeout for the thread
-threadTimeout: 30
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#                                      List of metrics
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#Glossary of terms(These terms are used as properties for each metric):
-#   alias
-#   aggregationType
-#   timeRollUpType
-#   clusterRollUpType                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
-#   multiplier -->not for derived metrics
-#   convert --> not for derived metrics
-#   delta --> not for derived metrics
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-# The configuration of different metrics from various mbeans of jmx server
-# The mbeans are already configured.This does not need to be changed unless
-# someone needs to configure on their own.
-mbeans:
-  # This Mbean will extract out Broker metrics
-  - objectName: "org.apache.activemq:type=Broker,brokerName=*"
-    mbeanKeys: ["type", "brokerName"]
-    metrics:
-      include:
-        - StorePercentUsage: "Store Percent Usage"
-
-  # This Mbean will extract out Queue metrics
-  # This example also shows how you can change the default properties of a metric.
-  - objectName: "org.apache.activemq:type=Broker,brokerName=*,destinationType=Queue,destinationName=*"
-    mbeanKeys: ["type", "brokerName","destinationType","destinationName"]
-    metrics:
-      include:
-        - AverageEnqueueTime: "AverageEnqueueTime"
-          clusterRollUpType: "AVERAGE"
-          timeRollUpType: "SUM"
-          aggregationType: "SUM"
-
-        - ConsumerCount: "ConsumerCount"
-          clusterRollUpType: "AVERAGE"
-          timeRollUpType: "SUM"
-          aggregationType: "SUM"
-
-
-  # Composite Metrics can be set in the following way
-  - objectName: "java.lang:type=Memory"
-    mbeanKeys: ["type"]
-    metrics:
-      include:
-        - HeapMemoryUsage.committed : "Heap Memory Usage|Committed"
-```
 2. There are a few fields that you need to make sure are filled in correctly. 
 Once done with them, they should allow you to establish a successful connection
  with your server. They are : 
@@ -125,14 +40,10 @@ servers:
   -   displayName: ""
       host: ""
       port:
-
 #      serviceUrl: ""
-
       username: ""
       password: ""
-
-#      encryptedPassword: ""
-#      encryptionKey: ""
+      #encryptedPassword: ""
 ```
 * displayName: This will be the name of your server that you would like to see on the metric browser.
 * host: This is the HostURL that is used with a port to create a connection with the JMX Server.
@@ -143,11 +54,27 @@ servers:
 * username: List the username, if any, that is needed to establish a connection.
 * password: List the password associated with the username that is needed to establish a connection.
 * encryptedPassword: In case you would like to use an encrypted password, use this field.
+
+ 3. Configure the encyptionKey for encryptionPasswords(only if password encryption required).
+    For example,
+ ```
+    #Encryption key for Encrypted password.
+    encryptionKey: "axcdde43535hdhdgfiniyy576"
+ ```
+ 4. Configure the numberOfThreads
+    For example,
+    If number of servers that need to be monitored is 3, then number of threads required is 5 * 3 = 15
+ ```
+    numberOfThreads: 15
+ ```  
+
 * encryptionKey: If you use an encryptedPassword, please provide the key here as well in order for the system to decrypt your password.
 
 **You should either use the Normal PASSWORD or the encryptedPassword and encryptionKey in order to establish a connection. Please read below to find more information on Password Encryption.**
 
-3. Configure the "tier" under which the metrics need to be reported. This can be done by changing the value of `<TIER NAME OR TIER ID>` in
+5. 
+The metricPrefix of the extension has to be configured as [specified here](https://community.appdynamics.com/t5/Knowledge-Base/How-do-I-troubleshoot-missing-custom-metrics-or-extensions/ta-p/28695#Configuring%20an%20Extension). Please make sure that the right metricPrefix is chosen based on your machine agent deployment, otherwise this could lead to metrics not being visible in the controller.
+Configure the "tier" under which the metrics need to be reported. This can be done by changing the value of `<TIER NAME OR TIER ID>` in
      metricPrefix: "Server|Component:`<TIER NAME OR TIER ID>`|Custom Metrics|JMX Monitor". For example,
     
 ```
@@ -168,7 +95,8 @@ mbeans:
     mbeanKeys: ["type", "brokerName"]
     metrics:
       include:
-        - StorePercentUsage: "Store Percent Usage"
+        - name: "StorePercentUsage"
+          alias: "Store Percent Usage"
 
 ```
 2. There are several properties that are associated with each metric. They are: 
@@ -188,13 +116,14 @@ mbeans:
     mbeanKeys: ["type", "brokerName","destinationType","destinationName"]
     metrics:
       include:
-        - AverageEnqueueTime: "Average Enqueue Time"
+        - name: "AverageEnqueueTime"
+          alias: "Average Enqueue Time"
           clusterRollUpType: "AVERAGE"
           timeRollUpType: "SUM"
           aggregationType: "SUM"
 ```
 
-3. This extension can also be used to get values from **composite objects**. 
+3. This extension can  be used to get values from **composite objects**. 
 In order to do so, you have to list the metric name as is and then specify the path with a **"|"** followed my the composite attribute.
 In this example we see that HeapMemoryUsage is a composite object that has 4 values associated with it. 
 Now in order to monitor them, you list the property and then in the alias name, add the **"|"** followed by the attribute name in order to get all of the attributes associated with HeapMemoryUsage under one folder in the metric browser.
@@ -204,11 +133,65 @@ Now in order to monitor them, you list the property and then in the alias name, 
     mbeanKeys: ["type"]
     metrics:
       include:
-        - HeapMemoryUsage.committed : "Heap Memory Usage|Committed"
-        - HeapMemoryUsage.init : "Heap Memory Usage|Initialized"
-        - HeapMemoryUsage.max : "Heap Memory Usage|Max"
-        - HeapMemoryUsage.used : "Heap Memory Usage|Sum"
+        - name: "HeapMemoryUsage.committed"
+          alias: "Heap Memory Usage|Committed"
+        - name: "HeapMemoryUsage.used"
+          alias: "Heap Memory Usage|Used"
 ```
+
+4. This extension can be used to get values from Map Objects as well. 
+To do so, list the metrics you would like to retrieve from the map in the following manner. 
+ ```
+  - objectName: "java.lang:type=Memory"
+    mbeanKeys: ["type"]
+    metrics:
+      include:
+         # Map Metric Level 1
+         - name: "MapOfString.key1"
+           alias: "Map 1|Key 1"
+         - name: "MapOfString.key2"
+           alias: "Map 1|Key 2"
+ 
+         # Map Metric Level 2
+         - name: "MapOfString.map2.key2"
+           alias: "Map 1|Map 2|Key 2"
+ 
+         # Map Metric Level 3
+         - name: "MapOfString.map2.map3.key32"
+           alias: "Map 1|Map 2|Map 3|Key 32"
+           multiplier: "20"
+           delta: false
+           aggregationType: "OBSERVATION"
+           timeRollUpType: "AVERAGE"
+           clusterRollUpType: "INDIVIDUAL"
+           convert : {
+             "ENDANGERED" : "1",
+             "NODE-SAFE" : "2",
+             "MACHINE-SAFE" : "3"
+           }
+```
+    
+5. This extension can be used to get data from List Objects as well. 
+    To do so, the metric in the list should be separated with a separator such as a ":" and should be in a key value pair form.
+    If your metric is not in the form listed about, the extension will not be able to extract that data. 
+
+``` 
+ - objectName: "java.lang:type=Memory"
+    mbeanKeys: ["type"]
+    metrics:
+      include:
+        # List Metrics Can be set in the following ways:
+        - name: "listOfString.metric one"
+          alias: "listOfString|metric one"
+        - name: "listOfString.metric two"
+          alias: "listOfString|metric two"
+        - name: "listOfString.metric three" 
+          alias: "listOfString|metric three"
+```    
+
+## metricPathReplacements
+Please visit [this](https://community.appdynamics.com/t5/Knowledge-Base/Metric-Path-CharSequence-Replacements-in-Extensions/ta-p/35412) page to get detailed instructions on configuring Metric Path Character sequence replacements in Extensions.
+
     
 ## Contributing
 Always feel free to fork and contribute any changes directly here on [GitHub].
@@ -234,9 +217,9 @@ Workbench is an inbuilt feature provided with each extension in order to assist 
 ## Version 
 |Product | Version | 
 | ----- | ----- | 
-| Extension Version|  1.0.0 | 
+| Extension Version|  1.1 | 
 | Controller Compatability | 3.7+ |
-| Last Updated | March 3, 2018 | 
+| Last Updated | May 22, 2019 | 
 
 **List of Changes can be found in the [Changelog.md]**
 
