@@ -13,6 +13,7 @@ public class Constants {
     public static final String ALIAS = "alias";
     public static final String CLUSTERROLLUPTYPE = "clusterRollUpType";
     public static final String COLON = ":";
+    public static final String CONNECTION = "connection";
     public static final String CONVERT = "convert";
     public static final String CUSTOMMETRICS = "Custom Metrics";
     public static final String DELTA = "delta";
@@ -35,5 +36,9 @@ public class Constants {
     public static final String SERVERS = "servers";
     public static final String SERVICEURL = "serviceUrl";
     public static final String TIMEROLLUPTYPE = "timeRollUpType";
+    public static final String TRUST_STORE_ENCRYPTED_PASSWORD = "sslTrustStoreEncryptedPassword";
+    public static final String TRUST_STORE_PASSWORD = "sslTrustStorePassword";
+    public static final String TRUST_STORE_PATH = "sslTrustStorePath";
     public static final String USERNAME = "username";
+    public static final String USE_SSL = "useSsl";
 }
