@@ -13,9 +13,16 @@ import com.appdynamics.extensions.TasksExecutionServiceProvider;
 import com.appdynamics.extensions.jmx.utils.SslUtils;
 import com.appdynamics.extensions.logging.ExtensionsLoggerFactory;
 import com.appdynamics.extensions.util.AssertUtils;
+import com.singularity.ee.agent.systemagent.api.exception.TaskExecutionException;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.PatternLayout;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -75,4 +82,19 @@ public class JMXMonitor extends ABaseMonitor {
         AssertUtils.assertNotNull(servers, "The 'servers' section in config.yml is not initialised");
         return servers;
     }
+
+    public static void main(String[] args) throws TaskExecutionException, IOException {
+
+        ConsoleAppender ca = new ConsoleAppender();
+        ca.setWriter(new OutputStreamWriter(System.out));
+        ca.setLayout(new PatternLayout("%-5p [%t]: %m%n"));
+        ca.setThreshold(Level.DEBUG);
+        org.apache.log4j.Logger.getRootLogger().addAppender(ca);
+
+        JMXMonitor jmxMonitor = new JMXMonitor();
+        Map<String, String> argsMap = new HashMap<String, String>();
+        argsMap.put("config-file", "/Users/bhuvnesh.kumar/repos/appdynamics/extensions/jmx-monitoring-extension/src/test/resources/conf/config_activemq.yml");
+        jmxMonitor.execute(argsMap, null);
+    }
+
 }
