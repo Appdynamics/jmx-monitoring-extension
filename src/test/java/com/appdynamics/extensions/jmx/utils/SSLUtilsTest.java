@@ -43,13 +43,13 @@ public  class SSLUtilsTest {
         System.setProperty("java.rmi.server.hostname", "127.0.0.1");
 
         JMXConnectorServer server = sun.management.jmxremote.ConnectorBootstrap
-                .startRemoteConnectorServer("11099", props);
+                .startRemoteConnectorServer("11199", props);
     }
 
     @Test
     public void whenNotUsingSslThenTestServerConnection() throws Exception {
 
-        JMXServiceURL serviceUrl = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://127.0.0.1:11099/jmxrmi");
+        JMXServiceURL serviceUrl = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://127.0.0.1:11199/jmxrmi");
         Map env = new HashMap();
         JMXConnector jmxConnector = JMXConnectorFactory.connect(serviceUrl, env);
         Assert.assertNotNull(jmxConnector);
