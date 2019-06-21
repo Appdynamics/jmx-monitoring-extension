@@ -72,14 +72,34 @@ servers:
 
 **You should either use the Normal PASSWORD or the encryptedPassword and encryptionKey in order to establish a connection. Please read below to find more information on Password Encryption.**
 
-5. 
-The metricPrefix of the extension has to be configured as [specified here](https://community.appdynamics.com/t5/Knowledge-Base/How-do-I-troubleshoot-missing-custom-metrics-or-extensions/ta-p/28695#Configuring%20an%20Extension). Please make sure that the right metricPrefix is chosen based on your machine agent deployment, otherwise this could lead to metrics not being visible in the controller.
+5. The metricPrefix of the extension has to be configured as [specified here](https://community.appdynamics.com/t5/Knowledge-Base/How-do-I-troubleshoot-missing-custom-metrics-or-extensions/ta-p/28695#Configuring%20an%20Extension). Please make sure that the right metricPrefix is chosen based on your machine agent deployment, otherwise this could lead to metrics not being visible in the controller.
 Configure the "tier" under which the metrics need to be reported. This can be done by changing the value of `<TIER NAME OR TIER ID>` in
      metricPrefix: "Server|Component:`<TIER NAME OR TIER ID>`|Custom Metrics|JMX Monitor". For example,
     
 ```
      metricPrefix: "Server|Component:Extensions tier|Custom Metrics|JMX Monitor"
 ```
+
+6. Monitoring over SSL
+  If you need to monitor your JMX servers securely via SSL, please follow the following steps:
+  -  Providing a Keystore and Truststore is mandatory for using SSL. The Keystore is used by the Kafka server, the Truststore is used by the Kafka Monitoring Extension to trust the server.
+  -  The extension supports a custom Truststore, and if no Truststore is specified, the extension defaults to the Machine Agent Truststore at `<Machine_Agent_Home>/conf/cacerts.jks`.
+  -  <b>You can create your Truststore or choose to use the Machine Agent Truststore at `<MachineAgentHome>/conf/cacerts.jks`.</b>
+
+   - The extension also needs to be configured to use SSL. In the config.yml of the JMX Monitor Extension, uncomment the `connection` section.<br/>
+   ```
+              connection:
+                socketTimeout: 3000
+                connectTimeout: 1000
+                sslProtocol: "TLSv1.2"
+                sslTrustStorePath: "/path/to/truststore/client/truststore.ts" #defaults to <MA home>conf/cacerts.jks
+                sslTrustStorePassword: "test1234" # defaults to empty, please change this value
+                sslTrustStoreEncryptedPassword: ""
+   ```
+   - If you are using the Machine Agent Truststore, please leave the sslTrustStorePath as "".
+   - <b> Please note that any changes to the </b> `connection`<b> section of the config.yml, needs the Machine Agent to
+      be restarted for the changes to take effect.</b>          
+
 ## Metrics
 
 You can use this extension to get all metrics that are available through the JMX Messaging service. In order to do so though, you will have to make sure that all metrics are defined correctly.
