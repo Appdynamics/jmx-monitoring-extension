@@ -85,45 +85,45 @@ servers:
 
 6. Monitoring over SSL
 
- 6.1. Generating SSL Keys
-  -  Providing a Keystore and Truststore is mandatory for using SSL. The Keystore is used by the JMX server, the Truststore is used by the JMX Monitoring Extension to trust the server.
-  -  The extension supports a custom Truststore, and if no Truststore is specified, the extension defaults to the Machine Agent Truststore at `<Machine_Agent_Home>/conf/cacerts.jks`.
-  -  <b>You can create your Truststore or choose to use the Machine Agent Truststore at `<MachineAgentHome>/conf/cacerts.jks`.</b>
-  -  Keytool is a utility that comes with the JDK. Please use the following commands to generate a keystore, and import the certificates into the Truststore.
-  -  To use the custom Truststore, please follow steps 1, 2 and 3a listed below.
-  -  To to use the Machine Agent Truststore `cacerts.jks`, please follow the steps 1, 2 and 3b listed below to import the certs into `cacerts.jks`.
-```
-            #Step #1
-            keytool -keystore jmx.server.keystore.jks -alias localhost -validity 365 -genkey
-            
-            #Step #2 
-            openssl req -new -x509 -keyout ca-key -out ca-cert -days 365
-            
-            #Step #3a: if you are creating your own truststore 
-            keytool -keystore jmx.client.truststore.jks -alias CARoot -import -file ca-cert
-            
-            #Step #3b: or if you are using Machine Agent truststore 
-            keytool -keystore /path/to/MachineAgentHome/conf/cacerts.jks -alias CARoot -import -file ca-cert
-```
+    6.1. Generating SSL Keys
+ 
+    -  Providing a Keystore and Truststore is mandatory for using SSL. The Keystore is used by the JMX server, the Truststore is used by the JMX Monitoring Extension to trust the server.
+    -  The extension supports a custom Truststore, and if no Truststore is specified, the extension defaults to the Machine Agent Truststore at `<Machine_Agent_Home>/conf/cacerts.jks`.
+    -  <b>You can create your Truststore or choose to use the Machine Agent Truststore at `<MachineAgentHome>/conf/cacerts.jks`.</b>
+    -  Keytool is a utility that comes with the JDK. Please use the following commands to generate a keystore, and import the certificates into the Truststore.
+    -  To use the custom Truststore, please follow steps 1, 2 and 3a listed below.
+    -  To to use the Machine Agent Truststore `cacerts.jks`, please follow the steps 1, 2 and 3b listed below to import the certs into `cacerts.jks`.
+   ````
+        #Step #1
+        keytool -keystore jmx.server.keystore.jks -alias localhost -validity 365 -genkey
+        
+        #Step #2 
+        openssl req -new -x509 -keyout ca-key -out ca-cert -days 365
+        
+        #Step #3a: if you are creating your own truststore 
+        keytool -keystore jmx.client.truststore.jks -alias CARoot -import -file ca-cert
+        
+        #Step #3b: or if you are using Machine Agent truststore 
+        keytool -keystore /path/to/MachineAgentHome/conf/cacerts.jks -alias CARoot -import -file ca-cert
+    ````
 
-6.2.  If you need to monitor your JMX servers securely via SSL, please follow the following steps:
-  -  Providing a Keystore and Truststore is mandatory for using SSL. The Keystore is used by the JMX server, the Truststore is used by the JMX Monitoring Extension to trust the server.
-  -  The extension supports a custom Truststore, and if no Truststore is specified, the extension defaults to the Machine Agent Truststore at `<Machine_Agent_Home>/conf/cacerts.jks`.
-  -  <b>You can create your Truststore or choose to use the Machine Agent Truststore at `<MachineAgentHome>/conf/cacerts.jks`.</b>
+    6.2.  If you need to monitor your JMX servers securely via SSL, please follow the following steps:
+    -  Providing a Keystore and Truststore is mandatory for using SSL. The Keystore is used by the JMX server, the Truststore is used by the JMX Monitoring Extension to trust the server.
+    -  The extension supports a custom Truststore, and if no Truststore is specified, the extension defaults to the Machine Agent Truststore at `<Machine_Agent_Home>/conf/cacerts.jks`.
+    -  <b>You can create your Truststore or choose to use the Machine Agent Truststore at `<MachineAgentHome>/conf/cacerts.jks`.</b>
 
-   - The extension also needs to be configured to use SSL. In the config.yml of the JMX Monitor Extension, uncomment the `connection` section.<br/>
-   ```
-              connection:
-                socketTimeout: 3000
-                connectTimeout: 1000
-                sslProtocol: "TLSv1.2"
-                sslTrustStorePath: "/path/to/truststore/client/truststore.ts" #defaults to <MA home>conf/cacerts.jks
-                sslTrustStorePassword: "test1234" # defaults to empty, please change this value
-                sslTrustStoreEncryptedPassword: ""
-   ```
-   - If you are using the Machine Agent Truststore, please leave the sslTrustStorePath as "".
-   - <b> Please note that any changes to the </b> `connection`<b> section of the config.yml, needs the Machine Agent to
-      be restarted for the changes to take effect.</b>          
+    - The extension also needs to be configured to use SSL. In the config.yml of the JMX Monitor Extension, uncomment the `connection` section.<br/>
+    ```
+          connection:
+            socketTimeout: 3000
+            connectTimeout: 1000
+            sslProtocol: "TLSv1.2"
+            sslTrustStorePath: "/path/to/truststore/client/truststore.ts" #defaults to <MA home>conf/cacerts.jks
+            sslTrustStorePassword: "test1234" # defaults to empty, please change this value
+            sslTrustStoreEncryptedPassword: ""
+    ```
+    - If you are using the Machine Agent Truststore, please leave the sslTrustStorePath as "".
+    - <b> Please note that any changes to the </b> `connection`<b> section of the config.yml, needs the Machine Agent to be restarted for the changes to take effect.</b>          
 
 ## Metrics
 
