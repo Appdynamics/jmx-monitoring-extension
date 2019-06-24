@@ -72,17 +72,42 @@ servers:
 
 **You should either use the Normal PASSWORD or the encryptedPassword and encryptionKey in order to establish a connection. Please read below to find more information on Password Encryption.**
 
-5. The metricPrefix of the extension has to be configured as [specified here](https://community.appdynamics.com/t5/Knowledge-Base/How-do-I-troubleshoot-missing-custom-metrics-or-extensions/ta-p/28695#Configuring%20an%20Extension). Please make sure that the right metricPrefix is chosen based on your machine agent deployment, otherwise this could lead to metrics not being visible in the controller.
-Configure the "tier" under which the metrics need to be reported. This can be done by changing the value of `<TIER NAME OR TIER ID>` in
-     metricPrefix: "Server|Component:`<TIER NAME OR TIER ID>`|Custom Metrics|JMX Monitor". For example,
-    
-```
-     metricPrefix: "Server|Component:Extensions tier|Custom Metrics|JMX Monitor"
-```
+5. The metricPrefix of the extension has to be configured as [specified here](https://community.appdynamics.com/t5/Knowledge-Base/How-do-I-troubleshoot-missing-custom-metrics-or-extensions/ta-p/28695#Configuring%20an%20Extension). If SIM is enabled, then use the following metricPrefix -
+
+   `metricPrefix: "Custom Metrics|AWS Redshift|"`
+
+   Else, configure the "**COMPONENT_ID**" under which the metrics need to be reported. This can be done by changing the value of `<COMPONENT_ID>` in
+   `metricPrefix: "Server|Component:<COMPONENT_ID>|Custom Metrics|AWS Redshift|"`.
+   For example,
+
+    `metricPrefix: "Server|Component:100|Custom Metrics|AWS Redshift|"`
+
 
 6. Monitoring over SSL
-  If you need to monitor your JMX servers securely via SSL, please follow the following steps:
-  -  Providing a Keystore and Truststore is mandatory for using SSL. The Keystore is used by the Kafka server, the Truststore is used by the Kafka Monitoring Extension to trust the server.
+
+6.1. Generating SSL Keys
+  -  Providing a Keystore and Truststore is mandatory for using SSL. The Keystore is used by the JMX server, the Truststore is used by the JMX Monitoring Extension to trust the server.
+  -  The extension supports a custom Truststore, and if no Truststore is specified, the extension defaults to the Machine Agent Truststore at `<Machine_Agent_Home>/conf/cacerts.jks`.
+  -  <b>You can create your Truststore or choose to use the Machine Agent Truststore at `<MachineAgentHome>/conf/cacerts.jks`.</b>
+  -  Keytool is a utility that comes with the JDK. Please use the following commands to generate a keystore, and import the certificates into the Truststore.
+  -  To use the custom Truststore, please follow steps 1, 2 and 3a listed below.
+  -  To to use the Machine Agent Truststore `cacerts.jks`, please follow the steps 1, 2 and 3b listed below to import the certs into `cacerts.jks`.
+```
+            #Step #1
+            keytool -keystore jmx.server.keystore.jks -alias localhost -validity 365 -genkey
+            
+            #Step #2 
+            openssl req -new -x509 -keyout ca-key -out ca-cert -days 365
+            
+            #Step #3a: if you are creating your own truststore 
+            keytool -keystore jmx.client.truststore.jks -alias CARoot -import -file ca-cert
+            
+            #Step #3b: or if you are using Machine Agent truststore 
+            keytool -keystore /path/to/MachineAgentHome/conf/cacerts.jks -alias CARoot -import -file ca-cert
+```
+
+6.2.  If you need to monitor your JMX servers securely via SSL, please follow the following steps:
+  -  Providing a Keystore and Truststore is mandatory for using SSL. The Keystore is used by the JMX server, the Truststore is used by the JMX Monitoring Extension to trust the server.
   -  The extension supports a custom Truststore, and if no Truststore is specified, the extension defaults to the Machine Agent Truststore at `<Machine_Agent_Home>/conf/cacerts.jks`.
   -  <b>You can create your Truststore or choose to use the Machine Agent Truststore at `<MachineAgentHome>/conf/cacerts.jks`.</b>
 
