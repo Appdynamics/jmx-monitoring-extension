@@ -234,10 +234,12 @@ To do so, list the metrics you would like to retrieve from the map in the follow
           alias: "listOfString|metric three"
 ```    
 
-## metricPathReplacements
+## Metric Path Replacements
 Please visit [this](https://community.appdynamics.com/t5/Knowledge-Base/Metric-Path-CharSequence-Replacements-in-Extensions/ta-p/35412) page to get detailed instructions on configuring Metric Path Character sequence replacements in Extensions.
 
-    
+## Health Checks
+Please visit [this](https://community.appdynamics.com/t5/Knowledge-Base/Extension-HealthChecks/ta-p/35409) page to get detailed instructions on configuring the Health Check feature in Extensions.
+
 ## Contributing
 Always feel free to fork and contribute any changes directly here on [GitHub].
 
@@ -271,9 +273,9 @@ Workbench is an inbuilt feature provided with each extension in order to assist 
 ## Version 
 |Product | Version | 
 | ----- | ----- | 
-| Extension Version|  1.1 | 
+| Extension Version|  1.1.1 | 
 | Controller Compatability | 3.7+ |
-| Last Updated | May 22, 2019 | 
+| Last Updated | June 24, 2019 | 
 
 **List of Changes can be found in the [Changelog.md]**
 

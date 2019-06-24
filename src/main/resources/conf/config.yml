@@ -171,3 +171,5 @@ metricPathReplacements:
      replaceWith: ""
 
 separatorForMetricLists: ":"
+
+enableHealthChecks: true # If not set, will be retrieved from "-Dappdynamics.agent.monitors.healthchecks.enable=true". Defaults to true.
