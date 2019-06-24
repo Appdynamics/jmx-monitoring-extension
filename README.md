@@ -85,7 +85,7 @@ servers:
 
 6. Monitoring over SSL
 
-6.1. Generating SSL Keys
+ 6.1. Generating SSL Keys
   -  Providing a Keystore and Truststore is mandatory for using SSL. The Keystore is used by the JMX server, the Truststore is used by the JMX Monitoring Extension to trust the server.
   -  The extension supports a custom Truststore, and if no Truststore is specified, the extension defaults to the Machine Agent Truststore at `<Machine_Agent_Home>/conf/cacerts.jks`.
   -  <b>You can create your Truststore or choose to use the Machine Agent Truststore at `<MachineAgentHome>/conf/cacerts.jks`.</b>
@@ -246,9 +246,18 @@ Find out more in the [AppDynamics Exchange] community.
 
 ## Troubleshooting ##
 
-Please follow the steps listed in this [troubleshooting-document] in order to troubleshoot your issue. 
+1. Please follow the steps listed in this [troubleshooting-document] in order to troubleshoot your issue. 
 These are a set of common issues that customers might have faced during the installation of the extension. 
 If these don't solve your issue, please follow the last step on the [troubleshooting-document] to contact the support team.
+
+2. For SSL Connections, to test if your SSL Certificates are valid, please make sure to check if you are able to establish a connection to your JMX server through SSL via JConsole. Use the following command to do so: 
+```
+
+jconsole -J-Djavax.net.ssl.trustStore=//Path/To/TrustStore/Truststore.ts  -J-Djavax.net.ssl.trustStorePassword=password
+```
+If you are unable to establish a connection or are running into issues, please verify that you have valid certificates, change them if needed and then try again. It is necessary to establish this connection in order to connect to the JMX Server through SSL. 
+
+Once you open JConsole, please use your ServiceURL or Host and Port information to connect to your JMX Server and verify that your are able to connect and see data. 
 
 ## Credentials Encryption ##
 
