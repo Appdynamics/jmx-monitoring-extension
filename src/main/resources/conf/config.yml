@@ -46,8 +46,8 @@ servers:
 #  #if [sslTrustStorePath]: '' empty, it defaults to <MachineAgent_Home>/conf/cacerts.jks
 #  sslTrustStorePassword: 'test1234' # [sslTrustStorePassword: ""] defaults to ''
 #  sslTrustStoreEncryptedPassword: '' #provide encrypted Password if encryption is needed
-#  if [sslKeyStorePath]: '' empty, it defaults to <MachineAgent_Home>/conf/cacerts.jks
-#  sslKeyStorePath: '/opt/appdynamics/jmx.client.truststore.jks'
+#  #if [sslKeyStorePath]: '' empty, it defaults to <MachineAgent_Home>/conf/cacerts.jks
+#  sslKeyStorePath: '/opt/appdynamics/jmx.client.keystore.jks'
 #  sslKeyStorePassword: 'test1234' # [sslKeyStorePassword: ""] defaults to ''
 #  sslKeyStoreEncryptedPassword: '' #provide encrypted Password if encryption is needed
 

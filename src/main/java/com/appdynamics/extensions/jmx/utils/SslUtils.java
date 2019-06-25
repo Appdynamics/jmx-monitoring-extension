@@ -72,6 +72,7 @@ public class SslUtils {
                 }
             }
             System.setProperty("javax.net.ssl.keyStore", getSslKeyStorePassword(connectionMap, configMap));
+            System.setProperty("com.sun.management.jmxremote.ssl.need.client.auth", "true");
         }
     }
 

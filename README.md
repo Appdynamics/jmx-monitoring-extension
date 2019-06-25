@@ -108,9 +108,10 @@ servers:
     ````
 
     6.2.  If you need to monitor your JMX servers securely via SSL, please follow the following steps:
-    -  Providing a Keystore and Truststore is mandatory for using SSL. The Keystore is used by the JMX server, the Truststore is used by the JMX Monitoring Extension to trust the server.
+    -  Providing a Keystore and Truststore is mandatory for using SSL. The Keystore is used by the JMX server, the Truststore is used by the JMX Monitoring Extension to trust the server. 
     -  The extension supports a custom Truststore, and if no Truststore is specified, the extension defaults to the Machine Agent Truststore at `<Machine_Agent_Home>/conf/cacerts.jks`.
     -  <b>You can create your Truststore or choose to use the Machine Agent Truststore at `<MachineAgentHome>/conf/cacerts.jks`.</b>
+    - The extension supports Mutual Authentication, and to use, add the `sslKeyStorePath` and `sslKeyStorePassword` to use mutual authentication. If you don't want to use mutual authentication, then comment out the following fields: `sslKeyStorePath`, `sslKeyStorePassword` and `sslKeyStoreEncryptedPassword`
 
     - The extension also needs to be configured to use SSL. In the config.yml of the JMX Monitor Extension, uncomment the `connection` section.<br/>
     ```
@@ -121,6 +122,9 @@ servers:
             sslTrustStorePath: "/path/to/truststore/client/truststore.ts" #defaults to <MA home>conf/cacerts.jks
             sslTrustStorePassword: "test1234" # defaults to empty, please change this value
             sslTrustStoreEncryptedPassword: ""
+            sslKeyStorePath: '/opt/appdynamics/jmx.client.keystore.jks' #defaults to <MA home>conf/cacerts.jks
+            sslKeyStorePassword: 'test1234' # [sslKeyStorePassword: ""] defaults to ''
+            sslKeyStoreEncryptedPassword: '' #provide encrypted Password if encryption is needed
     ```
     - If you are using the Machine Agent Truststore, please leave the sslTrustStorePath as "".
     - <b> Please note that any changes to the </b> `connection`<b> section of the config.yml, needs the Machine Agent to be restarted for the changes to take effect.</b>          
@@ -255,7 +259,7 @@ If these don't solve your issue, please follow the last step on the [troubleshoo
 2. For SSL Connections, to test if your SSL Certificates are valid, please make sure to check if you are able to establish a connection to your JMX server through SSL via JConsole. Use the following command to do so: 
 ```
 
-jconsole -J-Djavax.net.ssl.trustStore=//Path/To/TrustStore/Truststore.ts  -J-Djavax.net.ssl.trustStorePassword=password
+jconsole -J-Djavax.net.ssl.trustStore=//Path/To/TrustStore/Truststore.ts  -J-Djavax.net.ssl.trustStorePassword=password  -J-Djavax.net.ssl.keyStore=//Path/To/TrustStore/KeyStore.ts  -J-Djavax.net.ssl.keyStorePassword=password
 ```
 If you are unable to establish a connection or are running into issues, please verify that you have valid certificates, change them if needed and then try again. It is necessary to establish this connection in order to connect to the JMX Server through SSL. 
 
