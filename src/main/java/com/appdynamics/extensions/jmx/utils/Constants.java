@@ -23,6 +23,9 @@ public class Constants {
     public static final String HEARTBEAT = "Heart Beat";
     public static final String HOST = "host";
     public static final String INCLUDE = "include";
+    public static final String KEY_STORE_ENCRYPTED_PASSWORD = "sslKeyStoreEncryptedPassword";
+    public static final String KEY_STORE_PASSWORD = "sslKeyStorePassword";
+    public static final String KEY_STORE_PATH = "sslKeyStorePath";
     public static final String MBEANS = "mbeans";
     public static final String MBEANKEYS = "mbeanKeys";
     public static final String METRICS = "metrics";
