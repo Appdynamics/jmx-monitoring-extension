@@ -45,7 +45,7 @@ public class SslUtils {
     }
 
     private void setKeyStore(Map<String, ?> configMap, Map<String, ?> connectionMap) {
-        if(configMap.containsKey(Constants.KEY_STORE_PATH)){
+        if(connectionMap.containsKey(Constants.KEY_STORE_PATH)){
             Preconditions.checkNotNull(connectionMap.get(Constants.KEY_STORE_PATH),"[sslKeyStorePath] cannot be null");
             if(!(connectionMap.get(Constants.KEY_STORE_PATH).toString()).isEmpty()) {
                 String sslKeyStorePath = connectionMap.get(Constants.KEY_STORE_PATH).toString();
@@ -71,7 +71,7 @@ public class SslUtils {
                     System.setProperty("javax.net.ssl.keyStore", defaultKeyStoreFile.getAbsolutePath());
                 }
             }
-            System.setProperty("javax.net.ssl.keyStore", getSslKeyStorePassword(connectionMap, configMap));
+            System.setProperty("javax.net.ssl.keyStorePassword", getSslKeyStorePassword(connectionMap, configMap));
             System.setProperty("com.sun.management.jmxremote.ssl.need.client.auth", "true");
         }
     }
