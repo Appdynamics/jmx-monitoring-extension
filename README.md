@@ -82,53 +82,6 @@ servers:
 
     `metricPrefix: "Server|Component:100|Custom Metrics|AWS Redshift|"`
 
-
-6. Monitoring over SSL
-
-    6.1. Generating SSL Keys
- 
-    -  Providing a Keystore and Truststore is mandatory for using SSL. The Keystore is used by the JMX server, the Truststore is used by the JMX Monitoring Extension to trust the server.
-    -  The extension supports a custom Truststore, and if no Truststore is specified, the extension defaults to the Machine Agent Truststore at `<Machine_Agent_Home>/conf/cacerts.jks`.
-    -  <b>You can create your Truststore or choose to use the Machine Agent Truststore at `<MachineAgentHome>/conf/cacerts.jks`.</b>
-    -  Keytool is a utility that comes with the JDK. Please use the following commands to generate a keystore, and import the certificates into the Truststore.
-    -  To use the custom Truststore, please follow steps 1, 2 and 3a listed below.
-    -  To to use the Machine Agent Truststore `cacerts.jks`, please follow the steps 1, 2 and 3b listed below to import the certs into `cacerts.jks`.
-   ````
-        #Step #1
-        keytool -keystore jmx.server.keystore.jks -alias localhost -validity 365 -genkey
-        
-        #Step #2 
-        openssl req -new -x509 -keyout ca-key -out ca-cert -days 365
-        
-        #Step #3a: if you are creating your own truststore 
-        keytool -keystore jmx.client.truststore.jks -alias CARoot -import -file ca-cert
-        
-        #Step #3b: or if you are using Machine Agent truststore 
-        keytool -keystore /path/to/MachineAgentHome/conf/cacerts.jks -alias CARoot -import -file ca-cert
-    ````
-
-    6.2.  If you need to monitor your JMX servers securely via SSL, please follow the following steps:
-    -  Providing a Keystore and Truststore is mandatory for using SSL. The Keystore is used by the JMX server, the Truststore is used by the JMX Monitoring Extension to trust the server. 
-    -  The extension supports a custom Truststore, and if no Truststore is specified, the extension defaults to the Machine Agent Truststore at `<Machine_Agent_Home>/conf/cacerts.jks`.
-    -  <b>You can create your Truststore or choose to use the Machine Agent Truststore at `<MachineAgentHome>/conf/cacerts.jks`.</b>
-    - The extension supports Mutual Authentication, and to use, add the `sslKeyStorePath` and `sslKeyStorePassword` to use mutual authentication. If you don't want to use mutual authentication, then comment out the following fields: `sslKeyStorePath`, `sslKeyStorePassword` and `sslKeyStoreEncryptedPassword`
-
-    - The extension also needs to be configured to use SSL. In the config.yml of the JMX Monitor Extension, uncomment the `connection` section.<br/>
-    ```
-          connection:
-            socketTimeout: 3000
-            connectTimeout: 1000
-            sslProtocol: "TLSv1.2"
-            sslTrustStorePath: "/path/to/truststore/client/truststore.ts" #defaults to <MA home>conf/cacerts.jks
-            sslTrustStorePassword: "test1234" # defaults to empty, please change this value
-            sslTrustStoreEncryptedPassword: ""
-            sslKeyStorePath: '/opt/appdynamics/jmx.client.keystore.jks' #defaults to <MA home>conf/cacerts.jks
-            sslKeyStorePassword: 'test1234' # [sslKeyStorePassword: ""] defaults to ''
-            sslKeyStoreEncryptedPassword: '' #provide encrypted Password if encryption is needed
-    ```
-    - If you are using the Machine Agent Truststore, please leave the sslTrustStorePath as "".
-    - <b> Please note that any changes to the </b> `connection`<b> section of the config.yml, needs the Machine Agent to be restarted for the changes to take effect.</b>          
-
 ## Metrics
 
 You can use this extension to get all metrics that are available through the JMX Messaging service. In order to do so though, you will have to make sure that all metrics are defined correctly.
@@ -255,15 +208,6 @@ Find out more in the [AppDynamics Exchange] community.
 1. Please follow the steps listed in this [troubleshooting-document] in order to troubleshoot your issue. 
 These are a set of common issues that customers might have faced during the installation of the extension. 
 If these don't solve your issue, please follow the last step on the [troubleshooting-document] to contact the support team.
-
-2. For SSL Connections, to test if your SSL Certificates are valid, please make sure to check if you are able to establish a connection to your JMX server through SSL via JConsole. Use the following command to do so: 
-```
-
-jconsole -J-Djavax.net.ssl.trustStore=//Path/To/TrustStore/Truststore.ts  -J-Djavax.net.ssl.trustStorePassword=password  -J-Djavax.net.ssl.keyStore=//Path/To/TrustStore/KeyStore.ts  -J-Djavax.net.ssl.keyStorePassword=password
-```
-If you are unable to establish a connection or are running into issues, please verify that you have valid certificates, change them if needed and then try again. It is necessary to establish this connection in order to connect to the JMX Server through SSL. 
-
-Once you open JConsole, please use your ServiceURL or Host and Port information to connect to your JMX Server and verify that your are able to connect and see data. 
 
 ## Credentials Encryption ##
 

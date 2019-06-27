@@ -10,7 +10,6 @@ package com.appdynamics.extensions.jmx;
 
 import com.appdynamics.extensions.ABaseMonitor;
 import com.appdynamics.extensions.TasksExecutionServiceProvider;
-import com.appdynamics.extensions.jmx.utils.SslUtils;
 import com.appdynamics.extensions.logging.ExtensionsLoggerFactory;
 import com.appdynamics.extensions.util.AssertUtils;
 import com.singularity.ee.agent.systemagent.api.exception.TaskExecutionException;
@@ -19,7 +18,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.PatternLayout;
 import org.slf4j.Logger;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
@@ -34,14 +32,6 @@ import static com.appdynamics.extensions.jmx.utils.Constants.*;
 public class JMXMonitor extends ABaseMonitor {
 
     private static final Logger logger = ExtensionsLoggerFactory.getLogger(JMXMonitor.class);
-    @Override
-    protected void onConfigReload (File file) {
-        Map<String, ?> configMap = this.getContextConfiguration().getConfigYml();
-        //#TODO We need to find a better way to handle SSL in JMX.
-        SslUtils sslUtils = new SslUtils();
-        sslUtils.setSslProperties(configMap);
-
-    }
 
     @Override
     protected String getDefaultMetricPrefix() {
