@@ -13,6 +13,7 @@ public class Constants {
     public static final String ALIAS = "alias";
     public static final String CLUSTERROLLUPTYPE = "clusterRollUpType";
     public static final String COLON = ":";
+    public static final String CONNECTION = "connection";
     public static final String CONVERT = "convert";
     public static final String CUSTOMMETRICS = "Custom Metrics";
     public static final String DELTA = "delta";
@@ -22,6 +23,9 @@ public class Constants {
     public static final String HEARTBEAT = "Heart Beat";
     public static final String HOST = "host";
     public static final String INCLUDE = "include";
+    public static final String KEY_STORE_ENCRYPTED_PASSWORD = "sslKeyStoreEncryptedPassword";
+    public static final String KEY_STORE_PASSWORD = "sslKeyStorePassword";
+    public static final String KEY_STORE_PATH = "sslKeyStorePath";
     public static final String MBEANS = "mbeans";
     public static final String MBEANKEYS = "mbeanKeys";
     public static final String METRICS = "metrics";
@@ -35,5 +39,9 @@ public class Constants {
     public static final String SERVERS = "servers";
     public static final String SERVICEURL = "serviceUrl";
     public static final String TIMEROLLUPTYPE = "timeRollUpType";
+    public static final String TRUST_STORE_ENCRYPTED_PASSWORD = "sslTrustStoreEncryptedPassword";
+    public static final String TRUST_STORE_PASSWORD = "sslTrustStorePassword";
+    public static final String TRUST_STORE_PATH = "sslTrustStorePath";
     public static final String USERNAME = "username";
+    public static final String USE_SSL = "useSsl";
 }

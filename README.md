@@ -72,14 +72,16 @@ servers:
 
 **You should either use the Normal PASSWORD or the encryptedPassword and encryptionKey in order to establish a connection. Please read below to find more information on Password Encryption.**
 
-5. 
-The metricPrefix of the extension has to be configured as [specified here](https://community.appdynamics.com/t5/Knowledge-Base/How-do-I-troubleshoot-missing-custom-metrics-or-extensions/ta-p/28695#Configuring%20an%20Extension). Please make sure that the right metricPrefix is chosen based on your machine agent deployment, otherwise this could lead to metrics not being visible in the controller.
-Configure the "tier" under which the metrics need to be reported. This can be done by changing the value of `<TIER NAME OR TIER ID>` in
-     metricPrefix: "Server|Component:`<TIER NAME OR TIER ID>`|Custom Metrics|JMX Monitor". For example,
-    
-```
-     metricPrefix: "Server|Component:Extensions tier|Custom Metrics|JMX Monitor"
-```
+5. The metricPrefix of the extension has to be configured as [specified here](https://community.appdynamics.com/t5/Knowledge-Base/How-do-I-troubleshoot-missing-custom-metrics-or-extensions/ta-p/28695#Configuring%20an%20Extension). If SIM is enabled, then use the following metricPrefix -
+
+   `metricPrefix: "Custom Metrics|AWS Redshift|"`
+
+   Else, configure the "**COMPONENT_ID**" under which the metrics need to be reported. This can be done by changing the value of `<COMPONENT_ID>` in
+   `metricPrefix: "Server|Component:<COMPONENT_ID>|Custom Metrics|AWS Redshift|"`.
+   For example,
+
+    `metricPrefix: "Server|Component:100|Custom Metrics|AWS Redshift|"`
+
 ## Metrics
 
 You can use this extension to get all metrics that are available through the JMX Messaging service. In order to do so though, you will have to make sure that all metrics are defined correctly.
@@ -189,10 +191,12 @@ To do so, list the metrics you would like to retrieve from the map in the follow
           alias: "listOfString|metric three"
 ```    
 
-## metricPathReplacements
+## Metric Path Replacements
 Please visit [this](https://community.appdynamics.com/t5/Knowledge-Base/Metric-Path-CharSequence-Replacements-in-Extensions/ta-p/35412) page to get detailed instructions on configuring Metric Path Character sequence replacements in Extensions.
 
-    
+## Health Checks
+Please visit [this](https://community.appdynamics.com/t5/Knowledge-Base/Extension-HealthChecks/ta-p/35409) page to get detailed instructions on configuring the Health Check feature in Extensions.
+
 ## Contributing
 Always feel free to fork and contribute any changes directly here on [GitHub].
 
@@ -201,7 +205,7 @@ Find out more in the [AppDynamics Exchange] community.
 
 ## Troubleshooting ##
 
-Please follow the steps listed in this [troubleshooting-document] in order to troubleshoot your issue. 
+1. Please follow the steps listed in this [troubleshooting-document] in order to troubleshoot your issue. 
 These are a set of common issues that customers might have faced during the installation of the extension. 
 If these don't solve your issue, please follow the last step on the [troubleshooting-document] to contact the support team.
 
@@ -217,9 +221,9 @@ Workbench is an inbuilt feature provided with each extension in order to assist 
 ## Version 
 |Product | Version | 
 | ----- | ----- | 
-| Extension Version|  1.1 | 
+| Extension Version|  1.1.1 | 
 | Controller Compatability | 3.7+ |
-| Last Updated | May 22, 2019 | 
+| Last Updated | June 24, 2019 | 
 
 **List of Changes can be found in the [Changelog.md]**
 
