@@ -52,7 +52,7 @@ public class BaseMetricsProcessor {
     }
 
     private static void addAttributeNameToMetricPathTokens(String attributeName, LinkedList<String> metricTokens) {
-            metricTokens.add(attributeName);
+        metricTokens.add(attributeName);
     }
 
     private static ObjectName getObjectName(ObjectInstance instance) {
@@ -96,7 +96,7 @@ public class BaseMetricsProcessor {
                     return stringBuilder.toString();
                 }
             }
-        } else{
+        } else {
             return attrVal;
         }
         return stringBuilder.toString();

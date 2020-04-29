@@ -217,9 +217,9 @@ Workbench is an inbuilt feature provided with each extension in order to assist 
 ## Version 
 |Product | Version | 
 | ----- | ----- | 
-| Extension Version|  1.1 | 
-| Controller Compatability | 3.7+ |
-| Last Updated | May 22, 2019 | 
+| Extension Version|  1.2 | 
+| Controller Compatability | 4.5+ |
+| Last Updated | April 29 , 2020 | 
 
 **List of Changes can be found in the [Changelog.md]**
 
