@@ -14,7 +14,7 @@ servers:
 #     You can either use just a host and port to connect or use your full serviceURL to make the connection
 #     Do not choose both, comment one out and only use the other.
       host: ""
-      port:
+      port: ""
 
 #      serviceUrl: ""
 
