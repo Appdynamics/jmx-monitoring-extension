@@ -20,7 +20,7 @@ import com.google.common.base.Strings;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 
-import javax.management.*;
+import javax.management.JMException;
 import javax.management.remote.JMXConnector;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -112,17 +112,17 @@ public class JMXMonitorTask implements AMonitorTaskRunnable {
                     if (nodeMetrics.size() > 0) {
                         metricWriter.transformAndPrintMetrics(nodeMetrics);
                     } else {
-                        logger.debug("No metrics being sent from mBean : {} and server: {}",configObjName, serverName);
+                        logger.debug("No metrics being sent from mBean : {} and server: {}", configObjName, serverName);
                     }
                 } catch (JMException e) {
                     logger.error("JMException Occurred for {} " + configObjName, e);
                     heartBeatStatus = false;
-                }catch (IOException e) {
-                    logger.error("IOException occurred while getting metrics for mBean : {} and server: {} ", configObjName,serverName, e);
+                } catch (IOException e) {
+                    logger.error("IOException occurred while getting metrics for mBean : {} and server: {} ", configObjName, serverName, e);
                     heartBeatStatus = false;
                 }
             }
-        }  catch (Exception e) {
+        } catch (Exception e) {
             logger.error("Error occurred while fetching metrics from Server : " + serverName, e);
             heartBeatStatus = false;
         } finally {

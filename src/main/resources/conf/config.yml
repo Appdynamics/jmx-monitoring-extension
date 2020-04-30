@@ -14,7 +14,7 @@ servers:
 #     You can either use just a host and port to connect or use your full serviceURL to make the connection
 #     Do not choose both, comment one out and only use the other.
       host: ""
-      port:
+      port: ""
 
 #      serviceUrl: ""
 
@@ -150,3 +150,23 @@ metricPathReplacements:
      replaceWith: ""
 
 separatorForMetricLists: ":"
+
+
+# Default information needs to be updated
+controllerInfo:
+  controllerHost: "controller"
+  controllerPort: 8080
+  account: "customer1"
+  username: "user1"
+  password: "welcome"
+  encryptedPassword: ""
+  encryptionKey: ""
+  controllerSslEnabled: false
+  enableOrchestration: false
+  uniqueHostId: ""
+  accountAccessKey: ""
+  machinePath: ""
+  simEnabled: true
+  applicationName: ""
+  tierName: ""
+  nodeName: ""

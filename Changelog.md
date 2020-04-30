@@ -1,5 +1,8 @@
 Changes
 =======
+# 1.2
+* Moved to commons 2.2.2 version
+
 
 # 1.1
 * Adding support for Maps and Lists
