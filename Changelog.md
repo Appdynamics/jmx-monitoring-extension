@@ -1,5 +1,8 @@
 Changes
 =======
+# 1.2.1
+* Moved to commons 2.2.4 version
+
 # 1.2
 * Moved to commons 2.2.2 version
 
