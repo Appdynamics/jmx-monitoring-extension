@@ -192,27 +192,41 @@ To do so, list the metrics you would like to retrieve from the map in the follow
 ## metricPathReplacements
 Please visit [this](https://community.appdynamics.com/t5/Knowledge-Base/Metric-Path-CharSequence-Replacements-in-Extensions/ta-p/35412) page to get detailed instructions on configuring Metric Path Character sequence replacements in Extensions.
 
-    
-## Contributing
-Always feel free to fork and contribute any changes directly here on [GitHub].
-
-## Community
-Find out more in the [AppDynamics Exchange] community.
-
-## Troubleshooting ##
-
-Please follow the steps listed in this [troubleshooting-document] in order to troubleshoot your issue. 
-These are a set of common issues that customers might have faced during the installation of the extension. 
-If these don't solve your issue, please follow the last step on the [troubleshooting-document] to contact the support team.
-
 ## Credentials Encryption ##
 
-Please visit [Encryption Guidelines] to get detailed instructions on password encryption. The steps in this document will guide you through the whole process.
+Please visit [Encryption Guidelines](https://community.appdynamics.com/t5/Knowledge-Base/How-to-use-Password-Encryption-with-Extensions/ta-p/29397) to get detailed instructions on password encryption. The steps in this document will guide you through the whole process.
 If you want to use password encryption, please send arguments as connectionProperties. You will have to fill in the encrypted Password and Encryption Key fields in the config but you will also have to give an empty "" value to the password field and the encrypted password will be automatically picked up.
 
 ## Extensions Workbench ##
 Workbench is an inbuilt feature provided with each extension in order to assist you to fine tune the extension setup before you actually
- deploy it on the controller. Please review the following document on [How to use the Extensions WorkBench ]
+ deploy it on the controller. Please review the following document on [How to use the Extensions WorkBench ](https://community.appdynamics.com/t5/Knowledge-Base/How-to-use-the-Extensions-WorkBench/ta-p/30130)
+
+## Troubleshooting ##
+
+Please follow the steps listed in this [troubleshooting-document](https://community.appdynamics.com/t5/Knowledge-Base/How-to-troubleshoot-missing-custom-metrics-or-extensions-metrics/ta-p/28695) in order to troubleshoot your issue. 
+These are a set of common issues that customers might have faced during the installation of the extension. 
+If these don't solve your issue, please follow the last step on the [troubleshooting-document](https://community.appdynamics.com/t5/Knowledge-Base/How-to-troubleshoot-missing-custom-metrics-or-extensions-metrics/ta-p/28695) to contact the support team.
+
+
+ ## Support Tickets
+If after going through the [Troubleshooting Document](https://community.appdynamics.com/t5/Knowledge-Base/How-to-troubleshoot-missing-custom-metrics-or-extensions-metrics/ta-p/28695) you have not been able to get your extension working, please file a ticket and add the following information.
+
+Please provide the following in order for us to assist you better.
+
+    1. Stop the running machine agent.
+    2. Delete all existing logs under <MachineAgent>/logs.
+    3. Please enable debug logging by editing the file <MachineAgent>/conf/logging/log4j.xml. Change the level value of the following <logger> elements to debug.
+        <logger name="com.singularity">
+        <logger name="com.appdynamics">
+    4. Start the machine agent and please let it run for 10 mins. Then zip and upload all the logs in the directory <MachineAgent>/logs/*.
+    5. Attach the zipped <MachineAgent>/conf/* directory here.
+    6. Attach the zipped <MachineAgent>/monitors/ExtensionFolderYouAreHavingIssuesWith directory here.
+
+For any support related questions, you can also contact help@appdynamics.com.
+
+## Contributing
+
+Always feel free to fork and contribute any changes directly here on [GitHub](https://www.appdynamics.com/community/exchange/jmx-monitoring-extension/).
 
 ## Version 
 |Product | Version | 
@@ -222,11 +236,3 @@ Workbench is an inbuilt feature provided with each extension in order to assist 
 | Last Updated | Jan 8 , 2021 | 
 
 **List of Changes can be found in the [Changelog.md]**
-
-
-[How to use the Extensions WorkBench ]: https://community.appdynamics.com/t5/Knowledge-Base/How-to-use-the-Extensions-WorkBench/ta-p/30130
-[Changelog.md]: https://github.com/Appdynamics/jmx-monitoring-extension/blob/1.0.0/Changelog.md
-[Encryption Guidelines]: https://community.appdynamics.com/t5/Knowledge-Base/How-to-use-Password-Encryption-with-Extensions/ta-p/29397
-[troubleshooting-document]: https://community.appdynamics.com/t5/Knowledge-Base/How-to-troubleshoot-missing-custom-metrics-or-extensions-metrics/ta-p/28695
-[AppDynamics Exchange]: https://www.appdynamics.com/community/exchange/extension/jmx-monitoring-extension/
-[GitHub]: https://github.com/Appdynamics/jmx-monitoring-extension/
