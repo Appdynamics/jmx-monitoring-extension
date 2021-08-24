@@ -214,7 +214,7 @@ Always feel free to fork and contribute any changes directly here on [GitHub](ht
 |Product | Version | 
 | ----- | ----- | 
 | Extension Version|  1.2.1 | 
-| Controller Compatability | 4.5+ |
-| MA Compatability | 4.5.13+ |
+| Controller Compatibility | 4.5+ |
+| Agent Compatibility | 4.5.13+ |
 | Last Updated | Jan 8 , 2021 | 
 | Changelist | [Changelog](https://github.com/Appdynamics/jmx-monitoring-extension/blob/master/Changelog.md) |
