@@ -8,27 +8,23 @@ The JMX Monitoring extension collects metrics from a JMX based messaging server 
 1. Before the extension is installed, the prerequisites mentioned [here](https://community.appdynamics.com/t5/Knowledge-Base/Extensions-Prerequisites-Guide/ta-p/35213) need to be met. Please do not proceed with the extension installation if the specified prerequisites are not met.
 
 2. JMX must be enabled in your JMX based server for this extension to gather metrics. Please make sure you have all the permissions before deploying the extension.
-In order to use this extension, you do need a [Standalone JAVA Machine Agent](https://docs.appdynamics.com/display/PRO44/Java+Agent) or [SIM Agent](https://docs.appdynamics.com/display/PRO44/Server+Visibility). 
-For more details on downloading these products, please  visit [download.appdynamics.com](https://download.appdynamics.com/).
 
-The extension needs to be able to connect to the JMX based server in order to be collect and send metrics. To do this, you will have to either establish a remote connection in between the extension and the product, or have an agent on the same machine running the product in order for the extension to collect and send the metrics.
+3. The extension needs to be able to connect to the JMX based server in order to be collect and send metrics. To do this, you will have to either establish a remote connection in between the extension and the product, or have an agent on the same machine running the product in order for the extension to collect and send the metrics.
 
 ## Installation
 
 1. To build from source, clone this repository and run 'mvn clean install'. This will produce a JMXMonitor-VERSION.zip in the target directory. 
-Alternatively, download the latest release archive from [Github](https://github.com/Appdynamics/jmx-monitoring-extension/releases).
 2. Unzip the file JMXMonitor-[version].zip into `<MACHINE_AGENT_HOME>/monitors/`.
 3. In the newly created directory "JMXMonitor", edit the config.yml configuring the parameters (See Configuration section below).
 4. Make sure you place it in the right directory on your computer. 
 5. Restart the machineagent
-6. In the AppDynamics Metric Browser, look for: Application Infrastructure Performance  | \<Tier\> | Custom Metrics | JMX Monitor  .
-7. If you're monitoring multiple JMX instances, follow the above steps for every JMX instance that you want to monitor.
+6. If you're monitoring multiple JMX instances, follow the above steps for every JMX instance that you want to monitor.
 
 **NOTE:** Please place the extension in the **"monitors"** directory of your Machine Agent installation directory. Do not place the extension in the "extensions" directory of your Machine Agent installation directory.
 
 ## Configuration
 
-Note : Please make sure to not use tab (\t) while editing yaml files. You may want to validate the yaml file using a [yaml validator](http://yamllint.com/)
+Note : Please make sure to not use tab (\t) while editing yaml files. You may want to validate the yaml file using a [yaml validator](https://jsonformatter.org/yaml-validator)
 
 1. Configure the JMX connection parameters by editing the config.yml file in `<MACHINE_AGENT_HOME>/monitors/JMXMonitor/`. 
 
@@ -203,8 +199,7 @@ Workbench is an inbuilt feature provided with each extension in order to assist 
 
 ## Troubleshooting ##
 
-Please follow the steps listed in this [troubleshooting-document](https://community.appdynamics.com/t5/Knowledge-Base/How-to-troubleshoot-missing-custom-metrics-or-extensions-metrics/ta-p/28695) in order to troubleshoot your issue. 
-These are a set of common issues that customers might have faced during the installation of the extension. 
+Please follow the steps listed in this [troubleshooting-document](https://community.appdynamics.com/t5/Knowledge-Base/How-to-troubleshoot-missing-custom-metrics-or-extensions-metrics/ta-p/28695) in order to troubleshoot your issue. These are a set of common issues that customers might have faced during the installation of the extension. 
 
 ## Contributing
 
@@ -214,7 +209,7 @@ Always feel free to fork and contribute any changes directly here on [GitHub](ht
 |Product | Version | 
 | ----- | ----- | 
 | Extension Version|  1.2.1 | 
-| Controller Compatibility | 4.5+ |
-| Agent Compatibility | 4.5.13+ |
 | Last Updated | Jan 8 , 2021 | 
 | Changelist | [Changelog](https://github.com/Appdynamics/jmx-monitoring-extension/blob/master/Changelog.md) |
+
+**Note**: While extensions are maintained and supported by customers under the open-source licensing model, they interact with agents and Controllers that are subject to [AppDynamics’ maintenance and support policy](https://docs.appdynamics.com/latest/en/product-and-release-announcements/maintenance-support-for-software-versions). Some extensions have been tested with AppDynamics 4.5.13+ artifacts, but you are strongly recommended against using versions that are no longer supported.
